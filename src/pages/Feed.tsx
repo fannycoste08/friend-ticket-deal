@@ -1,4 +1,4 @@
-import { Calendar, MapPin, User } from "lucide-react";
+import { Calendar, MapPin, User, UserCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ interface Ticket {
   date: string;
   price: number;
   seller: string;
-  image: string;
+  isFriend: boolean;
 }
 
 const mockTickets: Ticket[] = [
@@ -21,7 +21,7 @@ const mockTickets: Ticket[] = [
     date: "15 Jun 2025",
     price: 85,
     seller: "Carlos M.",
-    image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80"
+    isFriend: true
   },
   {
     id: 2,
@@ -30,7 +30,7 @@ const mockTickets: Ticket[] = [
     date: "22 Jun 2025",
     price: 120,
     seller: "Ana R.",
-    image: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&q=80"
+    isFriend: true
   },
   {
     id: 3,
@@ -39,7 +39,7 @@ const mockTickets: Ticket[] = [
     date: "3 Jul 2025",
     price: 95,
     seller: "Miguel S.",
-    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&q=80"
+    isFriend: false
   },
   {
     id: 4,
@@ -48,7 +48,7 @@ const mockTickets: Ticket[] = [
     date: "18 Jul 2025",
     price: 110,
     seller: "Laura G.",
-    image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&q=80"
+    isFriend: true
   }
 ];
 
@@ -70,37 +70,40 @@ const Feed = () => {
               className="overflow-hidden hover:shadow-lg transition-all duration-300 border-border/50 hover:-translate-y-1"
               style={{ boxShadow: 'var(--shadow-card)' }}
             >
-              <div className="relative h-48 overflow-hidden">
-                <img 
-                  src={ticket.image} 
-                  alt={ticket.artist}
-                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <Badge className="absolute top-4 right-4 bg-primary/90 backdrop-blur-sm">
-                  {ticket.price}€
-                </Badge>
-              </div>
-              
-              <div className="p-5 space-y-4">
-                <div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">{ticket.artist}</h3>
-                  
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-4 h-4 text-primary" />
-                      <span>{ticket.venue}</span>
-                    </div>
+              <div className="p-6 space-y-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-foreground mb-3">{ticket.artist}</h3>
                     
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="w-4 h-4 text-primary" />
-                      <span>{ticket.date}</span>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        <span>{ticket.venue}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="w-4 h-4 text-primary" />
+                        <span>{ticket.date}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        {ticket.isFriend ? (
+                          <UserCheck className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <User className="w-4 h-4 text-primary" />
+                        )}
+                        <span>{ticket.seller}</span>
+                        {ticket.isFriend && (
+                          <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600 border-green-500/20">
+                            Amigo
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <User className="w-4 h-4 text-primary" />
-                      <span>Vendido por {ticket.seller}</span>
-                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-primary">{ticket.price}€</div>
                   </div>
                 </div>
 
