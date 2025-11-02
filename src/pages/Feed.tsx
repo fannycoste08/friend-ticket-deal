@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Calendar, MapPin, User, UserCheck } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ContactDialog } from "@/components/ContactDialog";
 
 interface Ticket {
   id: number;
@@ -53,6 +55,8 @@ const mockTickets: Ticket[] = [
 ];
 
 const Feed = () => {
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 pb-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -109,6 +113,7 @@ const Feed = () => {
 
                 <Button 
                   className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+                  onClick={() => setSelectedTicket(ticket)}
                 >
                   Contactar
                 </Button>
@@ -117,6 +122,14 @@ const Feed = () => {
           ))}
         </div>
       </div>
+
+      {selectedTicket && (
+        <ContactDialog
+          open={!!selectedTicket}
+          onOpenChange={(open) => !open && setSelectedTicket(null)}
+          ticket={selectedTicket}
+        />
+      )}
     </div>
   );
 };
