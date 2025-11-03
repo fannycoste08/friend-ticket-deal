@@ -3,20 +3,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { Plus, CalendarIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 interface TicketFormProps {
   onSuccess?: () => void;
   editTicket?: {
     id: string;
-    concert_name: string;
     artist: string;
     venue: string;
+    city: string;
     event_date: string;
     ticket_type: string;
     price: number;
@@ -30,10 +35,10 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    concert_name: editTicket?.concert_name || '',
     artist: editTicket?.artist || '',
     venue: editTicket?.venue || '',
-    event_date: editTicket?.event_date ? new Date(editTicket.event_date).toISOString().slice(0, 16) : '',
+    city: editTicket?.city || '',
+    event_date: editTicket?.event_date ? new Date(editTicket.event_date) : undefined as Date | undefined,
     ticket_type: editTicket?.ticket_type || 'general',
     price: editTicket?.price?.toString() || '',
     quantity: editTicket?.quantity?.toString() || '1',
@@ -48,13 +53,18 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
       return;
     }
 
+    if (!formData.event_date) {
+      toast.error('Debes seleccionar una fecha');
+      return;
+    }
+
     setLoading(true);
 
     const ticketData = {
-      concert_name: formData.concert_name,
       artist: formData.artist,
       venue: formData.venue,
-      event_date: formData.event_date,
+      city: formData.city,
+      event_date: format(formData.event_date, 'yyyy-MM-dd'),
       ticket_type: formData.ticket_type,
       price: parseFloat(formData.price),
       quantity: parseInt(formData.quantity),
@@ -88,10 +98,10 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
 
     toast.success(editTicket ? '¡Entrada actualizada con éxito!' : '¡Entrada publicada con éxito!');
     setFormData({
-      concert_name: '',
       artist: '',
       venue: '',
-      event_date: '',
+      city: '',
+      event_date: undefined,
       ticket_type: 'general',
       price: '',
       quantity: '1',
@@ -102,7 +112,7 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
     onSuccess?.();
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | Date | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -129,50 +139,70 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+          <div className="space-y-2">
+            <Label htmlFor="artist">Artista/Grupo *</Label>
+            <Input
+              id="artist"
+              value={formData.artist}
+              onChange={(e) => handleChange('artist', e.target.value)}
+              placeholder="Ej: Bad Bunny"
+              required
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="concert_name">Nombre del Concierto *</Label>
+              <Label htmlFor="venue">Recinto *</Label>
               <Input
-                id="concert_name"
-                value={formData.concert_name}
-                onChange={(e) => handleChange('concert_name', e.target.value)}
-                placeholder="Ej: Festival Primavera Sound 2025"
+                id="venue"
+                value={formData.venue}
+                onChange={(e) => handleChange('venue', e.target.value)}
+                placeholder="Ej: WiZink Center"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="artist">Artista Principal *</Label>
+              <Label htmlFor="city">Ciudad *</Label>
               <Input
-                id="artist"
-                value={formData.artist}
-                onChange={(e) => handleChange('artist', e.target.value)}
-                placeholder="Ej: Bad Bunny"
+                id="city"
+                value={formData.city}
+                onChange={(e) => handleChange('city', e.target.value)}
+                placeholder="Ej: Madrid"
                 required
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="venue">Lugar *</Label>
-              <Input
-                id="venue"
-                value={formData.venue}
-                onChange={(e) => handleChange('venue', e.target.value)}
-                placeholder="Ej: Parc del Fòrum, Barcelona"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="event_date">Fecha del Evento *</Label>
-              <Input
-                id="event_date"
-                type="datetime-local"
-                value={formData.event_date}
-                onChange={(e) => handleChange('event_date', e.target.value)}
-                required
-              />
-            </div>
+          <div className="space-y-2">
+            <Label>Fecha del Concierto *</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !formData.event_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.event_date ? (
+                    format(formData.event_date, "d 'de' MMMM 'de' yyyy", { locale: es })
+                  ) : (
+                    <span>Selecciona una fecha</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData.event_date}
+                  onSelect={(date) => handleChange('event_date', date)}
+                  disabled={(date) => date < new Date()}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

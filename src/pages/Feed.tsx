@@ -9,9 +9,9 @@ import { toast } from 'sonner';
 
 interface Ticket {
   id: string;
-  concert_name: string;
   artist: string;
   venue: string;
+  city: string;
   event_date: string;
   price: number;
   ticket_type: string;

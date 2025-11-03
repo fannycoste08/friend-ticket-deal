@@ -228,7 +228,7 @@ export type Database = {
       tickets: {
         Row: {
           artist: string
-          concert_name: string
+          city: string
           created_at: string
           description: string | null
           event_date: string
@@ -244,7 +244,7 @@ export type Database = {
         }
         Insert: {
           artist: string
-          concert_name: string
+          city?: string
           created_at?: string
           description?: string | null
           event_date: string
@@ -260,7 +260,7 @@ export type Database = {
         }
         Update: {
           artist?: string
-          concert_name?: string
+          city?: string
           created_at?: string
           description?: string | null
           event_date?: string

@@ -8,9 +8,9 @@ import { es } from 'date-fns/locale';
 interface TicketCardProps {
   ticket: {
     id: string;
-    concert_name: string;
     artist: string;
     venue: string;
+    city: string;
     event_date: string;
     price: number;
     ticket_type: string;
@@ -32,18 +32,17 @@ export const TicketCard = ({ ticket, currentUserId, onContact }: TicketCardProps
       <div className="p-6 space-y-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1">
-            <h3 className="text-2xl font-bold text-foreground mb-1">{ticket.artist}</h3>
-            <p className="text-sm text-muted-foreground mb-3">{ticket.concert_name}</p>
+            <h3 className="text-2xl font-bold text-foreground mb-3">{ticket.artist}</h3>
             
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="w-4 h-4 text-primary" />
-                <span>{ticket.venue}</span>
+                <span>{ticket.venue}, {ticket.city}</span>
               </div>
               
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4 text-primary" />
-                <span>{format(new Date(ticket.event_date), "d MMM yyyy 'a las' HH:mm", { locale: es })}</span>
+                <span>{format(new Date(ticket.event_date), "d 'de' MMMM 'de' yyyy", { locale: es })}</span>
               </div>
               
               <div className="flex items-center gap-2 text-muted-foreground">
