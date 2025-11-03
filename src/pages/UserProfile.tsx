@@ -192,14 +192,17 @@ const UserProfile = () => {
   const getFriendshipButton = () => {
     if (isOwnProfile) return null;
 
+    // If already friends (either via friendship or invitation network)
+    if (friendshipStatus.status === 'accepted' || networkDegree === 1) {
+      return (
+        <Button variant="outline" disabled>
+          <UserCheck className="w-4 h-4 mr-2" />
+          Amigos
+        </Button>
+      );
+    }
+
     switch (friendshipStatus.status) {
-      case 'accepted':
-        return (
-          <Button variant="outline" disabled>
-            <UserCheck className="w-4 h-4 mr-2" />
-            Amigos
-          </Button>
-        );
       case 'pending_sent':
         return (
           <Button variant="outline" onClick={handleCancelRequest}>
