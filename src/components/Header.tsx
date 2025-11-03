@@ -2,13 +2,15 @@ import { Home, Ticket, User, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useFriendRequests } from "@/hooks/useFriendRequests";
 import { Button } from "@/components/ui/button";
-import { FriendRequestsDialog } from "@/components/FriendRequestsDialog";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
 const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const pendingRequestsCount = useFriendRequests();
 
   const navItems = [
     { to: "/", icon: Home, label: "Feed" },
@@ -48,7 +50,7 @@ const Header = () => {
                     end={item.to === "/"}
                     className={({ isActive }) =>
                       cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                        "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all relative",
                         isActive
                           ? "bg-primary text-primary-foreground shadow-md"
                           : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
@@ -59,11 +61,19 @@ const Header = () => {
                       <>
                         <item.icon className={cn("w-4 h-4", isActive && "text-primary-foreground")} />
                         <span className="hidden sm:inline">{item.label}</span>
+                        {item.to === "/profile" && pendingRequestsCount > 0 && (
+                          <Badge 
+                            variant="destructive" 
+                            className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                          >
+                            {pendingRequestsCount}
+                          </Badge>
+                        )}
                       </>
                     )}
                   </NavLink>
                 ))}
-                <FriendRequestsDialog />
+                
                 <Button
                   variant="ghost"
                   size="sm"

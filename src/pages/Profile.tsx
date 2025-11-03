@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, Plus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { InvitationManager } from '@/components/InvitationManager';
+import { FriendshipRequests } from '@/components/FriendshipRequests';
 import { MyTicketCard } from '@/components/MyTicketCard';
 import TicketForm from '@/components/TicketForm';
 import { useAuth } from '@/hooks/useAuth';
@@ -150,6 +151,8 @@ const Profile = () => {
             </div>
           </div>
         </Card>
+
+        <FriendshipRequests />
 
         <InvitationManager userId={user.id} />
 
