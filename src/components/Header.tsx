@@ -84,14 +84,7 @@ const Header = () => {
                   <span className="hidden sm:inline">Salir</span>
                 </Button>
               </>
-            ) : (
-              <NavLink
-                to="/login"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
-              >
-                Iniciar Sesión
-              </NavLink>
-            )}
+            ) : null}
           </nav>
         </div>
       </div>
