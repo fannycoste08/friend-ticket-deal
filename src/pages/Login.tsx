@@ -56,10 +56,8 @@ const Login = () => {
 
           <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg">
             Trusticket: Compra y vende entradas de conciertos en confianza
-          </h1>
+  
 
-          <p className="text-white/90 text-sm lg:text-base max-w-md drop-shadow">Tu red social de compraventa</p>
-        </div>
       </div>
 
       {/* Login Form Section */}
