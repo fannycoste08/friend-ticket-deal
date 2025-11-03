@@ -13,7 +13,7 @@ const Footer = () => {
                 <Ticket className="w-5 h-5 text-white" />
               </div>
               <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Trusticket
+                TrusTicket
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -61,7 +61,7 @@ const Footer = () => {
                   href="mailto:trusticketinfo@gmail.com" 
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  info@Trusticket.com
+                  trusticketinfo@gmail.com
                 </a>
               </li>
             </ul>
@@ -69,7 +69,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-6 border-t border-border/40 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Trusticket. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} TrusTicket. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
