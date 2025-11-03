@@ -138,15 +138,18 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       // Extract name from email if no custom name provided
       const inviteeName = inviteEmail.split('@')[0];
       
-      // Create invitation in database
+      // Generate a temporary password
+      const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8).toUpperCase();
+      
+      // Create invitation in database - APPROVED automatically when inviter sends it
       const { data: invitation, error: invitationError } = await supabase
         .from('invitations')
         .insert({
           inviter_id: userId,
           invitee_email: inviteEmail,
           invitee_name: inviteeName,
-          invitee_password: Math.random().toString(36).slice(-8), // Random password
-          status: 'pending'
+          invitee_password: tempPassword,
+          status: 'approved' // Pre-approved when inviter sends directly
         })
         .select()
         .single();
@@ -158,13 +161,12 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
         return;
       }
 
-      // Send email notification
-      const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
+      // Send welcome email to the invitee with credentials
+      const { error: emailError } = await supabase.functions.invoke('send-invitation-accepted', {
         body: {
-          inviter_email: profile.email,
-          inviter_name: profile.name,
-          invitee_name: inviteeName,
           invitee_email: inviteEmail,
+          invitee_name: inviteeName,
+          inviter_name: profile.name,
         },
       });
 
