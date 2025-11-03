@@ -32,7 +32,8 @@ const CreateFounder = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('create-founder', {
+      // Try reset-founder first (deletes and recreates if exists)
+      const { data, error } = await supabase.functions.invoke('reset-founder', {
         body: {
           email,
           password,
@@ -119,7 +120,7 @@ const CreateFounder = () => {
                 ⚠️ Solo para uso administrativo
               </p>
               <p className="text-amber-600 dark:text-amber-300 text-xs">
-                Este usuario será creado automáticamente sin necesidad de invitación y podrá invitar a otros usuarios.
+                Si el email ya existe, será eliminado y recreado. El usuario podrá invitar a otros.
               </p>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
