@@ -1,151 +1,144 @@
-import { useState } from "react";
-import { Calendar, MapPin, User, UserCheck } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ContactDialog } from "@/components/ContactDialog";
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { TicketCard } from '@/components/TicketCard';
+import { MessagingDialog } from '@/components/MessagingDialog';
+import TicketForm from '@/components/TicketForm';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface Ticket {
-  id: number;
+  id: string;
+  concert_name: string;
   artist: string;
   venue: string;
-  date: string;
+  event_date: string;
   price: number;
-  seller: string;
-  isFriend: boolean;
-  mutualFriends?: string[];
+  ticket_type: string;
+  user_id: string;
+  profiles: {
+    name: string;
+  };
 }
 
-const mockTickets: Ticket[] = [
-  {
-    id: 1,
-    artist: "Arctic Monkeys",
-    venue: "WiZink Center",
-    date: "15 Jun 2025",
-    price: 85,
-    seller: "Carlos M.",
-    isFriend: true
-  },
-  {
-    id: 2,
-    artist: "Taylor Swift",
-    venue: "Estadio Santiago Bernabéu",
-    date: "22 Jun 2025",
-    price: 120,
-    seller: "Ana R.",
-    isFriend: true
-  },
-  {
-    id: 3,
-    artist: "Bad Bunny",
-    venue: "Palau Sant Jordi",
-    date: "3 Jul 2025",
-    price: 95,
-    seller: "Miguel S.",
-    isFriend: false,
-    mutualFriends: ["Carlos M.", "Ana R.", "Pedro L."]
-  },
-  {
-    id: 4,
-    artist: "Coldplay",
-    venue: "Cívitas Metropolitano",
-    date: "18 Jul 2025",
-    price: 110,
-    seller: "Laura G.",
-    isFriend: true
-  }
-];
-
 const Feed = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loadingTickets, setLoadingTickets] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
-  // Filtrar entradas: solo mostrar si es amigo directo o hay amigos en común
-  const visibleTickets = mockTickets.filter(ticket => 
-    ticket.isFriend || (ticket.mutualFriends && ticket.mutualFriends.length > 0)
-  );
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      loadTickets();
+      subscribeToTickets();
+    }
+  }, [user]);
+
+  const loadTickets = async () => {
+    setLoadingTickets(true);
+    
+    const { data, error } = await supabase
+      .from('tickets')
+      .select(`
+        *,
+        profiles!tickets_user_id_fkey(name)
+      `)
+      .eq('status', 'available')
+      .neq('user_id', user?.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error loading tickets:', error);
+      toast.error('Error al cargar las entradas');
+      setLoadingTickets(false);
+      return;
+    }
+
+    setTickets(data || []);
+    setLoadingTickets(false);
+  };
+
+  const subscribeToTickets = () => {
+    const channel = supabase
+      .channel('tickets-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tickets',
+        },
+        () => {
+          loadTickets();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
+  if (loading || !user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 flex items-center justify-center">
+        <p className="text-muted-foreground">Cargando...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 pb-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-            Entradas Disponibles
-          </h1>
-          <p className="text-muted-foreground">Encuentra las mejores entradas de tus amigos</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+              Entradas Disponibles
+            </h1>
+            <p className="text-muted-foreground">Encuentra las mejores entradas</p>
+          </div>
+          <TicketForm onSuccess={loadTickets} />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {visibleTickets.map((ticket) => (
-            <Card 
-              key={ticket.id} 
-              className="overflow-hidden hover:shadow-lg transition-all duration-300 border-border/50 hover:-translate-y-1"
-              style={{ boxShadow: 'var(--shadow-card)' }}
-            >
-              <div className="p-6 space-y-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-foreground mb-3">{ticket.artist}</h3>
-                    
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        <span>{ticket.venue}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Calendar className="w-4 h-4 text-primary" />
-                        <span>{ticket.date}</span>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          {ticket.isFriend ? (
-                            <UserCheck className="w-4 h-4 text-green-500" />
-                          ) : (
-                            <User className="w-4 h-4 text-primary" />
-                          )}
-                          <span>{ticket.seller}</span>
-                          {ticket.isFriend && (
-                            <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600 border-green-500/20">
-                              Amigo
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        {!ticket.isFriend && ticket.mutualFriends && ticket.mutualFriends.length > 0 && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground pl-6">
-                            <span>
-                              Amigo de {ticket.mutualFriends[0]}
-                              {ticket.mutualFriends.length > 1 && ` y ${ticket.mutualFriends.length - 1} más`}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-primary">{ticket.price}€</div>
-                  </div>
-                </div>
-
-                <Button 
-                  className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
-                  onClick={() => setSelectedTicket(ticket)}
-                >
-                  Contactar
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
+        {loadingTickets ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Cargando entradas...</p>
+          </div>
+        ) : tickets.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No hay entradas disponibles</p>
+            <p className="text-sm text-muted-foreground mt-2">¡Sé el primero en publicar una!</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            {tickets.map((ticket) => (
+              <TicketCard
+                key={ticket.id}
+                ticket={{
+                  ...ticket,
+                  seller_name: ticket.profiles.name,
+                }}
+                onContact={() => setSelectedTicket(ticket)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {selectedTicket && (
-        <ContactDialog
+        <MessagingDialog
           open={!!selectedTicket}
           onOpenChange={(open) => !open && setSelectedTicket(null)}
-          ticket={selectedTicket}
+          ticketId={selectedTicket.id}
+          sellerId={selectedTicket.user_id}
+          sellerName={selectedTicket.profiles.name}
         />
       )}
     </div>
