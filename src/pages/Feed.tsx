@@ -20,7 +20,7 @@ interface Ticket {
   profiles: {
     name: string;
     email: string;
-  };
+  } | null;
 }
 
 const Feed = () => {
@@ -144,23 +144,31 @@ const Feed = () => {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
-            {tickets.map((ticket) => (
-              <TicketCard
-                key={ticket.id}
-                ticket={{
-                  ...ticket,
-                  seller_name: ticket.profiles.name,
-                }}
-                currentUserId={user?.id}
-                networkDegree={ticket.networkDegree}
-                onContact={() => setSelectedTicket(ticket)}
-              />
-            ))}
+            {tickets.map((ticket) => {
+              // Skip tickets without valid profile data
+              if (!ticket.profiles) {
+                console.warn('Skipping ticket without profile:', ticket.id);
+                return null;
+              }
+              
+              return (
+                <TicketCard
+                  key={ticket.id}
+                  ticket={{
+                    ...ticket,
+                    seller_name: ticket.profiles.name,
+                  }}
+                  currentUserId={user?.id}
+                  networkDegree={ticket.networkDegree}
+                  onContact={() => setSelectedTicket(ticket)}
+                />
+              );
+            })}
           </div>
         )}
       </div>
 
-      {selectedTicket && (
+      {selectedTicket && selectedTicket.profiles && (
         <ContactDialog
           open={!!selectedTicket}
           onOpenChange={(open) => !open && setSelectedTicket(null)}
