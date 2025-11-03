@@ -90,7 +90,7 @@ const Register = () => {
       .from('profiles')
       .select('id, name, email')
       .eq('email', inviterEmail)
-      .single();
+      .maybeSingle();
 
     if (inviterError || !inviterData) {
       toast.error('El email del padrino no existe en el sistema');
