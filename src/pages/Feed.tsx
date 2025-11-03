@@ -44,6 +44,19 @@ const Feed = () => {
   const loadTickets = async () => {
     setLoadingTickets(true);
     
+    // Get user's extended network (friends and friends of friends)
+    const { data: networkData, error: networkError } = await supabase
+      .rpc('get_extended_network', { user_uuid: user?.id });
+
+    if (networkError) {
+      console.error('Error loading network:', networkError);
+    }
+
+    const networkUserIds = networkData?.map(n => n.network_user_id) || [];
+    
+    // Include tickets from: network + own tickets
+    const allowedUserIds = [...networkUserIds, user?.id];
+    
     const { data, error } = await supabase
       .from('tickets')
       .select(`
@@ -51,6 +64,7 @@ const Feed = () => {
         profiles!tickets_user_id_fkey(name)
       `)
       .eq('status', 'available')
+      .in('user_id', allowedUserIds)
       .order('created_at', { ascending: false });
 
     if (error) {

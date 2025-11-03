@@ -289,7 +289,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_extended_network: {
+        Args: { user_uuid: string }
+        Returns: {
+          degree: number
+          network_user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
