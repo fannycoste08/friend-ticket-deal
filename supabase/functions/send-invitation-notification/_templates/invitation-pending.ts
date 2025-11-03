@@ -9,7 +9,7 @@ export const getInvitationPendingEmail = (
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nueva solicitud de registro - TrusTicket</title>
+  <title>Nueva solicitud de registro - Trusticket</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Ubuntu, sans-serif; background-color: #f6f9fc;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f6f9fc; padding: 40px 0;">
@@ -21,7 +21,7 @@ export const getInvitationPendingEmail = (
           <tr>
             <td style="background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%); padding: 40px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: bold;">
-                🎫 TrusTicket
+                🎫 Trusticket
               </h1>
             </td>
           </tr>
@@ -39,7 +39,7 @@ export const getInvitationPendingEmail = (
               
               <p style="margin: 0 0 24px 0; color: #333333; font-size: 16px; line-height: 24px;">
                 <strong>${invitee_name}</strong> (<span style="color: #8B5CF6;">${invitee_email}</span>) ha solicitado 
-                registrarse en TrusTicket usando tu email como padrino.
+                registrarse en Trusticket usando tu email como padrino.
               </p>
               
               <!-- Botón de acción -->
@@ -48,14 +48,14 @@ export const getInvitationPendingEmail = (
                   <td align="center">
                     <a href="${app_url}/profile" 
                        style="display: inline-block; background-color: #8B5CF6; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
-                      Revisar solicitud en TrusTicket
+                      Revisar solicitud en Trusticket
                     </a>
                   </td>
                 </tr>
               </table>
               
               <p style="margin: 24px 0 0 0; color: #666666; font-size: 14px; line-height: 22px;">
-                Puedes aprobar o rechazar esta solicitud desde tu perfil en TrusTicket.
+                Puedes aprobar o rechazar esta solicitud desde tu perfil en Trusticket.
               </p>
             </td>
           </tr>
@@ -65,7 +65,7 @@ export const getInvitationPendingEmail = (
             <td style="padding: 32px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
               <p style="margin: 0; color: #898989; font-size: 14px; line-height: 22px;">
                 Saludos,<br>
-                El equipo de <strong>TrusTicket</strong>
+                El equipo de <strong>Trusticket</strong>
               </p>
               <p style="margin: 16px 0 0 0; color: #cbd5e0; font-size: 12px;">
                 Este es un correo automático, por favor no respondas a este mensaje.

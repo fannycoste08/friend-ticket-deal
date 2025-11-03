@@ -70,7 +70,7 @@ const Login = () => {
               </div>
               <div>
                 <CardTitle className="text-2xl text-white">Iniciar Sesión</CardTitle>
-                <CardDescription className="text-zinc-400">Entra a tu cuenta de TrusTicket</CardDescription>
+                <CardDescription className="text-zinc-400">Entra a tu cuenta de Trusticket</CardDescription>
               </div>
             </CardHeader>
             <CardContent>
