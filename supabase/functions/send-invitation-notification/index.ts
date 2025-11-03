@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { getInvitationPendingEmail } from './_templates/invitation-pending.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,8 +24,17 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    const APP_URL = 'https://trusticket.lovable.app';
 
-    // Send email using Resend API directly
+    // Generate HTML email from template
+    const html = getInvitationPendingEmail(
+      inviter_name,
+      invitee_name,
+      invitee_email,
+      APP_URL
+    );
+
+    // Send email using Resend API
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -35,13 +45,7 @@ const handler = async (req: Request): Promise<Response> => {
         from: 'TrusTicket <info@trusticket.com>',
         to: [inviter_email],
         subject: 'Nueva solicitud de registro en TrusTicket',
-        html: `
-          <h1>¡Tienes una nueva solicitud de registro!</h1>
-          <p>Hola ${inviter_name},</p>
-          <p><strong>${invitee_name}</strong> (${invitee_email}) ha solicitado registrarse en TrusTicket usando tu email como padrino.</p>
-          <p>Entra a tu perfil en TrusTicket para aprobar o rechazar esta solicitud.</p>
-          <p>Saludos,<br>El equipo de TrusTicket</p>
-        `,
+        html,
       }),
     });
 
