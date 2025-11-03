@@ -113,13 +113,13 @@ const Register = () => {
     }
 
     // Create invitation request (user must wait for approval)
+    // Note: Password will be set by the user after approval via password reset flow
     const { error: invitationError } = await supabase
       .from('invitations')
       .insert({
         inviter_id: inviterData.id,
         invitee_email: email,
         invitee_name: name,
-        invitee_password: password,
         status: 'pending',
       });
 

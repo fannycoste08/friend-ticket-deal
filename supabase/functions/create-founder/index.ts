@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { validateEmail, validateName, validatePassword, sanitizeString } from '../_shared/validation.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,7 +19,77 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Get and verify JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization required' }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Verify the user is authenticated
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const { email, password, name }: CreateFounderRequest = await req.json();
+
+    // Input validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return new Response(
+        JSON.stringify({ error: emailValidation.error }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    const nameValidation = validateName(name);
+    if (!nameValidation.valid) {
+      return new Response(
+        JSON.stringify({ error: nameValidation.error }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return new Response(
+        JSON.stringify({ error: passwordValidation.error }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Sanitize inputs
+    const sanitizedEmail = sanitizeString(email.toLowerCase());
+    const sanitizedName = sanitizeString(name);
 
     // Create admin client with service role
     const supabaseAdmin = createClient(
@@ -34,11 +105,11 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Create founder user (auto-confirmed, no invitation needed)
     const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: sanitizedEmail,
       password,
       email_confirm: true,
       user_metadata: {
-        name
+        name: sanitizedName
       }
     });
 
@@ -59,7 +130,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ 
         success: true, 
         message: 'Usuario fundador creado correctamente',
-        email,
+        email: sanitizedEmail,
       }),
       {
         status: 200,

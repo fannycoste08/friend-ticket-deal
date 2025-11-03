@@ -1,1 +1,13 @@
 project_id = "ystnsszlaqhwysgptysd"
+
+[functions.delete-user]
+verify_jwt = true
+
+[functions.create-founder]
+verify_jwt = true
+
+[functions.reset-founder]
+verify_jwt = true
+
+[functions.create-test-user]
+verify_jwt = true

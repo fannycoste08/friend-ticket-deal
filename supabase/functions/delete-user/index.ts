@@ -16,7 +16,61 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Get and verify JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization required' }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    
+    // Verify the user is authenticated
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const { email }: DeleteUserRequest = await req.json();
+
+    // Input validation
+    if (!email || typeof email !== 'string' || email.trim().length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Valid email is required' }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Only allow users to delete their own account
+    if (email !== user.email) {
+      return new Response(
+        JSON.stringify({ error: 'You can only delete your own account' }),
+        {
+          status: 403,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -29,19 +83,14 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
-    // Find user by email
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = users.users.find(u => u.email === email);
-
-    if (existingUser) {
-      // Delete user from auth
-      const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(existingUser.id);
-      if (deleteError) {
-        console.error('Error deleting user from auth:', deleteError);
-        throw deleteError;
-      }
-      console.log('Deleted user from auth:', email);
+    // Delete user from auth
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+    if (deleteError) {
+      console.error('Error deleting user from auth:', deleteError);
+      throw deleteError;
     }
+    
+    console.log('User deleted their own account:', email);
 
     return new Response(
       JSON.stringify({ 

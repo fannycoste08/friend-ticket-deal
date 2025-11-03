@@ -67,10 +67,13 @@ const handler = async (req: Request): Promise<Response> => {
         }
       });
     } else {
-      // Create the user in auth.users
+      // Generate a temporary password for the user
+      const tempPassword = crypto.randomUUID();
+      
+      // Create the user in auth.users with temp password
       const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
         email: invitation.invitee_email,
-        password: invitation.invitee_password,
+        password: tempPassword,
         email_confirm: true,
         user_metadata: {
           name: invitation.invitee_name,
@@ -89,8 +92,20 @@ const handler = async (req: Request): Promise<Response> => {
         );
       }
 
-      console.log('User created successfully:', userData.user.email);
+      console.log('User created successfully with temp password:', userData.user.email);
       userId = userData.user.id;
+      
+      // Send password reset email so user can set their own password
+      const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(
+        invitation.invitee_email,
+        {
+          redirectTo: `${Deno.env.get('SUPABASE_URL')}/reset-password`
+        }
+      );
+      
+      if (resetError) {
+        console.error('Error sending password reset email:', resetError);
+      }
     }
 
     // Update invitation status to approved
@@ -106,7 +121,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Usuario creado y invitación aprobada',
+        message: 'Usuario creado y invitación aprobada. Se ha enviado un email para establecer contraseña.',
         user_id: userId,
       }),
       {
