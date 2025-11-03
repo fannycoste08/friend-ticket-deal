@@ -32,13 +32,48 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: 'TrusTicket <info@trusticket.com>',
         to: [invitee_email],
-        subject: '¡Tu solicitud ha sido aprobada! - TrusTicket',
+        subject: `${inviter_name} te invita a TrusTicket`,
         html: `
-          <h1>¡Bienvenido a TrusTicket!</h1>
-          <p>Hola ${invitee_name},</p>
-          <p>¡Buenas noticias! <strong>${inviter_name}</strong> ha aprobado tu solicitud de registro.</p>
-          <p>Ya puedes acceder a TrusTicket y empezar a comprar y vender entradas de forma segura.</p>
-          <p>Saludos,<br>El equipo de TrusTicket</p>
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+                .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
+                .button { display: inline-block; background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+                .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1 style="margin: 0;">¡Te han invitado a TrusTicket!</h1>
+                </div>
+                <div class="content">
+                  <p>Hola <strong>${invitee_name}</strong>,</p>
+                  <p><strong>${inviter_name}</strong> te invita a unirte a <strong>TrusTicket</strong>, la plataforma de confianza para comprar y vender entradas de eventos.</p>
+                  <p>TrusTicket te permite:</p>
+                  <ul>
+                    <li>✅ Comprar y vender entradas de forma segura</li>
+                    <li>🎫 Conectar con amigos y su red de contactos</li>
+                    <li>💬 Comunicarte directamente con los vendedores</li>
+                  </ul>
+                  <p style="text-align: center;">
+                    <a href="https://trusticket.lovable.app/register?inviter=${encodeURIComponent(inviter_name)}" class="button">
+                      Crear mi cuenta
+                    </a>
+                  </p>
+                  <p style="color: #6b7280; font-size: 14px;">Si no esperabas esta invitación, puedes ignorar este email.</p>
+                </div>
+                <div class="footer">
+                  <p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p>
+                </div>
+              </div>
+            </body>
+          </html>
         `,
       }),
     });
