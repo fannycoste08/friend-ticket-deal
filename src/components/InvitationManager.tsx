@@ -121,12 +121,69 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
     e.preventDefault();
     setLoading(true);
 
-    // This would send an email invitation
-    // For now, we'll just show a success message
-    toast.success(`Invitación enviada a ${inviteEmail}`);
-    setInviteEmail('');
-    setDialogOpen(false);
-    setLoading(false);
+    try {
+      // Get inviter profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('name, email')
+        .eq('id', userId)
+        .single();
+
+      if (!profile) {
+        toast.error('Error al obtener tu perfil');
+        setLoading(false);
+        return;
+      }
+
+      // Extract name from email if no custom name provided
+      const inviteeName = inviteEmail.split('@')[0];
+      
+      // Create invitation in database
+      const { data: invitation, error: invitationError } = await supabase
+        .from('invitations')
+        .insert({
+          inviter_id: userId,
+          invitee_email: inviteEmail,
+          invitee_name: inviteeName,
+          invitee_password: Math.random().toString(36).slice(-8), // Random password
+          status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (invitationError) {
+        console.error('Error creating invitation:', invitationError);
+        toast.error('Error al crear la invitación');
+        setLoading(false);
+        return;
+      }
+
+      // Send email notification
+      const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
+        body: {
+          inviter_email: profile.email,
+          inviter_name: profile.name,
+          invitee_name: inviteeName,
+          invitee_email: inviteEmail,
+        },
+      });
+
+      if (emailError) {
+        console.error('Error sending email:', emailError);
+        toast.error('Invitación creada pero hubo un error al enviar el email');
+      } else {
+        toast.success(`Invitación enviada a ${inviteEmail}`);
+      }
+
+      setInviteEmail('');
+      setDialogOpen(false);
+      loadInvitations();
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast.error('Error inesperado al enviar la invitación');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
