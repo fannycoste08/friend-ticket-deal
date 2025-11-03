@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TicketCard } from '@/components/TicketCard';
+import { ContactDialog } from '@/components/ContactDialog';
 import { ArrowLeft, UserPlus, UserCheck, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -26,6 +27,7 @@ interface Ticket {
   user_id: string;
   profiles: {
     name: string;
+    email: string;
   };
 }
 
@@ -43,6 +45,7 @@ const UserProfile = () => {
   const [networkDegree, setNetworkDegree] = useState<number | null>(null);
   const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus>({ status: 'none' });
   const [loading, setLoading] = useState(true);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   useEffect(() => {
     if (userId && user) {
@@ -71,7 +74,7 @@ const UserProfile = () => {
       .from('tickets')
       .select(`
         *,
-        profiles!tickets_user_id_fkey(name)
+        profiles!tickets_user_id_fkey(name, email)
       `)
       .eq('user_id', userId)
       .eq('status', 'available')
@@ -277,12 +280,24 @@ const UserProfile = () => {
                   seller_name: ticket.profiles.name,
                 }}
                 currentUserId={user?.id}
-                onContact={() => {}}
+                onContact={() => setSelectedTicket(ticket)}
               />
             ))}
           </div>
         )}
       </div>
+
+      {selectedTicket && (
+        <ContactDialog
+          open={!!selectedTicket}
+          onOpenChange={(open) => !open && setSelectedTicket(null)}
+          ticket={{
+            artist: selectedTicket.artist,
+            seller: selectedTicket.profiles.name,
+            seller_email: selectedTicket.profiles.email,
+          }}
+        />
+      )}
     </div>
   );
 };
