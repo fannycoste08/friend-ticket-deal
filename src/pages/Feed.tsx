@@ -13,6 +13,7 @@ interface Ticket {
   price: number;
   seller: string;
   isFriend: boolean;
+  mutualFriends?: string[];
 }
 
 const mockTickets: Ticket[] = [
@@ -41,7 +42,8 @@ const mockTickets: Ticket[] = [
     date: "3 Jul 2025",
     price: 95,
     seller: "Miguel S.",
-    isFriend: false
+    isFriend: false,
+    mutualFriends: ["Carlos M.", "Ana R.", "Pedro L."]
   },
   {
     id: 4,
@@ -57,6 +59,11 @@ const mockTickets: Ticket[] = [
 const Feed = () => {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
+  // Filtrar entradas: solo mostrar si es amigo directo o hay amigos en común
+  const visibleTickets = mockTickets.filter(ticket => 
+    ticket.isFriend || (ticket.mutualFriends && ticket.mutualFriends.length > 0)
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 pb-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -68,7 +75,7 @@ const Feed = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          {mockTickets.map((ticket) => (
+          {visibleTickets.map((ticket) => (
             <Card 
               key={ticket.id} 
               className="overflow-hidden hover:shadow-lg transition-all duration-300 border-border/50 hover:-translate-y-1"
@@ -90,17 +97,28 @@ const Feed = () => {
                         <span>{ticket.date}</span>
                       </div>
                       
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        {ticket.isFriend ? (
-                          <UserCheck className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <User className="w-4 h-4 text-primary" />
-                        )}
-                        <span>{ticket.seller}</span>
-                        {ticket.isFriend && (
-                          <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600 border-green-500/20">
-                            Amigo
-                          </Badge>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          {ticket.isFriend ? (
+                            <UserCheck className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <User className="w-4 h-4 text-primary" />
+                          )}
+                          <span>{ticket.seller}</span>
+                          {ticket.isFriend && (
+                            <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600 border-green-500/20">
+                              Amigo
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {!ticket.isFriend && ticket.mutualFriends && ticket.mutualFriends.length > 0 && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground pl-6">
+                            <span>
+                              Amigo de {ticket.mutualFriends[0]}
+                              {ticket.mutualFriends.length > 1 && ` y ${ticket.mutualFriends.length - 1} más`}
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
