@@ -43,7 +43,7 @@ const Register = () => {
     // First, check if inviter exists
     const { data: inviterData, error: inviterError } = await supabase
       .from('profiles')
-      .select('id')
+      .select('id, name, email')
       .eq('email', inviterEmail)
       .single();
 
@@ -74,7 +74,7 @@ const Register = () => {
           inviter_id: inviterData.id,
           invitee_email: email,
           invitee_name: name,
-          invitee_password: password, // In production, this should be hashed
+          invitee_password: password,
           status: 'pending',
         });
 
@@ -82,6 +82,21 @@ const Register = () => {
         toast.error('Error al crear la solicitud de invitación');
         setLoading(false);
         return;
+      }
+
+      // Send notification email to inviter
+      const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
+        body: {
+          inviter_email: inviterEmail,
+          inviter_name: inviterData.name || 'Usuario',
+          invitee_name: name,
+          invitee_email: email,
+        },
+      });
+
+      if (emailError) {
+        console.error('Error sending notification email:', emailError);
+        // Don't fail the registration if email fails
       }
 
       toast.success('Registro solicitado. Espera la aprobación de tu padrino.');
