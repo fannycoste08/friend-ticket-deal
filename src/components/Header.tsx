@@ -11,7 +11,6 @@ const Header = () => {
 
   const navItems = [
     { to: "/", icon: Home, label: "Feed" },
-    { to: "/my-tickets", icon: Ticket, label: "Mis Entradas" },
     { to: "/profile", icon: User, label: "Perfil" },
   ];
 
