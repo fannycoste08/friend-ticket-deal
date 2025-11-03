@@ -16,7 +16,39 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Get JWT token from Authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'No autorizado: falta token de autenticación' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    // Verify the user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'No autorizado: token inválido' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { invitation_id }: ApproveInvitationRequest = await req.json();
+
+    if (!invitation_id || typeof invitation_id !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'ID de invitación inválido' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     console.log('Processing invitation approval:', invitation_id);
 
@@ -31,7 +63,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
-    // Get invitation details
+    // Get invitation details and verify ownership
     const { data: invitation, error: invitationError } = await supabaseAdmin
       .from('invitations')
       .select('*')
@@ -44,6 +76,17 @@ const handler = async (req: Request): Promise<Response> => {
         JSON.stringify({ error: 'Invitación no encontrada' }),
         {
           status: 404,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Verify that the authenticated user is the inviter
+    if (invitation.inviter_id !== user.id) {
+      return new Response(
+        JSON.stringify({ error: 'No tienes permiso para aprobar esta invitación' }),
+        {
+          status: 403,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );

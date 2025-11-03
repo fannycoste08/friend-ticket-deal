@@ -185,6 +185,7 @@ export const MessagingDialog = ({ open, onOpenChange, ticketId, sellerId, seller
               recipient_name: sellerProfile.name,
               sender_name: senderProfile.name,
               ticket_artist: ticket.artist,
+              ticket_id: ticketId,
             },
           });
         }

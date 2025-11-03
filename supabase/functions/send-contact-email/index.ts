@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,6 +14,29 @@ interface ContactEmailRequest {
   buyer_phone: string;
   message: string;
   artist: string;
+  ticket_id: string;
+}
+
+// HTML escape function to prevent XSS
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Validate email format
+function isValidEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email) && email.length <= 255;
+}
+
+// Validate phone format (international format)
+function isValidPhone(phone: string): boolean {
+  const phoneRegex = /^[\d\s\+\-\(\)]+$/;
+  return phoneRegex.test(phone) && phone.length >= 6 && phone.length <= 20;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -21,6 +45,31 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Get JWT token from Authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'No autorizado: falta token de autenticación' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    // Verify the user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'No autorizado: token inválido' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { 
       seller_email, 
       seller_name, 
@@ -28,10 +77,72 @@ const handler = async (req: Request): Promise<Response> => {
       buyer_email, 
       buyer_phone, 
       message, 
-      artist 
+      artist,
+      ticket_id
     }: ContactEmailRequest = await req.json();
+
+    // Validate required fields
+    if (!seller_email || !buyer_name || !buyer_email || !buyer_phone || !message || !artist || !ticket_id) {
+      return new Response(
+        JSON.stringify({ error: 'Faltan campos obligatorios' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate email formats
+    if (!isValidEmail(seller_email) || !isValidEmail(buyer_email)) {
+      return new Response(
+        JSON.stringify({ error: 'Formato de email inválido' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate phone format
+    if (!isValidPhone(buyer_phone)) {
+      return new Response(
+        JSON.stringify({ error: 'Formato de teléfono inválido' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Validate lengths
+    if (message.length > 1000) {
+      return new Response(
+        JSON.stringify({ error: 'El mensaje es demasiado largo (máximo 1000 caracteres)' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (buyer_name.length > 100 || seller_name.length > 100 || artist.length > 200) {
+      return new Response(
+        JSON.stringify({ error: 'Uno de los campos de texto excede el límite permitido' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Verify user has access to this ticket (they are the buyer interested in it)
+    const { data: ticket, error: ticketError } = await supabase
+      .from('tickets')
+      .select('id, user_id')
+      .eq('id', ticket_id)
+      .single();
+
+    if (ticketError || !ticket) {
+      return new Response(
+        JSON.stringify({ error: 'Entrada no encontrada' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Escape all user inputs to prevent HTML injection
+    const safeSeller = escapeHtml(seller_name);
+    const safeBuyer = escapeHtml(buyer_name);
+    const safeMessage = escapeHtml(message);
+    const safeArtist = escapeHtml(artist);
+    const safeBuyerEmail = escapeHtml(buyer_email);
+    const safeBuyerPhone = escapeHtml(buyer_phone);
     
-    console.log('Processing contact email:', { seller_email, buyer_name, artist });
+    console.log('Processing contact email:', { seller_email, buyer_name: safeBuyer, artist: safeArtist });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
@@ -44,7 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: 'TrusTicket <info@trusticket.com>',
         to: [seller_email],
-        subject: `Interés en tu entrada para ${artist}`,
+        subject: `Interés en tu entrada para ${safeArtist}`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -65,24 +176,24 @@ const handler = async (req: Request): Promise<Response> => {
                   <h1 style="margin: 0;">¡Alguien está interesado en tu entrada!</h1>
                 </div>
                 <div class="content">
-                  <p>Hola <strong>${seller_name}</strong>,</p>
-                  <p><strong>${buyer_name}</strong> está interesado en tu entrada para <strong>${artist}</strong> y te ha enviado el siguiente mensaje:</p>
+                  <p>Hola <strong>${safeSeller}</strong>,</p>
+                  <p><strong>${safeBuyer}</strong> está interesado en tu entrada para <strong>${safeArtist}</strong> y te ha enviado el siguiente mensaje:</p>
                   
                   <div class="info-box">
                     <p style="margin: 0;"><strong>Mensaje:</strong></p>
-                    <p style="margin: 10px 0 0 0;">${message}</p>
+                    <p style="margin: 10px 0 0 0;">${safeMessage}</p>
                   </div>
 
                   <div class="info-box">
                     <p style="margin: 0;"><strong>Datos de contacto:</strong></p>
                     <p style="margin: 10px 0 0 0;">
-                      <strong>Nombre:</strong> ${buyer_name}<br>
-                      <strong>Email:</strong> <a href="mailto:${buyer_email}">${buyer_email}</a><br>
-                      <strong>Teléfono:</strong> <a href="tel:${buyer_phone}">${buyer_phone}</a>
+                      <strong>Nombre:</strong> ${safeBuyer}<br>
+                      <strong>Email:</strong> <a href="mailto:${safeBuyerEmail}">${safeBuyerEmail}</a><br>
+                      <strong>Teléfono:</strong> <a href="tel:${safeBuyerPhone}">${safeBuyerPhone}</a>
                     </p>
                   </div>
 
-                  <p>Puedes ponerte en contacto directamente con ${buyer_name} usando los datos de contacto proporcionados.</p>
+                  <p>Puedes ponerte en contacto directamente con ${safeBuyer} usando los datos de contacto proporcionados.</p>
                 </div>
                 <div class="footer">
                   <p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p>

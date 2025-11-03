@@ -34,6 +34,7 @@ interface ContactDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   ticket: {
+    id: string;
     artist: string;
     seller: string;
     seller_email: string;
@@ -57,6 +58,14 @@ export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps
     setIsSubmitting(true);
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast.error("Debes iniciar sesión para contactar con el vendedor");
+        setIsSubmitting(false);
+        return;
+      }
+
       const { error } = await supabase.functions.invoke('send-contact-email', {
         body: {
           seller_email: ticket.seller_email,
@@ -66,6 +75,7 @@ export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps
           buyer_phone: values.phone,
           message: values.message,
           artist: ticket.artist,
+          ticket_id: ticket.id,
         },
       });
 

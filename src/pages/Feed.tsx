@@ -165,6 +165,7 @@ const Feed = () => {
           open={!!selectedTicket}
           onOpenChange={(open) => !open && setSelectedTicket(null)}
           ticket={{
+            id: selectedTicket.id,
             artist: selectedTicket.artist,
             seller: selectedTicket.profiles.name,
             seller_email: selectedTicket.profiles.email,
