@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TicketCard } from '@/components/TicketCard';
 import { MessagingDialog } from '@/components/MessagingDialog';
+import { FriendshipRequests } from '@/components/FriendshipRequests';
 import TicketForm from '@/components/TicketForm';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -131,6 +132,8 @@ const Feed = () => {
           </div>
           <TicketForm onSuccess={loadTickets} />
         </div>
+
+        <FriendshipRequests />
 
         {loadingTickets ? (
           <div className="text-center py-12">

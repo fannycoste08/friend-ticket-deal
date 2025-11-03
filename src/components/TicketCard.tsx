@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
 
 interface TicketCardProps {
   ticket: {
@@ -24,6 +25,7 @@ interface TicketCardProps {
 
 export const TicketCard = ({ ticket, currentUserId, networkDegree, onContact }: TicketCardProps) => {
   const isMyTicket = currentUserId === ticket.user_id;
+  const navigate = useNavigate();
   
   const getNetworkLabel = () => {
     if (!networkDegree) return null;
@@ -57,7 +59,12 @@ export const TicketCard = ({ ticket, currentUserId, networkDegree, onContact }: 
               
               <div className="flex items-center gap-2 text-muted-foreground">
                 <User className="w-4 h-4 text-primary" />
-                <span>{ticket.seller_name}</span>
+                <button
+                  onClick={() => navigate(`/user/${ticket.user_id}`)}
+                  className="hover:underline hover:text-primary transition-colors"
+                >
+                  {ticket.seller_name}
+                </button>
                 {networkLabel && (
                   <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
                     {networkLabel}
