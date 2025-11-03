@@ -77,6 +77,30 @@ export type Database = {
           },
         ]
       }
+      email_logs: {
+        Row: {
+          function_name: string
+          id: string
+          recipient_email: string
+          sent_at: string | null
+          user_id: string
+        }
+        Insert: {
+          function_name: string
+          id?: string
+          recipient_email: string
+          sent_at?: string | null
+          user_id: string
+        }
+        Update: {
+          function_name?: string
+          id?: string
+          recipient_email?: string
+          sent_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           created_at: string

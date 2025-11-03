@@ -1,5 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { getInvitationPendingEmail } from './_templates/invitation-pending.ts';
+import { checkRateLimit, logEmail } from '../_shared/rate-limiter.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -19,9 +21,50 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Get JWT token from Authorization header
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    // Verify the user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { inviter_email, inviter_name, invitee_name, invitee_email }: InvitationNotificationRequest = await req.json();
     
     console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
+
+    // Check rate limit
+    const rateLimitCheck = await checkRateLimit(
+      user.id,
+      inviter_email,
+      'send-invitation-notification',
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    if (!rateLimitCheck.allowed) {
+      return new Response(
+        JSON.stringify({ error: rateLimitCheck.error }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     const APP_URL = 'https://trusticket.lovable.app';
@@ -58,6 +101,15 @@ const handler = async (req: Request): Promise<Response> => {
     const emailData = await emailResponse.json();
     console.log("Email sent successfully:", emailData);
 
+    // Log the email send
+    await logEmail(
+      user.id,
+      inviter_email,
+      'send-invitation-notification',
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     return new Response(JSON.stringify({ success: true, emailData }), {
       status: 200,
       headers: {
@@ -68,7 +120,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-invitation-notification function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Failed to send notification' }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

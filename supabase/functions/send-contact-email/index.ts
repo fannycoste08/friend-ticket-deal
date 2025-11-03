@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { checkRateLimit, logEmail } from '../_shared/rate-limiter.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -119,6 +120,22 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Check rate limit before proceeding
+    const rateLimitCheck = await checkRateLimit(
+      user.id,
+      seller_email,
+      'send-contact-email',
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    if (!rateLimitCheck.allowed) {
+      return new Response(
+        JSON.stringify({ error: rateLimitCheck.error }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     // Verify user has access to this ticket (they are the buyer interested in it)
     const { data: ticket, error: ticketError } = await supabase
       .from('tickets')
@@ -219,6 +236,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailData = await emailResponse.json();
     console.log("Email sent successfully:", emailData);
+
+    // Log the email send
+    await logEmail(
+      user.id,
+      seller_email,
+      'send-contact-email',
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
     return new Response(JSON.stringify({ success: true, emailData }), {
       status: 200,
