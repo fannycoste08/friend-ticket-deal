@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TicketCard } from '@/components/TicketCard';
-import { MessagingDialog } from '@/components/MessagingDialog';
 import { ArrowLeft, UserPlus, UserCheck, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -37,14 +36,13 @@ interface FriendshipStatus {
 
 const UserProfile = () => {
   const { userId } = useParams<{ userId: string }>();
-  const { user } = useAuth();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [networkDegree, setNetworkDegree] = useState<number | null>(null);
   const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus>({ status: 'none' });
   const [loading, setLoading] = useState(true);
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
   useEffect(() => {
     if (userId && user) {
@@ -64,16 +62,31 @@ const UserProfile = () => {
       .eq('id', userId)
       .single();
 
-    setProfile(profileData);
+    if (profileData) {
+      setProfile(profileData);
+    }
 
-    // Load network degree
+    // Load user's tickets
+    const { data: ticketsData } = await supabase
+      .from('tickets')
+      .select(`
+        *,
+        profiles!tickets_user_id_fkey(name)
+      `)
+      .eq('user_id', userId)
+      .eq('status', 'available')
+      .order('created_at', { ascending: false });
+
+    setTickets(ticketsData || []);
+
+    // Get network degree
     const { data: networkData } = await supabase
       .rpc('get_extended_network', { user_uuid: user.id });
 
-    const userNetwork = networkData?.find((n: any) => n.network_user_id === userId);
+    const userNetwork = networkData?.find(n => n.network_user_id === userId);
     setNetworkDegree(userNetwork?.degree || null);
 
-    // Load friendship status
+    // Check friendship status
     const { data: friendshipData } = await supabase
       .from('friendships')
       .select('*')
@@ -90,18 +103,6 @@ const UserProfile = () => {
       }
     }
 
-    // Load user's tickets
-    const { data: ticketsData } = await supabase
-      .from('tickets')
-      .select(`
-        *,
-        profiles!tickets_user_id_fkey(name)
-      `)
-      .eq('user_id', userId)
-      .eq('status', 'available')
-      .order('created_at', { ascending: false });
-
-    setTickets(ticketsData || []);
     setLoading(false);
   };
 
@@ -138,11 +139,11 @@ const UserProfile = () => {
       return;
     }
 
-    toast.success('¡Ahora sois amigos!');
+    toast.success('Ahora sois amigos');
     loadUserData();
   };
 
-  const handleCancelFriendRequest = async () => {
+  const handleCancelRequest = async () => {
     if (!friendshipStatus.friendshipId) return;
 
     const { error } = await supabase
@@ -159,63 +160,10 @@ const UserProfile = () => {
     loadUserData();
   };
 
-  const getRelationshipLabel = () => {
-    if (friendshipStatus.status === 'accepted' || networkDegree === 1) {
-      return <Badge className="bg-primary/10 text-primary border-primary/20">Amigo</Badge>;
-    }
-    if (networkDegree === 2) {
-      return <Badge variant="outline" className="bg-secondary/10">Amigo de amigo</Badge>;
-    }
-    return null;
-  };
-
-  const getFriendshipButton = () => {
-    if (userId === user?.id) return null;
-    
-    if (friendshipStatus.status === 'accepted') {
-      return (
-        <Button variant="outline" disabled>
-          <UserCheck className="w-4 h-4 mr-2" />
-          Amigos
-        </Button>
-      );
-    }
-
-    if (friendshipStatus.status === 'pending_sent') {
-      return (
-        <Button variant="outline" onClick={handleCancelFriendRequest}>
-          <Clock className="w-4 h-4 mr-2" />
-          Solicitud enviada
-        </Button>
-      );
-    }
-
-    if (friendshipStatus.status === 'pending_received') {
-      return (
-        <Button onClick={handleAcceptFriendRequest} className="bg-gradient-to-r from-primary to-accent">
-          <UserCheck className="w-4 h-4 mr-2" />
-          Aceptar solicitud
-        </Button>
-      );
-    }
-
-    // Only show add friend button if they're a friend of friend or in network
-    if (networkDegree) {
-      return (
-        <Button onClick={handleSendFriendRequest} className="bg-gradient-to-r from-primary to-accent">
-          <UserPlus className="w-4 h-4 mr-2" />
-          Añadir como amigo
-        </Button>
-      );
-    }
-
-    return null;
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 flex items-center justify-center">
-        <p className="text-muted-foreground">Cargando perfil...</p>
+        <p className="text-muted-foreground">Cargando...</p>
       </div>
     );
   }
@@ -227,6 +175,59 @@ const UserProfile = () => {
       </div>
     );
   }
+
+  const isOwnProfile = user?.id === userId;
+
+  const getNetworkBadge = () => {
+    if (isOwnProfile) return null;
+    if (friendshipStatus.status === 'accepted' || networkDegree === 1) {
+      return <Badge className="bg-primary/10 text-primary border-primary/20">Amigo</Badge>;
+    }
+    if (networkDegree === 2) {
+      return <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">Amigo de amigo</Badge>;
+    }
+    return null;
+  };
+
+  const getFriendshipButton = () => {
+    if (isOwnProfile) return null;
+
+    switch (friendshipStatus.status) {
+      case 'accepted':
+        return (
+          <Button variant="outline" disabled>
+            <UserCheck className="w-4 h-4 mr-2" />
+            Amigos
+          </Button>
+        );
+      case 'pending_sent':
+        return (
+          <Button variant="outline" onClick={handleCancelRequest}>
+            <Clock className="w-4 h-4 mr-2" />
+            Solicitud enviada
+          </Button>
+        );
+      case 'pending_received':
+        return (
+          <div className="flex gap-2">
+            <Button onClick={handleAcceptFriendRequest}>
+              <UserCheck className="w-4 h-4 mr-2" />
+              Aceptar solicitud
+            </Button>
+            <Button variant="outline" onClick={handleCancelRequest}>
+              Rechazar
+            </Button>
+          </div>
+        );
+      default:
+        return (
+          <Button onClick={handleSendFriendRequest}>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Añadir como amigo
+          </Button>
+        );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 pb-20">
@@ -242,10 +243,10 @@ const UserProfile = () => {
 
         <Card className="p-8 mb-8">
           <div className="flex items-start justify-between">
-            <div>
+            <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold">{profile.name}</h1>
-                {getRelationshipLabel()}
+                <h1 className="text-3xl font-bold text-foreground">{profile.name}</h1>
+                {getNetworkBadge()}
               </div>
               <p className="text-muted-foreground">{profile.email}</p>
             </div>
@@ -254,13 +255,15 @@ const UserProfile = () => {
         </Card>
 
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-4">Entradas disponibles</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-4">
+            Entradas disponibles
+          </h2>
         </div>
 
         {tickets.length === 0 ? (
-          <div className="text-center py-12">
+          <Card className="p-12 text-center">
             <p className="text-muted-foreground">Este usuario no tiene entradas disponibles</p>
-          </div>
+          </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
             {tickets.map((ticket) => (
@@ -271,23 +274,12 @@ const UserProfile = () => {
                   seller_name: ticket.profiles.name,
                 }}
                 currentUserId={user?.id}
-                networkDegree={networkDegree || undefined}
-                onContact={() => setSelectedTicket(ticket)}
+                onContact={() => {}}
               />
             ))}
           </div>
         )}
       </div>
-
-      {selectedTicket && (
-        <MessagingDialog
-          open={!!selectedTicket}
-          onOpenChange={(open) => !open && setSelectedTicket(null)}
-          ticketId={selectedTicket.id}
-          sellerId={selectedTicket.user_id}
-          sellerName={selectedTicket.profiles.name}
-        />
-      )}
     </div>
   );
 };

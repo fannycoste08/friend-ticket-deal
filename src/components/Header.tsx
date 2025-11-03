@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { FriendRequestsDialog } from "@/components/FriendRequestsDialog";
 import { toast } from "sonner";
 
 const Header = () => {
@@ -62,6 +63,7 @@ const Header = () => {
                     )}
                   </NavLink>
                 ))}
+                <FriendRequestsDialog />
                 <Button
                   variant="ghost"
                   size="sm"

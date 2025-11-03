@@ -24,8 +24,8 @@ interface TicketCardProps {
 }
 
 export const TicketCard = ({ ticket, currentUserId, networkDegree, onContact }: TicketCardProps) => {
-  const isMyTicket = currentUserId === ticket.user_id;
   const navigate = useNavigate();
+  const isMyTicket = currentUserId === ticket.user_id;
   
   const getNetworkLabel = () => {
     if (!networkDegree) return null;
@@ -60,7 +60,10 @@ export const TicketCard = ({ ticket, currentUserId, networkDegree, onContact }: 
               <div className="flex items-center gap-2 text-muted-foreground">
                 <User className="w-4 h-4 text-primary" />
                 <button
-                  onClick={() => navigate(`/user/${ticket.user_id}`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/user/${ticket.user_id}`);
+                  }}
                   className="hover:underline hover:text-primary transition-colors"
                 >
                   {ticket.seller_name}
