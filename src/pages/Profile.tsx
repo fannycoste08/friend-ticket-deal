@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Mail, Plus, Pencil, Trash2, CheckCircle } from "lucide-react";
+import { Mail, Plus, Pencil, Trash2, CheckCircle, UserPlus, UserMinus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TicketForm } from "@/components/TicketForm";
 import { toast } from "sonner";
 
@@ -16,6 +17,13 @@ interface MyTicket {
   date: string;
   price: number;
   sold: boolean;
+}
+
+interface Friend {
+  id: number;
+  name: string;
+  avatar: string;
+  mutualFriends: number;
 }
 
 
@@ -36,6 +44,32 @@ const Profile = () => {
       date: "5 Ago 2025",
       price: 110,
       sold: false,
+    },
+  ]);
+  const [friends, setFriends] = useState<Friend[]>([
+    {
+      id: 1,
+      name: "Carlos M.",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=carlos",
+      mutualFriends: 12,
+    },
+    {
+      id: 2,
+      name: "Ana R.",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=ana",
+      mutualFriends: 8,
+    },
+    {
+      id: 3,
+      name: "Laura G.",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=laura",
+      mutualFriends: 15,
+    },
+    {
+      id: 4,
+      name: "Pedro L.",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=pedro",
+      mutualFriends: 5,
     },
   ]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -99,6 +133,11 @@ const Profile = () => {
     setIsEditingEmail(false);
   };
 
+  const handleRemoveFriend = (id: number) => {
+    setFriends(friends.filter(f => f.id !== id));
+    toast.success("Amigo eliminado");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 pb-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -152,75 +191,131 @@ const Profile = () => {
           </div>
         </Card>
 
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-foreground">Mis entradas en venta</h2>
-          <Button 
-            onClick={() => {
-              setEditingTicket(undefined);
-              setIsFormOpen(true);
-            }}
-            className="gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Añadir entrada
-          </Button>
-        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Listado de amigos */}
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold text-foreground">Mis amigos</h2>
+              <p className="text-sm text-muted-foreground">{friends.length} amigos</p>
+            </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {tickets.map((ticket) => (
-            <Card 
-              key={ticket.id} 
-              className="p-6 space-y-4"
-              style={{ boxShadow: 'var(--shadow-card)' }}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="text-xl font-bold text-foreground mb-2">{ticket.artist}</h3>
-                  <p className="text-sm text-muted-foreground mb-1">{ticket.venue}</p>
-                  <p className="text-sm text-muted-foreground mb-2">{ticket.date}</p>
-                  <div className="text-2xl font-bold text-primary">{ticket.price}€</div>
-                </div>
-                
-                {ticket.sold && (
-                  <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
-                    Vendida
-                  </Badge>
-                )}
+            <div className="space-y-3">
+              {friends.map((friend) => (
+                <Card 
+                  key={friend.id} 
+                  className="p-4"
+                  style={{ boxShadow: 'var(--shadow-card)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage src={friend.avatar} />
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-white">
+                        {friend.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground">{friend.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {friend.mutualFriends} amigos en común
+                      </p>
+                    </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleRemoveFriend(friend.id)}
+                      className="gap-2"
+                    >
+                      <UserMinus className="w-4 h-4" />
+                      Eliminar
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Mis entradas en venta */}
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Mis entradas</h2>
+                <p className="text-sm text-muted-foreground">
+                  {tickets.filter(t => !t.sold).length} en venta
+                </p>
               </div>
+              <Button 
+                onClick={() => {
+                  setEditingTicket(undefined);
+                  setIsFormOpen(true);
+                }}
+                size="sm"
+                className="gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Añadir
+              </Button>
+            </div>
 
-              {!ticket.sold && (
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditTicket(ticket)}
-                    className="flex-1 gap-2"
-                  >
-                    <Pencil className="w-4 h-4" />
-                    Editar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleMarkAsSold(ticket.id)}
-                    className="flex-1 gap-2"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    Vendida
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDeleteTicket(ticket.id)}
-                    className="gap-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
-            </Card>
-          ))}
+            <div className="space-y-3">
+              {tickets.map((ticket) => (
+                <Card 
+                  key={ticket.id} 
+                  className="p-4 space-y-3"
+                  style={{ boxShadow: 'var(--shadow-card)' }}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-bold text-foreground mb-1">{ticket.artist}</h3>
+                      <p className="text-sm text-muted-foreground mb-1">{ticket.venue}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{ticket.date}</p>
+                      <div className="text-lg font-bold text-primary">{ticket.price}€</div>
+                    </div>
+                    
+                    {ticket.sold && (
+                      <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+                        Vendida
+                      </Badge>
+                    )}
+                  </div>
+
+                  {!ticket.sold && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEditTicket(ticket)}
+                        className="flex-1 gap-1"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        Editar
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleMarkAsSold(ticket.id)}
+                        className="flex-1 gap-1"
+                      >
+                        <CheckCircle className="w-3 h-3" />
+                        Vendida
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteTicket(ticket.id)}
+                        className="gap-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
         </div>
+
 
         <TicketForm
           open={isFormOpen}
