@@ -8,6 +8,8 @@ import Footer from "./components/Footer";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Register from "./pages/Register";
 import CreateTestUser from "./pages/CreateTestUser";
 import LegalNotice from "./pages/LegalNotice";
@@ -30,6 +32,8 @@ const App = () => (
               <Route path="/" element={<Feed />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/register" element={<Register />} />
               <Route path="/create-test-user" element={<CreateTestUser />} />
               <Route path="/legal-notice" element={<LegalNotice />} />

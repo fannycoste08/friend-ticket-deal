@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,37 +9,38 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import concertHero from '@/assets/concert-hero.jpg';
 
-const Login = () => {
+const ResetPassword = () => {
   const navigate = useNavigate();
-  const { signIn, user } = useAuth();
-  const [email, setEmail] = useState('');
+  const { updatePassword } = useAuth();
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // Redirect if already logged in
-  if (user) {
-    navigate('/');
-    return null;
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast.error('Las contraseñas no coinciden');
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { error } = await updatePassword(password);
 
     if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        toast.error('Email o contraseña incorrectos');
-      } else {
-        toast.error('Error al iniciar sesión: ' + error.message);
-      }
+      toast.error('Error al actualizar contraseña: ' + error.message);
       setLoading(false);
       return;
     }
 
-    toast.success('¡Bienvenido!');
-    navigate('/');
+    toast.success('Contraseña actualizada correctamente');
+    navigate('/login');
   };
 
   return (
@@ -59,16 +60,16 @@ const Login = () => {
           </div>
           
           <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-            Compra entradas de conciertos en confianza
+            Nueva Contraseña
           </h1>
           
           <p className="text-white/90 text-sm lg:text-base max-w-md drop-shadow">
-            TrusTicket: tu red social de confianza para vender y comprar entradas de conciertos
+            Introduce tu nueva contraseña para acceder a TrusTicket
           </p>
         </div>
       </div>
 
-      {/* Login Form Section */}
+      {/* Form Section */}
       <div className="flex-1 flex items-center justify-center p-4 lg:p-8 bg-gradient-to-b from-background to-secondary/30">
         <Card className="w-full max-w-md" style={{ boxShadow: 'var(--shadow-card)' }}>
           <CardHeader className="space-y-4 text-center">
@@ -76,51 +77,41 @@ const Login = () => {
               <Ticket className="w-10 h-10 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl">Iniciar Sesión</CardTitle>
-              <CardDescription>Entra a tu cuenta de TrusTicket</CardDescription>
+              <CardTitle className="text-2xl">Restablecer Contraseña</CardTitle>
+              <CardDescription>Introduce tu nueva contraseña</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="tu@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Contraseña</Label>
-                  <Link 
-                    to="/forgot-password" 
-                    className="text-xs text-primary hover:underline"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </Link>
-                </div>
+                <Label htmlFor="password">Nueva Contraseña</Label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+              <div className="rounded-lg bg-secondary/50 p-3 text-sm text-muted-foreground">
+                La contraseña debe tener al menos 6 caracteres
+              </div>
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                {loading ? 'Actualizando...' : 'Actualizar contraseña'}
               </Button>
             </form>
-            <div className="mt-4 text-center text-sm">
-              <span className="text-muted-foreground">¿No tienes cuenta? </span>
-              <Link to="/register" className="text-primary hover:underline font-medium">
-                Regístrate
-              </Link>
-            </div>
           </CardContent>
         </Card>
       </div>
@@ -128,4 +119,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ResetPassword;
