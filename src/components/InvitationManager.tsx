@@ -61,12 +61,15 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       return;
     }
 
-    const { error } = await supabase
-      .from('invitations')
-      .update({ status: 'approved' })
-      .eq('id', invitationId);
+    // Call edge function to create user and approve invitation
+    const { error: approveError } = await supabase.functions.invoke('approve-invitation', {
+      body: {
+        invitation_id: invitationId,
+      },
+    });
 
-    if (error) {
+    if (approveError) {
+      console.error('Error approving invitation:', approveError);
       toast.error('Error al aprobar la invitación');
       setLoading(false);
       return;
@@ -90,9 +93,10 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       });
     } catch (emailError) {
       console.error('Error sending email:', emailError);
+      // Don't fail if email doesn't send
     }
 
-    toast.success('Invitación aprobada');
+    toast.success('Invitación aprobada y usuario creado');
     loadInvitations();
     setLoading(false);
   };

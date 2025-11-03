@@ -53,55 +53,67 @@ const Register = () => {
       return;
     }
 
-    // Create the user
-    const { data, error } = await signUp(name, email, password, inviterEmail);
+    // Check if email is already registered
+    const { data: existingUser } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('email', email)
+      .maybeSingle();
 
-    if (error) {
-      if (error.message.includes('already registered')) {
-        toast.error('Este email ya está registrado');
-      } else {
-        toast.error('Error al registrarse: ' + error.message);
-      }
+    if (existingUser) {
+      toast.error('Este email ya está registrado');
       setLoading(false);
       return;
     }
 
-    if (data.user) {
-      // Create invitation request
-      const { error: invitationError } = await supabase
-        .from('invitations')
-        .insert({
-          inviter_id: inviterData.id,
-          invitee_email: email,
-          invitee_name: name,
-          invitee_password: password,
-          status: 'pending',
-        });
+    // Check if there's already a pending invitation for this email
+    const { data: existingInvitation } = await supabase
+      .from('invitations')
+      .select('id')
+      .eq('invitee_email', email)
+      .eq('status', 'pending')
+      .maybeSingle();
 
-      if (invitationError) {
-        toast.error('Error al crear la solicitud de invitación');
-        setLoading(false);
-        return;
-      }
+    if (existingInvitation) {
+      toast.error('Ya existe una solicitud pendiente para este email');
+      setLoading(false);
+      return;
+    }
 
-      // Send notification email to inviter
-      const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
-        body: {
-          inviter_email: inviterEmail,
-          inviter_name: inviterData.name || 'Usuario',
-          invitee_name: name,
-          invitee_email: email,
-        },
+    // Create invitation request (DO NOT create user yet)
+    const { error: invitationError } = await supabase
+      .from('invitations')
+      .insert({
+        inviter_id: inviterData.id,
+        invitee_email: email,
+        invitee_name: name,
+        invitee_password: password,
+        status: 'pending',
       });
 
-      if (emailError) {
-        console.error('Error sending notification email:', emailError);
-        // Don't fail the registration if email fails
-      }
-
-      toast.success('Registro solicitado. Espera la aprobación de tu padrino.');
-      navigate('/login');
+    if (invitationError) {
+      toast.error('Error al crear la solicitud de invitación');
+      setLoading(false);
+      return;
     }
+
+    // Send notification email to inviter
+    const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
+      body: {
+        inviter_email: inviterEmail,
+        inviter_name: inviterData.name || 'Usuario',
+        invitee_name: name,
+        invitee_email: email,
+      },
+    });
+
+    if (emailError) {
+      console.error('Error sending notification email:', emailError);
+      // Don't fail the registration if email fails
+    }
+
+    toast.success('Solicitud enviada. Espera la aprobación de tu padrino en su email.');
+    navigate('/login');
 
     setLoading(false);
   };
