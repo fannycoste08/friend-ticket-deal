@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Ticket } from 'lucide-react';
+import { Ticket, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -18,6 +19,8 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [inviterEmail, setInviterEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [inviterName, setInviterName] = useState('');
 
   // Redirect if already logged in
   if (user) {
@@ -112,13 +115,47 @@ const Register = () => {
       // Don't fail the registration if email fails
     }
 
-    toast.success('Solicitud enviada. Espera la aprobación de tu padrino en su email.');
-    navigate('/login');
-
+    setInviterName(inviterData.name || 'tu padrino');
+    setShowSuccessModal(true);
     setLoading(false);
   };
 
   return (
+    <>
+      <Dialog open={showSuccessModal} onOpenChange={(open) => {
+        setShowSuccessModal(open);
+        if (!open) navigate('/login');
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-primary" />
+            </div>
+            <DialogTitle className="text-center text-2xl">¡Gracias por registrarte!</DialogTitle>
+            <DialogDescription className="text-center space-y-3 pt-4">
+              <p className="text-base">
+                Tu solicitud ha sido enviada a <strong>{inviterName}</strong>.
+              </p>
+              <p className="text-muted-foreground">
+                Recibirás un correo de confirmación cuando tu padrino haya aceptado tu solicitud.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Una vez aprobada, podrás iniciar sesión en TrusTicket.
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <Button 
+            onClick={() => {
+              setShowSuccessModal(false);
+              navigate('/login');
+            }}
+            className="w-full mt-4"
+          >
+            Entendido
+          </Button>
+        </DialogContent>
+      </Dialog>
+
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 flex items-center justify-center p-4">
       <Card className="w-full max-w-md" style={{ boxShadow: 'var(--shadow-card)' }}>
         <CardHeader className="space-y-4 text-center">
@@ -209,6 +246,7 @@ const Register = () => {
         </CardContent>
       </Card>
     </div>
+    </>
   );
 };
 
