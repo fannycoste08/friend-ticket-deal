@@ -18,11 +18,21 @@ interface TicketCardProps {
     user_id: string;
   };
   currentUserId?: string;
+  networkDegree?: number;
   onContact: () => void;
 }
 
-export const TicketCard = ({ ticket, currentUserId, onContact }: TicketCardProps) => {
+export const TicketCard = ({ ticket, currentUserId, networkDegree, onContact }: TicketCardProps) => {
   const isMyTicket = currentUserId === ticket.user_id;
+  
+  const getNetworkLabel = () => {
+    if (!networkDegree) return null;
+    if (networkDegree === 1) return 'Amigo';
+    if (networkDegree === 2) return 'Amigo de amigo';
+    return null;
+  };
+  
+  const networkLabel = getNetworkLabel();
   
   return (
     <Card 
@@ -48,6 +58,11 @@ export const TicketCard = ({ ticket, currentUserId, onContact }: TicketCardProps
               <div className="flex items-center gap-2 text-muted-foreground">
                 <User className="w-4 h-4 text-primary" />
                 <span>{ticket.seller_name}</span>
+                {networkLabel && (
+                  <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                    {networkLabel}
+                  </Badge>
+                )}
               </div>
 
               <Badge variant="secondary" className="text-xs">

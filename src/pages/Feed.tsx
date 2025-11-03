@@ -16,6 +16,7 @@ interface Ticket {
   price: number;
   ticket_type: string;
   user_id: string;
+  networkDegree?: number;
   profiles: {
     name: string;
   };
@@ -52,6 +53,11 @@ const Feed = () => {
       console.error('Error loading network:', networkError);
     }
 
+    // Create a map of user_id to degree for easy lookup
+    const networkMap = new Map(
+      networkData?.map(n => [n.network_user_id, n.degree]) || []
+    );
+    
     const networkUserIds = networkData?.map(n => n.network_user_id) || [];
     
     // Include tickets from: network + own tickets
@@ -74,7 +80,13 @@ const Feed = () => {
       return;
     }
 
-    setTickets(data || []);
+    // Add network degree to tickets
+    const ticketsWithNetwork = (data || []).map(ticket => ({
+      ...ticket,
+      networkDegree: networkMap.get(ticket.user_id)
+    }));
+
+    setTickets(ticketsWithNetwork);
     setLoadingTickets(false);
   };
 
@@ -139,6 +151,7 @@ const Feed = () => {
                   seller_name: ticket.profiles.name,
                 }}
                 currentUserId={user?.id}
+                networkDegree={ticket.networkDegree}
                 onContact={() => setSelectedTicket(ticket)}
               />
             ))}
