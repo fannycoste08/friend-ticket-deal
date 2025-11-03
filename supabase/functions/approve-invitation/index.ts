@@ -49,29 +49,49 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Create the user in auth.users
-    const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
-      email: invitation.invitee_email,
-      password: invitation.invitee_password,
-      email_confirm: true,
-      user_metadata: {
-        name: invitation.invitee_name,
-        inviter_id: invitation.inviter_id,
-      }
-    });
+    // Check if user already exists
+    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+    const existingUser = existingUsers.users.find(u => u.email === invitation.invitee_email);
+    
+    let userId: string;
 
-    if (userError) {
-      console.error('Error creating user:', userError);
-      return new Response(
-        JSON.stringify({ error: 'Error al crear el usuario: ' + userError.message }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
+    if (existingUser) {
+      console.log('User already exists, using existing user:', existingUser.email);
+      userId = existingUser.id;
+      
+      // Update user metadata if needed
+      await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+        user_metadata: {
+          name: invitation.invitee_name,
+          inviter_id: invitation.inviter_id,
         }
-      );
-    }
+      });
+    } else {
+      // Create the user in auth.users
+      const { data: userData, error: userError } = await supabaseAdmin.auth.admin.createUser({
+        email: invitation.invitee_email,
+        password: invitation.invitee_password,
+        email_confirm: true,
+        user_metadata: {
+          name: invitation.invitee_name,
+          inviter_id: invitation.inviter_id,
+        }
+      });
 
-    console.log('User created successfully:', userData.user.email);
+      if (userError) {
+        console.error('Error creating user:', userError);
+        return new Response(
+          JSON.stringify({ error: 'Error al crear el usuario: ' + userError.message }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+
+      console.log('User created successfully:', userData.user.email);
+      userId = userData.user.id;
+    }
 
     // Update invitation status to approved
     const { error: updateError } = await supabaseAdmin
@@ -87,7 +107,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({ 
         success: true, 
         message: 'Usuario creado y invitación aprobada',
-        user_id: userData.user.id,
+        user_id: userId,
       }),
       {
         status: 200,
