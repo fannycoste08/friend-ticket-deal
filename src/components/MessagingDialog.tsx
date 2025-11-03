@@ -150,6 +150,49 @@ export const MessagingDialog = ({ open, onOpenChange, ticketId, sellerId, seller
       return;
     }
 
+    // Get ticket and seller info for email notification
+    try {
+      const { data: conversation } = await supabase
+        .from('conversations')
+        .select('ticket_id')
+        .eq('id', conversationId)
+        .single();
+
+      if (conversation) {
+        const { data: ticket } = await supabase
+          .from('tickets')
+          .select('artist, user_id')
+          .eq('id', conversation.ticket_id)
+          .single();
+
+        const { data: sellerProfile } = await supabase
+          .from('profiles')
+          .select('name, email')
+          .eq('id', sellerId)
+          .single();
+
+        const { data: senderProfile } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', user.id)
+          .single();
+
+        if (ticket && sellerProfile && senderProfile && ticket.user_id === sellerId) {
+          // Only send email if the recipient is the seller
+          await supabase.functions.invoke('send-message-notification', {
+            body: {
+              recipient_email: sellerProfile.email,
+              recipient_name: sellerProfile.name,
+              sender_name: senderProfile.name,
+              ticket_artist: ticket.artist,
+            },
+          });
+        }
+      }
+    } catch (emailError) {
+      console.error('Error sending email notification:', emailError);
+    }
+
     setNewMessage('');
     setLoading(false);
   };

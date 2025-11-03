@@ -52,6 +52,15 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
 
   const handleApprove = async (invitationId: string) => {
     setLoading(true);
+    
+    // Get invitation details first
+    const invitation = pendingInvitations.find(inv => inv.id === invitationId);
+    if (!invitation) {
+      toast.error('Invitación no encontrada');
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase
       .from('invitations')
       .update({ status: 'approved' })
@@ -59,10 +68,32 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
 
     if (error) {
       toast.error('Error al aprobar la invitación');
-    } else {
-      toast.success('Invitación aprobada');
-      loadInvitations();
+      setLoading(false);
+      return;
     }
+
+    // Get inviter name
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('name')
+      .eq('id', userId)
+      .single();
+
+    // Send email notification
+    try {
+      await supabase.functions.invoke('send-invitation-accepted', {
+        body: {
+          invitee_email: invitation.invitee_email,
+          invitee_name: invitation.invitee_name,
+          inviter_name: profile?.name || 'Tu padrino',
+        },
+      });
+    } catch (emailError) {
+      console.error('Error sending email:', emailError);
+    }
+
+    toast.success('Invitación aprobada');
+    loadInvitations();
     setLoading(false);
   };
 

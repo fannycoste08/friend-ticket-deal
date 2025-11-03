@@ -5,11 +5,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface InvitationNotificationRequest {
-  inviter_email: string;
-  inviter_name: string;
-  invitee_name: string;
+interface InvitationAcceptedRequest {
   invitee_email: string;
+  invitee_name: string;
+  inviter_name: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -18,13 +17,12 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { inviter_email, inviter_name, invitee_name, invitee_email }: InvitationNotificationRequest = await req.json();
+    const { invitee_email, invitee_name, inviter_name }: InvitationAcceptedRequest = await req.json();
     
-    console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
+    console.log('Processing invitation accepted notification:', { invitee_email, invitee_name, inviter_name });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
-    // Send email using Resend API directly
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -33,13 +31,13 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: 'TrusTicket <info@trusticket.com>',
-        to: [inviter_email],
-        subject: 'Nueva solicitud de registro en TrusTicket',
+        to: [invitee_email],
+        subject: '¡Tu solicitud ha sido aprobada! - TrusTicket',
         html: `
-          <h1>¡Tienes una nueva solicitud de registro!</h1>
-          <p>Hola ${inviter_name},</p>
-          <p><strong>${invitee_name}</strong> (${invitee_email}) ha solicitado registrarse en TrusTicket usando tu email como padrino.</p>
-          <p>Entra a tu perfil en TrusTicket para aprobar o rechazar esta solicitud.</p>
+          <h1>¡Bienvenido a TrusTicket!</h1>
+          <p>Hola ${invitee_name},</p>
+          <p>¡Buenas noticias! <strong>${inviter_name}</strong> ha aprobado tu solicitud de registro.</p>
+          <p>Ya puedes acceder a TrusTicket y empezar a comprar y vender entradas de forma segura.</p>
           <p>Saludos,<br>El equipo de TrusTicket</p>
         `,
       }),
@@ -62,7 +60,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-invitation-notification function:", error);
+    console.error("Error in send-invitation-accepted function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
