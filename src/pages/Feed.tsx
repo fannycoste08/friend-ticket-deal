@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TicketCard } from '@/components/TicketCard';
-import { MessagingDialog } from '@/components/MessagingDialog';
+import { ContactDialog } from '@/components/ContactDialog';
 import { FriendshipRequests } from '@/components/FriendshipRequests';
 import TicketForm from '@/components/TicketForm';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +20,7 @@ interface Ticket {
   networkDegree?: number;
   profiles: {
     name: string;
+    email: string;
   };
 }
 
@@ -68,7 +69,7 @@ const Feed = () => {
       .from('tickets')
       .select(`
         *,
-        profiles!tickets_user_id_fkey(name)
+        profiles!tickets_user_id_fkey(name, email)
       `)
       .eq('status', 'available')
       .in('user_id', allowedUserIds)
@@ -163,12 +164,14 @@ const Feed = () => {
       </div>
 
       {selectedTicket && (
-        <MessagingDialog
+        <ContactDialog
           open={!!selectedTicket}
           onOpenChange={(open) => !open && setSelectedTicket(null)}
-          ticketId={selectedTicket.id}
-          sellerId={selectedTicket.user_id}
-          sellerName={selectedTicket.profiles.name}
+          ticket={{
+            artist: selectedTicket.artist,
+            seller: selectedTicket.profiles.name,
+            seller_email: selectedTicket.profiles.email,
+          }}
         />
       )}
     </div>

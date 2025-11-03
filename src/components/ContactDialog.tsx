@@ -20,7 +20,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   name: z.string().trim().min(1, "El nombre es requerido").max(100),
@@ -35,6 +36,7 @@ interface ContactDialogProps {
   ticket: {
     artist: string;
     seller: string;
+    seller_email: string;
   };
 }
 
@@ -54,20 +56,35 @@ export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     
-    // TODO: Implementar envío de email
-    console.log("Form values:", values);
-    
-    // Simulación de envío
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Mensaje enviado",
-      description: "Tu mensaje ha sido enviado al vendedor",
-    });
-    
-    form.reset();
-    onOpenChange(false);
-    setIsSubmitting(false);
+    try {
+      const { error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          seller_email: ticket.seller_email,
+          seller_name: ticket.seller,
+          buyer_name: values.name,
+          buyer_email: values.email,
+          buyer_phone: values.phone,
+          message: values.message,
+          artist: ticket.artist,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Mensaje enviado", {
+        description: "Tu mensaje ha sido enviado al vendedor",
+      });
+      
+      form.reset();
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error sending contact email:', error);
+      toast.error("Error al enviar el mensaje", {
+        description: "Por favor, inténtalo de nuevo más tarde",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
