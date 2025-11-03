@@ -81,17 +81,20 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (ticketError || !ticket) {
+      console.error('Ticket verification failed:', ticketError);
       return new Response(
-        JSON.stringify({ error: 'Entrada no encontrada' }),
+        JSON.stringify({ error: 'Unable to process request' }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
     // Verify the sender is authenticated and is involved with the ticket
     if (ticket.user_id !== user.id) {
-      // Check if user is the message sender (interested party)
-      // This is a simplified check - you may want to verify against a messages table
-      console.log('User sending notification for ticket they do not own');
+      console.error('Unauthorized ticket access');
+      return new Response(
+        JSON.stringify({ error: 'Insufficient permissions' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     }
 
     // Escape all user inputs to prevent HTML injection
@@ -150,7 +153,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-message-notification function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'An unexpected error occurred' }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

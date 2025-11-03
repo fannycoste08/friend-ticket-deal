@@ -51,6 +51,30 @@ export function validatePassword(password: string): { valid: boolean; error?: st
   return { valid: true };
 }
 
+export function validatePhone(phone: string): { valid: boolean; error?: string } {
+  if (!phone || typeof phone !== 'string') {
+    return { valid: false, error: 'Phone is required' };
+  }
+  
+  const trimmedPhone = phone.trim();
+  
+  if (trimmedPhone.length === 0) {
+    return { valid: false, error: 'Phone cannot be empty' };
+  }
+  
+  if (trimmedPhone.length > 20) {
+    return { valid: false, error: 'Phone must be less than 20 characters' };
+  }
+  
+  // Only allow digits, spaces, +, -, (, )
+  const phoneRegex = /^[\d\s\+\-\(\)]+$/;
+  if (!phoneRegex.test(trimmedPhone)) {
+    return { valid: false, error: 'Phone contains invalid characters' };
+  }
+  
+  return { valid: true };
+}
+
 export function sanitizeString(input: string): string {
   return input.trim().replace(/[<>]/g, '');
 }

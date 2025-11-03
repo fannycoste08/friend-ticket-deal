@@ -71,9 +71,9 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (invitationError || !invitation) {
-      console.error('Error fetching invitation:', invitationError);
+      console.error('Invitation verification failed:', invitationError);
       return new Response(
-        JSON.stringify({ error: 'Invitación no encontrada' }),
+        JSON.stringify({ error: 'Unable to process request' }),
         {
           status: 404,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -83,8 +83,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Verify that the authenticated user is the inviter
     if (invitation.inviter_id !== user.id) {
+      console.error('Unauthorized invitation access');
       return new Response(
-        JSON.stringify({ error: 'No tienes permiso para aprobar esta invitación' }),
+        JSON.stringify({ error: 'Insufficient permissions' }),
         {
           status: 403,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -127,7 +128,7 @@ const handler = async (req: Request): Promise<Response> => {
       if (userError) {
         console.error('Error creating user:', userError);
         return new Response(
-          JSON.stringify({ error: 'Error al crear el usuario: ' + userError.message }),
+          JSON.stringify({ error: 'User creation failed' }),
           {
             status: 400,
             headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -159,6 +160,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (updateError) {
       console.error('Error updating invitation:', updateError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to update invitation' }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
     }
 
     return new Response(
@@ -175,7 +183,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in approve-invitation function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'An unexpected error occurred' }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

@@ -1,6 +1,18 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
+// Helper to check if user is admin
+async function isAdmin(supabase: any, userId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId)
+    .eq('role', 'admin')
+    .single();
+  
+  return !error && data !== null;
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -35,10 +47,24 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
+      console.error('Authentication failed');
       return new Response(
-        JSON.stringify({ error: 'Invalid authentication token' }),
+        JSON.stringify({ error: 'Authentication required' }),
         {
           status: 401,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Check if user is admin
+    const hasAdminRole = await isAdmin(supabase, user.id);
+    if (!hasAdminRole) {
+      console.error('Unauthorized access attempt by user:', user.id);
+      return new Response(
+        JSON.stringify({ error: 'Insufficient permissions' }),
+        {
+          status: 403,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );
@@ -69,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (userError) {
       console.error('Error creating user:', userError);
       return new Response(
-        JSON.stringify({ error: userError.message }),
+        JSON.stringify({ error: 'User creation failed' }),
         {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -94,7 +120,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in create-test-user function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'An unexpected error occurred' }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

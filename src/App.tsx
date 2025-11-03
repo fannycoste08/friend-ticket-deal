@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -38,8 +39,22 @@ const App = () => (
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/create-test-user" element={<CreateTestUser />} />
-              <Route path="/create-founder" element={<CreateFounder />} />
+              <Route 
+                path="/create-test-user" 
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <CreateTestUser />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/create-founder" 
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <CreateFounder />
+                  </ProtectedRoute>
+                } 
+              />
               <Route path="/legal-notice" element={<LegalNotice />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/cookies-policy" element={<CookiesPolicy />} />

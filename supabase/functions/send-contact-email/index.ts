@@ -83,39 +83,38 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Validate required fields
     if (!seller_email || !buyer_name || !buyer_email || !buyer_phone || !message || !artist || !ticket_id) {
+      console.error('Missing required fields');
       return new Response(
-        JSON.stringify({ error: 'Faltan campos obligatorios' }),
+        JSON.stringify({ error: 'Request could not be processed' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Validate email formats
-    if (!isValidEmail(seller_email) || !isValidEmail(buyer_email)) {
+    // Validate email formats and lengths
+    if (!isValidEmail(seller_email) || !isValidEmail(buyer_email) || 
+        seller_email.length > 255 || buyer_email.length > 255) {
+      console.error('Invalid email format or length');
       return new Response(
-        JSON.stringify({ error: 'Formato de email inválido' }),
+        JSON.stringify({ error: 'Invalid input provided' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Validate phone format
-    if (!isValidPhone(buyer_phone)) {
+    // Validate phone format and length
+    if (!isValidPhone(buyer_phone) || buyer_phone.length > 20) {
+      console.error('Invalid phone format or length');
       return new Response(
-        JSON.stringify({ error: 'Formato de teléfono inválido' }),
+        JSON.stringify({ error: 'Invalid input provided' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Validate lengths
-    if (message.length > 1000) {
+    // Validate message and name lengths
+    if (message.length > 1000 || buyer_name.length > 100 || 
+        seller_name.length > 100 || artist.length > 200) {
+      console.error('Input exceeds maximum length');
       return new Response(
-        JSON.stringify({ error: 'El mensaje es demasiado largo (máximo 1000 caracteres)' }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    if (buyer_name.length > 100 || seller_name.length > 100 || artist.length > 200) {
-      return new Response(
-        JSON.stringify({ error: 'Uno de los campos de texto excede el límite permitido' }),
+        JSON.stringify({ error: 'Invalid input provided' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -128,8 +127,9 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (ticketError || !ticket) {
+      console.error('Ticket verification failed:', ticketError);
       return new Response(
-        JSON.stringify({ error: 'Entrada no encontrada' }),
+        JSON.stringify({ error: 'Unable to process request' }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -208,7 +208,13 @@ const handler = async (req: Request): Promise<Response> => {
     if (!emailResponse.ok) {
       const errorData = await emailResponse.json();
       console.error('Resend API error:', errorData);
-      throw new Error(`Failed to send email: ${JSON.stringify(errorData)}`);
+      return new Response(
+        JSON.stringify({ error: 'Failed to send notification' }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
     }
 
     const emailData = await emailResponse.json();
@@ -224,7 +230,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in send-contact-email function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'An unexpected error occurred' }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
