@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Mail, Phone, MapPin, Plus, Pencil, Trash2, CheckCircle } from "lucide-react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { Mail, Plus, Pencil, Trash2, CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { TicketForm } from "@/components/TicketForm";
 import { toast } from "sonner";
 
@@ -39,12 +41,16 @@ const Profile = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTicket, setEditingTicket] = useState<MyTicket | undefined>();
 
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [email, setEmail] = useState("juan.perez@email.com");
+  const [tempEmail, setTempEmail] = useState(email);
+
   const handleAddTicket = (data: any) => {
     if (data.id) {
       // Editar
       setTickets(tickets.map(t => 
         t.id === data.id 
-          ? { ...t, artist: data.artist, venue: data.venue, date: data.date, price: parseFloat(data.price) }
+          ? { ...t, artist: data.artist, venue: data.venue, date: format(data.date, "d MMM yyyy", { locale: es }), price: parseFloat(data.price) }
           : t
       ));
       toast.success("Entrada actualizada");
@@ -54,7 +60,7 @@ const Profile = () => {
         id: Math.max(...tickets.map(t => t.id), 0) + 1,
         artist: data.artist,
         venue: data.venue,
-        date: data.date,
+        date: format(data.date, "d MMM yyyy", { locale: es }),
         price: parseFloat(data.price),
         sold: false,
       };
@@ -81,6 +87,18 @@ const Profile = () => {
     toast.success("Entrada marcada como vendida");
   };
 
+
+  const handleSaveEmail = () => {
+    setEmail(tempEmail);
+    setIsEditingEmail(false);
+    toast.success("Email actualizado");
+  };
+
+  const handleCancelEmail = () => {
+    setTempEmail(email);
+    setIsEditingEmail(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 pb-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -92,37 +110,43 @@ const Profile = () => {
         </div>
 
         <Card className="p-8 mb-6" style={{ boxShadow: 'var(--shadow-card)' }}>
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex flex-col items-center md:items-start">
-              <Avatar className="w-32 h-32 mb-4 ring-4 ring-primary/20">
-                <AvatarImage src="https://api.dicebear.com/7.x/avataaars/svg?seed=user" />
-                <AvatarFallback className="text-2xl bg-gradient-to-br from-primary to-accent text-white">
-                  JD
-                </AvatarFallback>
-              </Avatar>
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-1">Juan Pérez</h2>
             </div>
 
-            <div className="flex-1 space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground mb-1">Juan Pérez</h2>
-                <p className="text-muted-foreground">Miembro desde enero 2024</p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-foreground">
-                  <Mail className="w-5 h-5 text-primary" />
-                  <span>juan.perez@email.com</span>
-                </div>
-                
-                <div className="flex items-center gap-3 text-foreground">
-                  <Phone className="w-5 h-5 text-primary" />
-                  <span>+34 612 345 678</span>
-                </div>
-                
-                <div className="flex items-center gap-3 text-foreground">
-                  <MapPin className="w-5 h-5 text-primary" />
-                  <span>Madrid, España</span>
-                </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-primary flex-shrink-0" />
+                {isEditingEmail ? (
+                  <div className="flex-1 flex items-center gap-2">
+                    <Input
+                      type="email"
+                      value={tempEmail}
+                      onChange={(e) => setTempEmail(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button size="sm" onClick={handleSaveEmail}>
+                      Guardar
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={handleCancelEmail}>
+                      Cancelar
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <span className="flex-1 text-foreground">{email}</span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setIsEditingEmail(true)}
+                      className="gap-2"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      Editar
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

@@ -1,6 +1,10 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -17,11 +21,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const ticketFormSchema = z.object({
   artist: z.string().min(1, "El artista es obligatorio"),
   venue: z.string().min(1, "El lugar es obligatorio"),
-  date: z.string().min(1, "La fecha es obligatoria"),
+  date: z.date({ required_error: "La fecha es obligatoria" }),
   price: z.string().min(1, "El precio es obligatorio"),
 });
 
@@ -37,7 +47,7 @@ interface TicketFormProps {
     date: string;
     price: number;
   };
-  onSubmit: (data: TicketFormValues & { id?: number }) => void;
+  onSubmit: (data: { artist: string; venue: string; date: Date; price: string; id?: number }) => void;
 }
 
 export function TicketForm({ open, onOpenChange, ticket, onSubmit }: TicketFormProps) {
@@ -46,13 +56,19 @@ export function TicketForm({ open, onOpenChange, ticket, onSubmit }: TicketFormP
     defaultValues: {
       artist: ticket?.artist || "",
       venue: ticket?.venue || "",
-      date: ticket?.date || "",
+      date: ticket?.date ? new Date(ticket.date) : undefined,
       price: ticket?.price.toString() || "",
     },
   });
 
   const handleSubmit = (data: TicketFormValues) => {
-    onSubmit({ ...data, id: ticket?.id });
+    onSubmit({ 
+      artist: data.artist, 
+      venue: data.venue, 
+      date: data.date, 
+      price: data.price, 
+      id: ticket?.id 
+    });
     form.reset();
     onOpenChange(false);
   };
@@ -100,11 +116,38 @@ export function TicketForm({ open, onOpenChange, ticket, onSubmit }: TicketFormP
               control={form.control}
               name="date"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Fecha</FormLabel>
-                  <FormControl>
-                    <Input placeholder="15 Jun 2025" {...field} />
-                  </FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "d MMM yyyy", { locale: es })
+                          ) : (
+                            <span>Selecciona una fecha</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) => date < new Date()}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
