@@ -15,11 +15,15 @@ interface TicketCardProps {
     price: number;
     ticket_type: string;
     seller_name: string;
+    user_id: string;
   };
+  currentUserId?: string;
   onContact: () => void;
 }
 
-export const TicketCard = ({ ticket, onContact }: TicketCardProps) => {
+export const TicketCard = ({ ticket, currentUserId, onContact }: TicketCardProps) => {
+  const isMyTicket = currentUserId === ticket.user_id;
+  
   return (
     <Card 
       className="overflow-hidden hover:shadow-lg transition-all duration-300 border-border/50 hover:-translate-y-1"
@@ -58,12 +62,22 @@ export const TicketCard = ({ ticket, onContact }: TicketCardProps) => {
           </div>
         </div>
 
-        <Button 
-          className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
-          onClick={onContact}
-        >
-          Me interesa
-        </Button>
+        {isMyTicket ? (
+          <Button 
+            className="w-full"
+            variant="outline"
+            disabled
+          >
+            Tu entrada
+          </Button>
+        ) : (
+          <Button 
+            className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+            onClick={onContact}
+          >
+            Me interesa
+          </Button>
+        )}
       </div>
     </Card>
   );

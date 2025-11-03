@@ -51,7 +51,6 @@ const Feed = () => {
         profiles!tickets_user_id_fkey(name)
       `)
       .eq('status', 'available')
-      .neq('user_id', user?.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -125,6 +124,7 @@ const Feed = () => {
                   ...ticket,
                   seller_name: ticket.profiles.name,
                 }}
+                currentUserId={user?.id}
                 onContact={() => setSelectedTicket(ticket)}
               />
             ))}
