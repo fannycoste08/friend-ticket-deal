@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Mail, Plus, Pencil, Trash2, CheckCircle, UserPlus, UserMinus } from "lucide-react";
@@ -8,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TicketForm } from "@/components/TicketForm";
+import { InvitationManager } from "@/components/InvitationManager";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 interface MyTicket {
@@ -28,6 +31,15 @@ interface Friend {
 
 
 const Profile = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/login');
+    }
+  }, [user, loading, navigate]);
+
   const [tickets, setTickets] = useState<MyTicket[]>([
     {
       id: 1,
@@ -138,6 +150,18 @@ const Profile = () => {
     toast.success("Amigo eliminado");
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 flex items-center justify-center">
+        <p className="text-muted-foreground">Cargando...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 pb-20">
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -191,7 +215,9 @@ const Profile = () => {
           </div>
         </Card>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <InvitationManager userId={user.id} />
+
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
           {/* Listado de amigos */}
           <div>
             <div className="mb-4">
