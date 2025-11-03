@@ -43,20 +43,7 @@ const Register = () => {
 
     setLoading(true);
 
-    // First, check if inviter exists
-    const { data: inviterData, error: inviterError } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .eq('email', inviterEmail)
-      .single();
-
-    if (inviterError || !inviterData) {
-      toast.error('El email del padrino no existe en el sistema');
-      setLoading(false);
-      return;
-    }
-
-    // Check if email is already registered
+    // Check if email is already registered in profiles
     const { data: existingUser } = await supabase
       .from('profiles')
       .select('email')
@@ -69,21 +56,63 @@ const Register = () => {
       return;
     }
 
+    // Check if there's an approved invitation for this email (godparent invited them directly)
+    const { data: approvedInvitation } = await supabase
+      .from('invitations')
+      .select('*, inviter:profiles!invitations_inviter_id_fkey(id, name, email)')
+      .eq('invitee_email', email)
+      .eq('status', 'approved')
+      .maybeSingle();
+
+    if (approvedInvitation) {
+      // User was pre-invited by a godparent - create user directly and log them in
+      const inviterEmail = approvedInvitation.inviter?.email || '';
+      const { error: signUpError } = await signUp(name, email, password, inviterEmail);
+      
+      if (signUpError) {
+        if (signUpError.message.includes("already registered")) {
+          toast.error("Este email ya está registrado");
+        } else {
+          toast.error("Error al crear la cuenta: " + signUpError.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      toast.success("¡Cuenta creada! Bienvenido a TrusTicket");
+      navigate("/");
+      return;
+    }
+
+    // No pre-approved invitation - need godparent approval
+    // First, check if godparent exists
+    const { data: inviterData, error: inviterError } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .eq('email', inviterEmail)
+      .single();
+
+    if (inviterError || !inviterData) {
+      toast.error('El email del padrino no existe en el sistema');
+      setLoading(false);
+      return;
+    }
+
     // Check if there's already a pending invitation for this email
-    const { data: existingInvitation } = await supabase
+    const { data: existingPendingInvitation } = await supabase
       .from('invitations')
       .select('id')
       .eq('invitee_email', email)
       .eq('status', 'pending')
       .maybeSingle();
 
-    if (existingInvitation) {
+    if (existingPendingInvitation) {
       toast.error('Ya existe una solicitud pendiente para este email');
       setLoading(false);
       return;
     }
 
-    // Create invitation request (DO NOT create user yet)
+    // Create invitation request (user must wait for approval)
     const { error: invitationError } = await supabase
       .from('invitations')
       .insert({
@@ -100,7 +129,7 @@ const Register = () => {
       return;
     }
 
-    // Send notification email to inviter
+    // Send notification email to godparent
     const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
       body: {
         inviter_email: inviterEmail,
