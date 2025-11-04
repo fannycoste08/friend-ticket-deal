@@ -85,19 +85,7 @@ const Register = () => {
     }
 
     // No pre-approved invitation - need godparent approval
-    // First, check if godparent exists using public_profiles (no RLS restrictions)
-    const { data: publicProfile } = await supabase
-      .from('public_profiles')
-      .select('id, name')
-      .eq('id', (await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', inviterEmail)
-        .maybeSingle()
-      ).data?.id || '')
-      .maybeSingle();
-
-    // Also get the full inviter data from profiles using service role
+    // Check if godparent exists in the system
     const { data: inviterData } = await supabase
       .from('profiles')
       .select('id, name, email')
