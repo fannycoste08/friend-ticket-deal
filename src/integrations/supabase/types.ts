@@ -55,24 +55,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "conversations_user1_id_fkey"
-            columns: ["user1_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "conversations_user2_id_fkey"
             columns: ["user2_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conversations_user2_id_fkey"
-            columns: ["user2_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -164,13 +150,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "invitations_inviter_id_fkey"
-            columns: ["inviter_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       messages: {
@@ -211,13 +190,6 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -286,24 +258,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "ticket_requests_requester_id_fkey"
-            columns: ["requester_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "ticket_requests_seller_id_fkey"
             columns: ["seller_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "ticket_requests_seller_id_fkey"
-            columns: ["seller_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
             referencedColumns: ["id"]
           },
           {
@@ -372,13 +330,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "tickets_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "public_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       user_roles: {
@@ -404,24 +355,7 @@ export type Database = {
       }
     }
     Views: {
-      public_profiles: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          name: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          name?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          name?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       get_extended_network: {
