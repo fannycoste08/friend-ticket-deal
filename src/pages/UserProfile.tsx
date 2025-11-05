@@ -87,12 +87,24 @@ const UserProfile = () => {
     const userNetwork = networkData?.find(n => n.network_user_id === userId);
     setNetworkDegree(userNetwork?.degree || null);
 
-    // Check friendship status
-    const { data: friendshipData } = await supabase
+    // Check friendship status - Use separate queries to avoid SQL injection
+    // Check if current user sent a request to this user
+    const { data: sentRequest } = await supabase
       .from('friendships')
       .select('*')
-      .or(`and(user_id.eq.${user.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${user.id})`)
+      .eq('user_id', user.id)
+      .eq('friend_id', userId)
       .maybeSingle();
+
+    // Check if this user sent a request to current user
+    const { data: receivedRequest } = await supabase
+      .from('friendships')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('friend_id', user.id)
+      .maybeSingle();
+
+    const friendshipData = sentRequest || receivedRequest;
 
     if (friendshipData) {
       if (friendshipData.status === 'accepted') {
