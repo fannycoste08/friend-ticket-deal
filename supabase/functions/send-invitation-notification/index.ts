@@ -50,6 +50,32 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
 
+    // SECURITY CHECK: Verify the authenticated user is creating an invitation for themselves
+    // Get the user's profile to check their email
+    const { data: userProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('email')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !userProfile) {
+      console.error('Failed to get user profile:', profileError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to verify user identity' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Verify the authenticated user's email matches the invitee_email in the request
+    // This ensures users can only send notifications for invitations they received
+    if (userProfile.email.toLowerCase() !== invitee_email.toLowerCase()) {
+      console.error('Unauthorized: User attempting to send invitation notification for someone else');
+      return new Response(
+        JSON.stringify({ error: 'You can only send notifications for your own invitations' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     // Check rate limit
     const rateLimitCheck = await checkRateLimit(
       user.id,
