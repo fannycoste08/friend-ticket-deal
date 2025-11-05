@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 interface Profile {
   id: string;
   name: string;
-  email: string;
 }
 
 interface Ticket {
@@ -27,7 +26,6 @@ interface Ticket {
   user_id: string;
   profiles: {
     name: string;
-    email: string;
   };
 }
 
@@ -61,7 +59,7 @@ const UserProfile = () => {
     // Load profile
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, name')
       .eq('id', userId)
       .single();
 
@@ -74,7 +72,7 @@ const UserProfile = () => {
       .from('tickets')
       .select(`
         *,
-        profiles!tickets_user_id_fkey(name, email)
+        profiles!tickets_user_id_fkey(name)
       `)
       .eq('user_id', userId)
       .eq('status', 'available')
@@ -254,7 +252,6 @@ const UserProfile = () => {
                 <h1 className="text-3xl font-bold text-foreground">{profile.name}</h1>
                 {getNetworkBadge()}
               </div>
-              <p className="text-muted-foreground">{profile.email}</p>
             </div>
             {getFriendshipButton()}
           </div>
@@ -295,7 +292,7 @@ const UserProfile = () => {
             id: selectedTicket.id,
             artist: selectedTicket.artist,
             seller: selectedTicket.profiles.name,
-            seller_email: selectedTicket.profiles.email,
+            seller_email: selectedTicket.user_id,
           }}
         />
       )}

@@ -47,18 +47,11 @@ const Profile = () => {
   const loadProfile = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('name, email')
-      .eq('id', user.id)
-      .single();
-
-    if (error) {
-      console.error('Error loading profile:', error);
-      return;
-    }
-
-    setProfileData(data);
+    // Get email from auth user object directly
+    setProfileData({
+      name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario',
+      email: user.email || ''
+    });
   };
 
   const loadTickets = async () => {
