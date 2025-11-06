@@ -104,7 +104,7 @@ const Register = () => {
     const { data: inviterData } = await supabase
       .from('profiles')
       .select('id, name, email')
-      .eq('email', inviterEmail)
+      .ilike('email', inviterEmail.trim())
       .maybeSingle();
 
     if (!inviterData) {
