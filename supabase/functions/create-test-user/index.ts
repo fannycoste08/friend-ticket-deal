@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { checkIPRateLimit, logIPAttempt, getClientIP } from '../_shared/ip-rate-limiter.ts';
 
 // Helper to check if user is admin
 async function isAdmin(supabase: any, userId: string): Promise<boolean> {
@@ -24,6 +25,34 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // IP-based rate limiting (3 attempts per hour)
+    const clientIP = getClientIP(req);
+    const rateLimitCheck = await checkIPRateLimit(
+      clientIP,
+      'create-test-user',
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    if (!rateLimitCheck.allowed) {
+      console.warn('Rate limit exceeded for IP:', clientIP);
+      return new Response(
+        JSON.stringify({ error: rateLimitCheck.error }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Log this attempt
+    await logIPAttempt(
+      clientIP,
+      'create-test-user',
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
     // Get and verify JWT token
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
