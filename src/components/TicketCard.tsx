@@ -49,48 +49,48 @@ export const TicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends
     >
       <div className="p-6 space-y-5">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <h3 className="text-2xl font-bold text-foreground mb-3">{ticket.artist}</h3>
             
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="w-4 h-4 text-primary" />
+                <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
                 <span>{ticket.venue}, {ticket.city}</span>
               </div>
               
               <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="w-4 h-4 text-primary" />
+                <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
                 <span>{format(new Date(ticket.event_date), "d 'de' MMMM 'de' yyyy", { locale: es })}</span>
               </div>
-              
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <User className="w-4 h-4 text-primary" />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/user/${ticket.user_id}`);
-                  }}
-                  className="hover:underline hover:text-primary transition-colors"
-                >
-                  {ticket.seller_name}
-                </button>
-                {networkLabel && (
-                  <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                    {networkLabel}
-                  </Badge>
-                )}
-              </div>
-
-              <Badge variant="secondary" className="text-xs">
-                {ticket.ticket_type}
-              </Badge>
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="text-right flex-shrink-0">
             <div className="text-3xl font-bold text-primary">{ticket.price}€</div>
           </div>
         </div>
+
+        <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+          <User className="w-4 h-4 text-primary flex-shrink-0" />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/user/${ticket.user_id}`);
+            }}
+            className="hover:underline hover:text-primary transition-colors"
+          >
+            {ticket.seller_name}
+          </button>
+          {networkLabel && (
+            <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+              {networkLabel}
+            </Badge>
+          )}
+        </div>
+
+        <Badge variant="secondary" className="text-xs">
+          {ticket.ticket_type}
+        </Badge>
 
         {ticket.description && (
           <p className="text-sm text-muted-foreground line-clamp-2">
