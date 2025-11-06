@@ -103,23 +103,24 @@ const Register = () => {
     }
 
     // No pre-approved invitation - need godparent approval
-    // Check if godparent exists in the system
+    // Verify if godparent exists using edge function (to bypass RLS)
     const normalizedInviterEmail = inviterEmail.trim().toLowerCase();
-    console.log('Searching for inviter email:', normalizedInviterEmail);
+    console.log('Verifying inviter email via edge function:', normalizedInviterEmail);
     
-    const { data: inviterData, error: inviterError } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .ilike('email', normalizedInviterEmail)
-      .maybeSingle();
+    const { data: verifyResult, error: verifyError } = await supabase.functions.invoke('verify-inviter-email', {
+      body: { email: normalizedInviterEmail }
+    });
 
-    console.log('Inviter search result:', { inviterData, inviterError });
+    console.log('Verification result:', verifyResult);
 
-    if (!inviterData) {
+    if (verifyError || !verifyResult?.exists) {
+      console.error('Inviter verification error:', verifyError);
       toast.error('El email del padrino no existe en el sistema');
       setLoading(false);
       return;
     }
+
+    const inviterData = verifyResult.inviter;
 
     // Check if there's already a pending invitation for this email
     const { data: existingPendingInvitation } = await supabase
