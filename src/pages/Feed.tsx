@@ -104,7 +104,20 @@ const Feed = () => {
       };
     }));
 
-    setTickets(ticketsWithMutualFriends);
+    // Sort tickets: own tickets at the end, others by event date (soonest first)
+    const sortedTickets = ticketsWithMutualFriends.sort((a, b) => {
+      const isAOwn = a.user_id === user?.id;
+      const isBOwn = b.user_id === user?.id;
+      
+      // If one is own and the other isn't, own goes to the end
+      if (isAOwn && !isBOwn) return 1;
+      if (!isAOwn && isBOwn) return -1;
+      
+      // If both are own or both are not own, sort by event date
+      return new Date(a.event_date).getTime() - new Date(b.event_date).getTime();
+    });
+
+    setTickets(sortedTickets);
     setLoadingTickets(false);
   };
 
