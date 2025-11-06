@@ -31,11 +31,11 @@ export const TicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends
   
   const getNetworkLabel = () => {
     if (!networkDegree) return null;
-    if (networkDegree === 1) return 'Amigo';
+    if (networkDegree === 1) return { text: 'Amigo', isDirectFriend: true };
     if (networkDegree === 2) {
-      if (mutualFriends.length === 0) return 'Amigo de amigo';
-      if (mutualFriends.length === 1) return `Amigo de ${mutualFriends[0].friend_name}`;
-      return `Amigo de ${mutualFriends[0].friend_name} y ${mutualFriends.length - 1} más`;
+      if (mutualFriends.length === 0) return { text: 'Amigo de amigo', isDirectFriend: false };
+      if (mutualFriends.length === 1) return { text: `Amigo de ${mutualFriends[0].friend_name}`, isDirectFriend: false };
+      return { text: `Amigo de ${mutualFriends[0].friend_name} y ${mutualFriends.length - 1} más`, isDirectFriend: false };
     }
     return null;
   };
@@ -82,8 +82,14 @@ export const TicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends
             {ticket.seller_name}
           </button>
           {networkLabel && (
-            <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-              {networkLabel}
+            <Badge 
+              variant="outline" 
+              className={networkLabel.isDirectFriend 
+                ? "text-xs bg-green-500/10 text-green-600 border-green-500/20 dark:text-green-400 dark:border-green-400/20" 
+                : "text-xs bg-primary/10 text-primary border-primary/20"
+              }
+            >
+              {networkLabel.text}
             </Badge>
           )}
         </div>
