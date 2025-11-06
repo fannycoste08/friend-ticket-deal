@@ -15,6 +15,9 @@ verify_jwt = true
 [functions.send-contact-email]
 verify_jwt = true
 
+[functions.send-invitation-notification]
+verify_jwt = false
+
 [functions.send-message-notification]
 verify_jwt = true
 

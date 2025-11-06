@@ -21,64 +21,16 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Get JWT token from Authorization header
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Authentication required' }),
-        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
-
-    // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid authentication token' }),
-        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
     const { inviter_email, inviter_name, invitee_name, invitee_email }: InvitationNotificationRequest = await req.json();
     
     console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
 
-    // SECURITY CHECK: Verify the authenticated user is creating an invitation for themselves
-    // Get the user's profile to check their email
-    const { data: userProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('email')
-      .eq('id', user.id)
-      .single();
-
-    if (profileError || !userProfile) {
-      console.error('Failed to get user profile:', profileError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to verify user identity' }),
-        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    // Verify the authenticated user's email matches the invitee_email in the request
-    // This ensures users can only send notifications for invitations they received
-    if (userProfile.email.toLowerCase() !== invitee_email.toLowerCase()) {
-      console.error('Unauthorized: User attempting to send invitation notification for someone else');
-      return new Response(
-        JSON.stringify({ error: 'You can only send notifications for your own invitations' }),
-        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
+    // Use a temporary user ID for rate limiting (based on email)
+    const tempUserId = `email_${invitee_email}`;
+    
     // Check rate limit
     const rateLimitCheck = await checkRateLimit(
-      user.id,
+      tempUserId,
       inviter_email,
       'send-invitation-notification',
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -129,7 +81,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Log the email send
     await logEmail(
-      user.id,
+      tempUserId,
       inviter_email,
       'send-invitation-notification',
       Deno.env.get('SUPABASE_URL') ?? '',
