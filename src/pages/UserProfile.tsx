@@ -331,7 +331,6 @@ const UserProfile = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-foreground truncate">{friend.friend_name}</p>
-                    <p className="text-sm text-muted-foreground truncate">{friend.friend_email}</p>
                   </div>
                 </button>
               ))}
