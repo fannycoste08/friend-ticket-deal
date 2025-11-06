@@ -30,9 +30,9 @@ const handler = async (req: Request): Promise<Response> => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Trusticket <info@Trusticket.com>',
+        from: 'TrusTicket <onboarding@resend.dev>',
         to: [invitee_email],
-        subject: `${inviter_name} te invita a Trusticket`,
+        subject: `${inviter_name} te invita a TrusTicket`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -51,18 +51,18 @@ const handler = async (req: Request): Promise<Response> => {
             <body>
               <div class="container">
                 <div class="header">
-                  <h1 style="margin: 0;">🎉 ¡Te han invitado a Trusticket!</h1>
+                  <h1 style="margin: 0;">🎉 ¡Te han invitado a TrusTicket!</h1>
                 </div>
                 <div class="content">
                   <p>Hola <strong>${invitee_name}</strong>,</p>
-                  <p><strong>${inviter_name}</strong> te invita a unirte a <strong>Trusticket</strong>, la plataforma de confianza para comprar y vender entradas de eventos.</p>
+                  <p><strong>${inviter_name}</strong> te invita a unirte a <strong>TrusTicket</strong>, la plataforma de confianza para comprar y vender entradas de eventos.</p>
                   
                   <div class="highlight-box">
                     <p style="margin: 0; font-weight: bold; color: #8B5CF6;">✨ ¡Tu invitación está pre-aprobada!</p>
-                    <p style="margin: 5px 0 0 0; font-size: 14px;">Puedes crear tu cuenta inmediatamente y empezar a usar Trusticket.</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">Puedes crear tu cuenta inmediatamente y empezar a usar TrusTicket.</p>
                   </div>
 
-                  <p><strong>Con Trusticket puedes:</strong></p>
+                  <p><strong>Con TrusTicket puedes:</strong></p>
                   <ul style="margin: 10px 0;">
                     <li>✅ Comprar y vender entradas de forma segura</li>
                     <li>🎫 Conectar con amigos y su red de contactos</li>
@@ -70,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
                   </ul>
                   
                   <p style="text-align: center; margin: 30px 0;">
-                    <a href="https://Trusticket.lovable.app/register" class="button">
+                    <a href="https://friend-ticket-deal.lovable.app/register" class="button">
                       🚀 Crear mi cuenta ahora
                     </a>
                   </p>
@@ -82,7 +82,7 @@ const handler = async (req: Request): Promise<Response> => {
                   <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no esperabas esta invitación, puedes ignorar este email.</p>
                 </div>
                 <div class="footer">
-                  <p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p>
+                  <p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p>
                 </div>
               </div>
             </body>
