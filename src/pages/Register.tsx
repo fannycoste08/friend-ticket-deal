@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Ticket, CheckCircle } from 'lucide-react';
+import { Ticket, CheckCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -276,8 +276,11 @@ const Register = () => {
                 required
               />
             </div>
-            <div className="rounded-lg bg-secondary/50 p-3 text-sm text-muted-foreground">
-              Tu registro debe ser aprobado por tu padrino
+            <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+              <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-foreground">
+                Tu registro debe ser aprobado por tu padrino
+              </p>
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Solicitando registro...' : 'Solicitar registro'}
