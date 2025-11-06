@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,7 +32,7 @@ interface TicketFormProps {
 
 const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
   const { user } = useAuth();
-  const [open, setOpen] = useState(!!editTicket);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     artist: editTicket?.artist || '',
@@ -44,6 +44,22 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
     quantity: editTicket?.quantity?.toString() || '1',
     description: editTicket?.description || '',
   });
+
+  useEffect(() => {
+    if (editTicket) {
+      setOpen(true);
+      setFormData({
+        artist: editTicket.artist,
+        venue: editTicket.venue,
+        city: editTicket.city,
+        event_date: new Date(editTicket.event_date),
+        ticket_type: editTicket.ticket_type,
+        price: editTicket.price.toString(),
+        quantity: editTicket.quantity.toString(),
+        description: editTicket.description || '',
+      });
+    }
+  }, [editTicket]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
