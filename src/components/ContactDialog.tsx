@@ -66,7 +66,14 @@ export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps
         return;
       }
 
-      const { error } = await supabase.functions.invoke('send-contact-email', {
+      console.log('Sending contact email with data:', {
+        seller_email: ticket.seller_email,
+        seller_name: ticket.seller,
+        artist: ticket.artist,
+        ticket_id: ticket.id,
+      });
+
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
         body: {
           seller_email: ticket.seller_email,
           seller_name: ticket.seller,
@@ -79,7 +86,12 @@ export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      console.log('Contact email sent successfully:', data);
 
       toast.success("Mensaje enviado", {
         description: "Tu mensaje ha sido enviado al vendedor",
@@ -87,10 +99,16 @@ export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps
       
       form.reset();
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending contact email:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        status: error?.status,
+        details: error
+      });
+      
       toast.error("Error al enviar el mensaje", {
-        description: "Por favor, inténtalo de nuevo más tarde",
+        description: error?.message || "Por favor, inténtalo de nuevo más tarde",
       });
     } finally {
       setIsSubmitting(false);
