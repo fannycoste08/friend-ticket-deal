@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TrusTicket <onboarding@resend.dev>',
+        from: 'TrusTicket <info@trusticket.com>',
         to: [invitee_email],
         subject: `${inviter_name} te invita a TrusTicket`,
         html: `
