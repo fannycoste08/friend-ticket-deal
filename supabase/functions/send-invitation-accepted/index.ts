@@ -55,31 +55,29 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
                 <div class="content">
                   <p>Hola <strong>${invitee_name}</strong>,</p>
-                  <p><strong>${inviter_name}</strong> te invita a unirte a <strong>TrusTicket</strong>, la plataforma de confianza para comprar y vender entradas de eventos.</p>
+                  <p>Buenas noticias: <strong>${inviter_name}</strong> ha aprobado tu solicitud de registro en <strong>TrusTicket</strong>.</p>
                   
                   <div class="highlight-box">
-                    <p style="margin: 0; font-weight: bold; color: #8B5CF6;">✨ ¡Tu invitación está pre-aprobada!</p>
-                    <p style="margin: 5px 0 0 0; font-size: 14px;">Puedes crear tu cuenta inmediatamente y empezar a usar TrusTicket.</p>
+                    <p style="margin: 0; font-weight: bold; color: #8B5CF6;">✨ ¡Tu cuenta está activada!</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">Ya puedes iniciar sesión con la contraseña que creaste durante el registro.</p>
                   </div>
-
-                  <p><strong>Con TrusTicket puedes:</strong></p>
+                  <p><strong>Recuerda:</strong></p>
                   <ul style="margin: 10px 0;">
-                    <li>✅ Comprar y vender entradas de forma segura</li>
-                    <li>🎫 Conectar con amigos y su red de contactos</li>
-                    <li>💬 Comunicarte directamente con los vendedores</li>
+                    <li>📧 Email: <strong>${invitee_email}</strong></li>
+                    <li>🔑 Contraseña: <strong>La que creaste al registrarte</strong></li>
                   </ul>
                   
                   <p style="text-align: center; margin: 30px 0;">
-                    <a href="https://friend-ticket-deal.lovable.app/register" class="button">
-                      🚀 Crear mi cuenta ahora
+                    <a href="https://friend-ticket-deal.lovable.app/login" class="button">
+                      🚀 Iniciar sesión ahora
                     </a>
                   </p>
                   
                   <p style="color: #6b7280; font-size: 13px; border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 20px;">
-                    <strong>Importante:</strong> Usa este correo electrónico (<strong>${invitee_email}</strong>) para registrarte y podrás acceder inmediatamente.
+                    <strong>¿Olvidaste tu contraseña?</strong> Puedes restablecerla usando la opción "¿Olvidaste tu contraseña?" en la página de login.
                   </p>
                   
-                  <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no esperabas esta invitación, puedes ignorar este email.</p>
+                  <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta invitación, puedes ignorar este email.</p>
                 </div>
                 <div class="footer">
                   <p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p>

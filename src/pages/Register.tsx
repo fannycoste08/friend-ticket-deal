@@ -84,23 +84,26 @@ const Register = () => {
       .maybeSingle();
 
     if (approvedInvitation) {
-      // User was pre-invited by a godparent - create user directly and log them in
-      const { error: signUpError } = await signUp(name, normalizedEmail, password);
-      
-      if (signUpError) {
-        if (signUpError.message.includes("already registered")) {
-          toast.error("Este email ya está registrado");
-        } else {
-          toast.error("Error al crear la cuenta: " + signUpError.message);
-        }
-        setLoading(false);
-        return;
-      }
-
-      toast.success("¡Cuenta creada! Bienvenido a TrusTicket");
-      navigate("/");
+      // User was pre-invited by a godparent - just login
+      toast.success("¡Tu invitación ya está aprobada! Inicia sesión.");
+      navigate("/login");
       return;
     }
+
+    // Create user account immediately with their chosen password
+    const { error: signUpError } = await signUp(name, normalizedEmail, password);
+    
+    if (signUpError) {
+      if (signUpError.message.includes("already registered") || signUpError.message.includes("User already registered")) {
+        toast.error("Este email ya está registrado");
+      } else {
+        toast.error("Error al crear la cuenta: " + signUpError.message);
+      }
+      setLoading(false);
+      return;
+    }
+
+    console.log('User account created successfully');
 
     // No pre-approved invitation - need godparent approval
     // Verify if godparent exists using edge function (to bypass RLS)
@@ -160,6 +163,10 @@ const Register = () => {
     }
 
     setInviterName(inviterData.name || 'tu padrino');
+    
+    // Log out the user so they need to wait for approval
+    await supabase.auth.signOut();
+    
     setShowSuccessModal(true);
     setLoading(false);
   };
