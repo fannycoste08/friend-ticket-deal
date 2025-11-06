@@ -106,20 +106,7 @@ const Register = () => {
       return;
     }
 
-    // Create user account immediately with their chosen password and inviter email
-    const { error: signUpError } = await signUp(name, normalizedEmail, password, normalizedInviterEmail);
-    
-    if (signUpError) {
-      if (signUpError.message.includes("already registered") || signUpError.message.includes("User already registered")) {
-        toast.error("Este email ya está registrado");
-      } else {
-        toast.error("Error al crear la cuenta: " + signUpError.message);
-      }
-      setLoading(false);
-      return;
-    }
-
-    console.log('User account created successfully');
+    // NO pre-approved invitation - DON'T create user yet, wait for godparent approval
 
     // No pre-approved invitation - need godparent approval
     // Verify if godparent exists using edge function (to bypass RLS)
@@ -178,10 +165,6 @@ const Register = () => {
     }
 
     setInviterName(inviterData.name || 'tu padrino');
-    
-    // Log out the user so they need to wait for approval
-    await supabase.auth.signOut();
-    
     setShowSuccessModal(true);
     setLoading(false);
   };

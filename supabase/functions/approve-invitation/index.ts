@@ -93,8 +93,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // User should already exist (created during registration)
-    // We just need to update the invitation status
     console.log('Approving invitation for:', invitation.invitee_email);
 
     // Update invitation status to approved
@@ -114,6 +112,49 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Create user account now that invitation is approved
+    // Generate a random password - user will need to reset it via email
+    const tempPassword = crypto.randomUUID();
+    
+    const { data: newUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser({
+      email: invitation.invitee_email,
+      password: tempPassword,
+      email_confirm: true, // Auto-confirm email
+      user_metadata: {
+        name: invitation.invitee_name,
+        inviter_email: user.email,
+      }
+    });
+
+    if (createUserError) {
+      console.error('Error creating user:', createUserError);
+      // Revert invitation status if user creation fails
+      await supabaseAdmin
+        .from('invitations')
+        .update({ status: 'pending' })
+        .eq('id', invitation_id);
+      
+      return new Response(
+        JSON.stringify({ error: 'Failed to create user account' }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    console.log('User account created:', newUser.user?.id);
+
+    // Send password reset email so user can set their password
+    const { error: resetError } = await supabaseAdmin.auth.admin.generateLink({
+      type: 'recovery',
+      email: invitation.invitee_email,
+    });
+
+    if (resetError) {
+      console.error('Error generating password reset link:', resetError);
+    }
+
     // Send acceptance notification email
     const { error: emailError } = await supabaseAdmin.functions.invoke('send-invitation-accepted', {
       body: {
@@ -131,7 +172,7 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Invitación aprobada. El usuario puede hacer login ahora.',
+        message: 'Invitación aprobada. Se ha enviado un email al usuario para establecer su contraseña.',
       }),
       {
         status: 200,
