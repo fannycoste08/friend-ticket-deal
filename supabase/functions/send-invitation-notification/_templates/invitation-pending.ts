@@ -46,7 +46,7 @@ export const getInvitationPendingEmail = (
               <table width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
                 <tr>
                   <td align="center">
-                    <a href="${app_url}/profile" 
+                    <a href="${app_url}/profile#invitations" 
                        style="display: inline-block; background-color: #8B5CF6; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);">
                       Revisar solicitud en Trusticket
                     </a>

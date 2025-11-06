@@ -26,6 +26,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
   const [inviteEmail, setInviteEmail] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('pending');
 
   const loadInvitations = async () => {
     const { data: pending } = await supabase
@@ -48,6 +49,13 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
 
   useEffect(() => {
     loadInvitations();
+    
+    // Check if URL has #invitations hash and open pending tab
+    if (window.location.hash === '#invitations') {
+      setActiveTab('pending');
+      // Remove hash from URL without scrolling
+      window.history.replaceState(null, '', window.location.pathname);
+    }
   }, [userId]);
 
   const handleApprove = async (invitationId: string) => {
@@ -224,7 +232,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
         </Dialog>
       </div>
 
-      <Tabs defaultValue="pending" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="pending">
             Pendientes ({pendingInvitations.length})
