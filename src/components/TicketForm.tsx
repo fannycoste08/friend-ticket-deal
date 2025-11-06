@@ -32,7 +32,7 @@ interface TicketFormProps {
 
 const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!!editTicket);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     artist: editTicket?.artist || '',
@@ -118,19 +118,14 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {editTicket ? (
-          <Button variant="outline" size="sm" className="gap-2">
-            <Plus className="w-4 h-4" />
-            Editar
-          </Button>
-        ) : (
+      {!editTicket && (
+        <DialogTrigger asChild>
           <Button className="gap-2">
             <Plus className="w-4 h-4" />
             Publicar Entrada
           </Button>
-        )}
-      </DialogTrigger>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editTicket ? 'Editar Entrada' : 'Publicar Nueva Entrada'}</DialogTitle>
