@@ -59,11 +59,14 @@ const Register = () => {
 
     setLoading(true);
 
+    // Normalize email
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Check if email is already registered in profiles
     const { data: existingUser } = await supabase
       .from('profiles')
       .select('email')
-      .eq('email', email)
+      .ilike('email', normalizedEmail)
       .maybeSingle();
 
     if (existingUser) {
@@ -76,13 +79,13 @@ const Register = () => {
     const { data: approvedInvitation } = await supabase
       .from('invitations')
       .select('*, inviter:profiles!invitations_inviter_id_fkey(id, name, email)')
-      .eq('invitee_email', email)
+      .ilike('invitee_email', normalizedEmail)
       .eq('status', 'approved')
       .maybeSingle();
 
     if (approvedInvitation) {
       // User was pre-invited by a godparent - create user directly and log them in
-      const { error: signUpError } = await signUp(name, email, password);
+      const { error: signUpError } = await signUp(name, normalizedEmail, password);
       
       if (signUpError) {
         if (signUpError.message.includes("already registered")) {
@@ -101,11 +104,16 @@ const Register = () => {
 
     // No pre-approved invitation - need godparent approval
     // Check if godparent exists in the system
-    const { data: inviterData } = await supabase
+    const normalizedInviterEmail = inviterEmail.trim().toLowerCase();
+    console.log('Searching for inviter email:', normalizedInviterEmail);
+    
+    const { data: inviterData, error: inviterError } = await supabase
       .from('profiles')
       .select('id, name, email')
-      .ilike('email', inviterEmail.trim())
+      .ilike('email', normalizedInviterEmail)
       .maybeSingle();
+
+    console.log('Inviter search result:', { inviterData, inviterError });
 
     if (!inviterData) {
       toast.error('El email del padrino no existe en el sistema');
@@ -117,7 +125,7 @@ const Register = () => {
     const { data: existingPendingInvitation } = await supabase
       .from('invitations')
       .select('id')
-      .eq('invitee_email', email)
+      .ilike('invitee_email', normalizedEmail)
       .eq('status', 'pending')
       .maybeSingle();
 
@@ -133,7 +141,7 @@ const Register = () => {
       .from('invitations')
       .insert({
         inviter_id: inviterData.id,
-        invitee_email: email,
+        invitee_email: normalizedEmail,
         invitee_name: name,
         status: 'pending',
       });
@@ -147,10 +155,10 @@ const Register = () => {
     // Send notification email to godparent
     const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
       body: {
-        inviter_email: inviterEmail,
+        inviter_email: inviterData.email,
         inviter_name: inviterData.name || 'Usuario',
         invitee_name: name,
-        invitee_email: email,
+        invitee_email: normalizedEmail,
       },
     });
 
