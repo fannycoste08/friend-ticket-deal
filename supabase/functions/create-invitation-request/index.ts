@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { validateEmail } from '../_shared/validation.ts';
+import { checkIPRateLimit, logIPAttempt, getClientIP } from '../_shared/ip-rate-limiter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,6 +14,30 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // IP-based rate limiting (10 invitations per hour)
+    const clientIP = getClientIP(req);
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    
+    const rateLimitCheck = await checkIPRateLimit(
+      clientIP,
+      'create-invitation-request',
+      supabaseUrl,
+      supabaseKey,
+      { maxAttempts: 10, windowMinutes: 60 }
+    );
+
+    if (!rateLimitCheck.allowed) {
+      console.warn(`Rate limit exceeded for IP: ${clientIP}`);
+      return new Response(
+        JSON.stringify({ error: 'Too many invitation requests. Please try again later.' }),
+        { 
+          status: 429, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const { inviter_id, invitee_email, invitee_name } = await req.json();
 
     // Validate inputs
@@ -88,6 +113,9 @@ Deno.serve(async (req) => {
     }
 
     console.log('Invitation created successfully:', data.id);
+
+    // Log successful attempt
+    await logIPAttempt(clientIP, 'create-invitation-request', supabaseUrl, supabaseKey);
 
     return new Response(
       JSON.stringify({ 

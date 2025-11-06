@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { checkIPRateLimit, logIPAttempt, getClientIP } from '../_shared/ip-rate-limiter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,6 +13,30 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // IP-based rate limiting (20 requests per 15 minutes)
+    const clientIP = getClientIP(req);
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    
+    const rateLimitCheck = await checkIPRateLimit(
+      clientIP,
+      'verify-inviter-email',
+      supabaseUrl,
+      supabaseKey,
+      { maxAttempts: 20, windowMinutes: 15 }
+    );
+
+    if (!rateLimitCheck.allowed) {
+      console.warn(`Rate limit exceeded for IP: ${clientIP}`);
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please try again later.', exists: false }),
+        { 
+          status: 429, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     const { email } = await req.json();
 
     if (!email) {
@@ -53,10 +78,14 @@ Deno.serve(async (req) => {
 
     console.log('Inviter found:', data ? 'yes' : 'no');
 
+    // Log successful attempt
+    await logIPAttempt(clientIP, 'verify-inviter-email', supabaseUrl, supabaseKey);
+
+    // Only return existence status and basic info, no email
     return new Response(
       JSON.stringify({ 
         exists: !!data,
-        inviter: data ? { id: data.id, name: data.name, email: data.email } : null
+        inviter: data ? { id: data.id, name: data.name } : null
       }),
       { 
         status: 200, 
