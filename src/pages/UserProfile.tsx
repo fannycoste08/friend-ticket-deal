@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TicketCard } from '@/components/TicketCard';
 import { ContactDialog } from '@/components/ContactDialog';
-import { ArrowLeft, UserPlus, UserCheck, Clock } from 'lucide-react';
+import { ArrowLeft, UserPlus, UserCheck, Clock, Users } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Profile {
@@ -46,6 +46,7 @@ const UserProfile = () => {
   const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus>({ status: 'none' });
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [mutualFriends, setMutualFriends] = useState<Array<{ friend_id: string; friend_name: string; friend_email: string }>>([]);
 
   useEffect(() => {
     if (userId && user) {
@@ -87,7 +88,21 @@ const UserProfile = () => {
       .rpc('get_extended_network', { user_uuid: user.id });
 
     const userNetwork = networkData?.find(n => n.network_user_id === userId);
-    setNetworkDegree(userNetwork?.degree || null);
+    const degree = userNetwork?.degree || null;
+    setNetworkDegree(degree);
+
+    // Get mutual friends if degree 2
+    if (degree === 2) {
+      const { data: mutualData } = await supabase
+        .rpc('get_mutual_friends', { 
+          user_a: user.id, 
+          user_b: userId 
+        });
+      
+      setMutualFriends(mutualData || []);
+    } else {
+      setMutualFriends([]);
+    }
 
     // Check friendship status - Use separate queries to avoid SQL injection
     // Check if current user sent a request to this user
@@ -294,6 +309,35 @@ const UserProfile = () => {
             {getFriendshipButton()}
           </div>
         </Card>
+
+        {mutualFriends.length > 0 && (
+          <Card className="p-6 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="w-5 h-5 text-primary" />
+              <h2 className="text-xl font-bold">Amigos en común</h2>
+              <Badge variant="secondary">{mutualFriends.length}</Badge>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {mutualFriends.map((friend) => (
+                <button
+                  key={friend.friend_id}
+                  onClick={() => navigate(`/user/${friend.friend_id}`)}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-border/50 hover:bg-secondary/50 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-primary font-semibold">
+                      {friend.friend_name.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground truncate">{friend.friend_name}</p>
+                    <p className="text-sm text-muted-foreground truncate">{friend.friend_email}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Card>
+        )}
 
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-foreground mb-4">

@@ -20,17 +20,22 @@ interface TicketCardProps {
   };
   currentUserId?: string;
   networkDegree?: number;
+  mutualFriends?: Array<{ friend_name: string }>;
   onContact: () => void;
 }
 
-export const TicketCard = ({ ticket, currentUserId, networkDegree, onContact }: TicketCardProps) => {
+export const TicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends = [], onContact }: TicketCardProps) => {
   const navigate = useNavigate();
   const isMyTicket = currentUserId === ticket.user_id;
   
   const getNetworkLabel = () => {
     if (!networkDegree) return null;
     if (networkDegree === 1) return 'Amigo';
-    if (networkDegree === 2) return 'Amigo de amigo';
+    if (networkDegree === 2) {
+      if (mutualFriends.length === 0) return 'Amigo de amigo';
+      if (mutualFriends.length === 1) return `Amigo de ${mutualFriends[0].friend_name}`;
+      return `Amigo de ${mutualFriends[0].friend_name} y ${mutualFriends.length - 1} más`;
+    }
     return null;
   };
   

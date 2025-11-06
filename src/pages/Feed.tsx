@@ -17,6 +17,7 @@ interface Ticket {
   ticket_type: string;
   user_id: string;
   networkDegree?: number;
+  mutualFriends?: Array<{ friend_name: string }>;
   profiles: {
     name: string;
     email: string;
@@ -81,13 +82,29 @@ const Feed = () => {
       return;
     }
 
-    // Add network degree to tickets
-    const ticketsWithNetwork = (data || []).map(ticket => ({
-      ...ticket,
-      networkDegree: networkMap.get(ticket.user_id)
+    // Get mutual friends for degree 2 connections
+    const ticketsWithMutualFriends = await Promise.all((data || []).map(async (ticket) => {
+      const degree = networkMap.get(ticket.user_id);
+      let mutualFriends: Array<{ friend_name: string }> = [];
+      
+      if (degree === 2 && user?.id) {
+        const { data: mutualData } = await supabase
+          .rpc('get_mutual_friends', { 
+            user_a: user.id, 
+            user_b: ticket.user_id 
+          });
+        
+        mutualFriends = mutualData?.map(f => ({ friend_name: f.friend_name })) || [];
+      }
+      
+      return {
+        ...ticket,
+        networkDegree: degree,
+        mutualFriends
+      };
     }));
 
-    setTickets(ticketsWithNetwork);
+    setTickets(ticketsWithMutualFriends);
     setLoadingTickets(false);
   };
 
@@ -160,6 +177,7 @@ const Feed = () => {
                   }}
                   currentUserId={user?.id}
                   networkDegree={ticket.networkDegree}
+                  mutualFriends={ticket.mutualFriends}
                   onContact={() => setSelectedTicket(ticket)}
                 />
               );

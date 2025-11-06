@@ -387,6 +387,14 @@ export type Database = {
           network_user_id: string
         }[]
       }
+      get_mutual_friends: {
+        Args: { user_a: string; user_b: string }
+        Returns: {
+          friend_email: string
+          friend_id: string
+          friend_name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
