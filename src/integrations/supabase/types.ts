@@ -390,7 +390,6 @@ export type Database = {
       get_mutual_friends: {
         Args: { user_a: string; user_b: string }
         Returns: {
-          friend_email: string
           friend_id: string
           friend_name: string
         }[]
