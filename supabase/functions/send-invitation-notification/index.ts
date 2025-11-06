@@ -20,7 +20,50 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Create Supabase client with the authorization header
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    const supabase = createClient(supabaseUrl, supabaseKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { inviter_email, inviter_name, invitee_name, invitee_email }: InvitationNotificationRequest = await req.json();
+    
+    // Verify that the invitation was created by this user and exists
+    const { data: invitation, error: invitationError } = await supabase
+      .from('invitations')
+      .select('*')
+      .eq('inviter_id', user.id)
+      .eq('invitee_email', invitee_email)
+      .eq('status', 'pending')
+      .maybeSingle();
+
+    if (invitationError || !invitation) {
+      console.error('Invitation validation error:', invitationError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid request - invitation not found or not authorized' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
     
     console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
 

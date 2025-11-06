@@ -46,7 +46,7 @@ const UserProfile = () => {
   const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus>({ status: 'none' });
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [mutualFriends, setMutualFriends] = useState<Array<{ friend_id: string; friend_name: string; friend_email: string }>>([]);
+  const [mutualFriends, setMutualFriends] = useState<Array<{ friend_id: string; friend_name: string }>>([]);
 
   useEffect(() => {
     if (userId && user) {
