@@ -283,19 +283,11 @@ const Register = () => {
               {loading ? 'Solicitando registro...' : 'Solicitar registro'}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm space-y-2">
-            <div>
-              <span className="text-muted-foreground">¿Ya tienes cuenta? </span>
-              <Link to="/login" className="text-primary hover:underline font-medium">
-                Inicia sesión
-              </Link>
-            </div>
-            <div className="pt-2 border-t">
-              <span className="text-muted-foreground text-xs">Para pruebas: </span>
-              <Link to="/create-test-user" className="text-primary hover:underline font-medium text-xs">
-                Crear usuario padrino de prueba
-              </Link>
-            </div>
+          <div className="mt-4 text-center text-sm">
+            <span className="text-muted-foreground">¿Ya tienes cuenta? </span>
+            <Link to="/login" className="text-primary hover:underline font-medium">
+              Inicia sesión
+            </Link>
           </div>
         </CardContent>
       </Card>
