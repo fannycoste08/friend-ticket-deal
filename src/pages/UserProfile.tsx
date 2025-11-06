@@ -122,7 +122,7 @@ const UserProfile = () => {
   };
 
   const handleSendFriendRequest = async () => {
-    if (!userId || !user) return;
+    if (!userId || !user || !profile) return;
 
     const { error } = await supabase
       .from('friendships')
@@ -135,6 +135,26 @@ const UserProfile = () => {
     if (error) {
       toast.error('Error al enviar solicitud de amistad');
       return;
+    }
+
+    // Send notification email
+    try {
+      const { data: currentUserProfile } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .single();
+
+      await supabase.functions.invoke('send-friendship-notification', {
+        body: {
+          recipient_email: profile.email,
+          recipient_name: profile.name,
+          requester_name: currentUserProfile?.name || 'Un usuario',
+        },
+      });
+    } catch (emailError) {
+      console.error('Error sending friendship notification email:', emailError);
+      // Don't fail the request if email fails
     }
 
     toast.success('Solicitud de amistad enviada');
