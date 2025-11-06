@@ -82,8 +82,7 @@ const Register = () => {
 
     if (approvedInvitation) {
       // User was pre-invited by a godparent - create user directly and log them in
-      const inviterEmail = approvedInvitation.inviter?.email || '';
-      const { error: signUpError } = await signUp(name, email, password, inviterEmail);
+      const { error: signUpError } = await signUp(name, email, password);
       
       if (signUpError) {
         if (signUpError.message.includes("already registered")) {
