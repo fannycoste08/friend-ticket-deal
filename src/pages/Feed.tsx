@@ -19,6 +19,7 @@ interface Ticket {
   networkDegree?: number;
   profiles: {
     name: string;
+    email: string;
   } | null;
 }
 
@@ -67,7 +68,7 @@ const Feed = () => {
       .from('tickets')
       .select(`
         *,
-        profiles!tickets_user_id_fkey(name)
+        profiles!tickets_user_id_fkey(name, email)
       `)
       .eq('status', 'available')
       .in('user_id', allowedUserIds)
@@ -175,7 +176,7 @@ const Feed = () => {
             id: selectedTicket.id,
             artist: selectedTicket.artist,
             seller: selectedTicket.profiles.name,
-            seller_email: selectedTicket.user_id,
+            seller_email: selectedTicket.profiles.email,
           }}
         />
       )}
