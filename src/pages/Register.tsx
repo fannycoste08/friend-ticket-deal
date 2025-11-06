@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Ticket, CheckCircle, Info } from 'lucide-react';
+import { Ticket, CheckCircle, Info, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -251,9 +251,50 @@ const Register = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <p className="text-xs text-muted-foreground">
-                Mínimo 8 caracteres, con mayúscula, minúscula y número
-              </p>
+              {password && (
+                <div className="space-y-1.5 pt-2">
+                  <div className="flex items-center gap-2 text-xs">
+                    {password.length >= 8 ? (
+                      <Check className="w-3.5 h-3.5 text-green-500" />
+                    ) : (
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    )}
+                    <span className={password.length >= 8 ? "text-green-500" : "text-muted-foreground"}>
+                      Mínimo 8 caracteres
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    {/[A-Z]/.test(password) ? (
+                      <Check className="w-3.5 h-3.5 text-green-500" />
+                    ) : (
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    )}
+                    <span className={/[A-Z]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
+                      Al menos una mayúscula
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    {/[a-z]/.test(password) ? (
+                      <Check className="w-3.5 h-3.5 text-green-500" />
+                    ) : (
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    )}
+                    <span className={/[a-z]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
+                      Al menos una minúscula
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    {/[0-9]/.test(password) ? (
+                      <Check className="w-3.5 h-3.5 text-green-500" />
+                    ) : (
+                      <X className="w-3.5 h-3.5 text-muted-foreground" />
+                    )}
+                    <span className={/[0-9]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
+                      Al menos un número
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
