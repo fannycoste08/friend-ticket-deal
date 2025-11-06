@@ -191,8 +191,12 @@ const UserProfile = () => {
       return;
     }
 
+    // Reset friendship status immediately for better UX
+    setFriendshipStatus({ status: 'none' });
+    
     toast.success('Solicitud cancelada');
-    loadUserData();
+    // Reload data to ensure everything is in sync
+    await loadUserData();
   };
 
   if (loading) {
