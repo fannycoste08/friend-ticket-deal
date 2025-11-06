@@ -25,7 +25,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-    const APP_URL = 'https://trusticket.lovable.app';
+    const APP_URL = 'https://www.trusticket.com';
 
     // Generate HTML email from template
     const html = getInvitationPendingEmail(
