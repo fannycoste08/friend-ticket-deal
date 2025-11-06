@@ -122,33 +122,24 @@ const Register = () => {
 
     const inviterData = verifyResult.inviter;
 
-    // Check if there's already a pending invitation for this email
-    const { data: existingPendingInvitation } = await supabase
-      .from('invitations')
-      .select('id')
-      .ilike('invitee_email', normalizedEmail)
-      .eq('status', 'pending')
-      .maybeSingle();
-
-    if (existingPendingInvitation) {
-      toast.error('Ya existe una solicitud pendiente para este email');
-      setLoading(false);
-      return;
-    }
-
-    // Create invitation request (user must wait for approval)
-    // Note: Password will be set by the user after approval via password reset flow
-    const { error: invitationError } = await supabase
-      .from('invitations')
-      .insert({
+    // Create invitation request via edge function (to bypass RLS)
+    const { data: invitationResult, error: invitationError } = await supabase.functions.invoke('create-invitation-request', {
+      body: {
         inviter_id: inviterData.id,
         invitee_email: normalizedEmail,
         invitee_name: name,
-        status: 'pending',
-      });
+      }
+    });
 
-    if (invitationError) {
-      toast.error('Error al crear la solicitud de invitación');
+    if (invitationError || !invitationResult?.success) {
+      console.error('Error creating invitation:', invitationError, invitationResult);
+      
+      if (invitationResult?.error === 'Pending invitation already exists') {
+        toast.error('Ya existe una solicitud pendiente para este email');
+      } else {
+        toast.error('Error al crear la solicitud de invitación');
+      }
+      
       setLoading(false);
       return;
     }
