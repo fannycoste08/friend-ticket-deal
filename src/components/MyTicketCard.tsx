@@ -15,6 +15,7 @@ interface MyTicketCardProps {
     price: number;
     ticket_type: string;
     status: string;
+    description?: string;
   };
   onEdit: () => void;
   onDelete: () => void;
@@ -36,11 +37,18 @@ export const MyTicketCard = ({ ticket, onEdit, onDelete, onMarkAsSold }: MyTicke
           <p className="text-xs text-muted-foreground mb-2">
             {format(new Date(ticket.event_date), "d 'de' MMMM 'de' yyyy", { locale: es })}
           </p>
-          <div className="flex items-center gap-2">
-            <div className="text-lg font-bold text-primary">{ticket.price}€</div>
-            <Badge variant="secondary" className="text-xs">
-              {ticket.ticket_type}
-            </Badge>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="text-lg font-bold text-primary">{ticket.price}€</div>
+              <Badge variant="secondary" className="text-xs">
+                {ticket.ticket_type}
+              </Badge>
+            </div>
+            {ticket.description && (
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {ticket.description}
+              </p>
+            )}
           </div>
         </div>
         

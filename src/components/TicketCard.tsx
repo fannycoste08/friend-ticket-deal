@@ -17,6 +17,7 @@ interface TicketCardProps {
     ticket_type: string;
     seller_name: string;
     user_id: string;
+    description?: string;
   };
   currentUserId?: string;
   networkDegree?: number;
@@ -80,9 +81,16 @@ export const TicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends
                 )}
               </div>
 
-              <Badge variant="secondary" className="text-xs">
-                {ticket.ticket_type}
-              </Badge>
+              <div className="space-y-2">
+                <Badge variant="secondary" className="text-xs">
+                  {ticket.ticket_type}
+                </Badge>
+                {ticket.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">
+                    {ticket.description}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
