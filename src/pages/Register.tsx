@@ -36,8 +36,24 @@ const Register = () => {
       return;
     }
 
-    if (password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres');
+    // Strong password validation
+    if (password.length < 8) {
+      toast.error('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      toast.error('La contraseña debe contener al menos una mayúscula');
+      return;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      toast.error('La contraseña debe contener al menos una minúscula');
+      return;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      toast.error('La contraseña debe contener al menos un número');
       return;
     }
 
@@ -229,6 +245,9 @@ const Register = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                Mínimo 8 caracteres, con mayúscula, minúscula y número
+              </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar contraseña</Label>

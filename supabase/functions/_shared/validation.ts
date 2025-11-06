@@ -40,12 +40,27 @@ export function validatePassword(password: string): { valid: boolean; error?: st
     return { valid: false, error: 'Password is required' };
   }
   
-  if (password.length < 6) {
-    return { valid: false, error: 'Password must be at least 6 characters' };
+  if (password.length < 8) {
+    return { valid: false, error: 'Password must be at least 8 characters' };
   }
   
   if (password.length > 72) {
     return { valid: false, error: 'Password must be less than 72 characters' };
+  }
+  
+  // Require at least one uppercase letter
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, error: 'Password must contain at least one uppercase letter' };
+  }
+  
+  // Require at least one lowercase letter
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, error: 'Password must contain at least one lowercase letter' };
+  }
+  
+  // Require at least one number
+  if (!/[0-9]/.test(password)) {
+    return { valid: false, error: 'Password must contain at least one number' };
   }
   
   return { valid: true };

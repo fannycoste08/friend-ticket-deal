@@ -24,8 +24,24 @@ const ResetPassword = () => {
       return;
     }
 
-    if (password.length < 6) {
-      toast.error('La contraseña debe tener al menos 6 caracteres');
+    // Strong password validation
+    if (password.length < 8) {
+      toast.error('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      toast.error('La contraseña debe contener al menos una mayúscula');
+      return;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      toast.error('La contraseña debe contener al menos una minúscula');
+      return;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      toast.error('La contraseña debe contener al menos un número');
       return;
     }
 
@@ -91,8 +107,11 @@ const ResetPassword = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={8}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Mínimo 8 caracteres, con mayúscula, minúscula y número
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
@@ -102,11 +121,8 @@ const ResetPassword = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={8}
                 />
-              </div>
-              <div className="rounded-lg bg-secondary/50 p-3 text-sm text-muted-foreground">
-                La contraseña debe tener al menos 6 caracteres
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? 'Actualizando...' : 'Actualizar contraseña'}
