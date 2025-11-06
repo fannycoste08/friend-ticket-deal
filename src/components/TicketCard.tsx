@@ -81,16 +81,9 @@ export const TicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Badge variant="secondary" className="text-xs">
-                  {ticket.ticket_type}
-                </Badge>
-                {ticket.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {ticket.description}
-                  </p>
-                )}
-              </div>
+              <Badge variant="secondary" className="text-xs">
+                {ticket.ticket_type}
+              </Badge>
             </div>
           </div>
 
@@ -98,6 +91,12 @@ export const TicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends
             <div className="text-3xl font-bold text-primary">{ticket.price}€</div>
           </div>
         </div>
+
+        {ticket.description && (
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {ticket.description}
+          </p>
+        )}
 
         {isMyTicket ? (
           <Button 
