@@ -83,15 +83,31 @@ const Register = () => {
       .eq('status', 'approved')
       .maybeSingle();
 
+    // Normalize inviter email
+    const normalizedInviterEmail = inviterEmail.trim().toLowerCase();
+
     if (approvedInvitation) {
-      // User was pre-invited by a godparent - just login
-      toast.success("¡Tu invitación ya está aprobada! Inicia sesión.");
+      // User was pre-invited by a godparent - create account with inviter email in metadata
+      const { error: signUpError } = await signUp(name, normalizedEmail, password, normalizedInviterEmail);
+      
+      if (signUpError) {
+        if (signUpError.message.includes("already registered") || signUpError.message.includes("User already registered")) {
+          toast.error("Este email ya está registrado");
+        } else {
+          toast.error("Error al crear la cuenta: " + signUpError.message);
+        }
+        setLoading(false);
+        return;
+      }
+
+      toast.success("¡Cuenta creada! Ya puedes iniciar sesión.");
       navigate("/login");
+      setLoading(false);
       return;
     }
 
-    // Create user account immediately with their chosen password
-    const { error: signUpError } = await signUp(name, normalizedEmail, password);
+    // Create user account immediately with their chosen password and inviter email
+    const { error: signUpError } = await signUp(name, normalizedEmail, password, normalizedInviterEmail);
     
     if (signUpError) {
       if (signUpError.message.includes("already registered") || signUpError.message.includes("User already registered")) {
@@ -107,7 +123,6 @@ const Register = () => {
 
     // No pre-approved invitation - need godparent approval
     // Verify if godparent exists using edge function (to bypass RLS)
-    const normalizedInviterEmail = inviterEmail.trim().toLowerCase();
     console.log('Verifying inviter email via edge function:', normalizedInviterEmail);
     
     const { data: verifyResult, error: verifyError } = await supabase.functions.invoke('verify-inviter-email', {

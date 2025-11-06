@@ -35,7 +35,7 @@ export const useAuth = () => {
     return { error };
   };
 
-  const signUp = async (name: string, email: string, password: string) => {
+  const signUp = async (name: string, email: string, password: string, inviterEmail?: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -45,6 +45,7 @@ export const useAuth = () => {
         emailRedirectTo: redirectUrl,
         data: {
           name,
+          inviter_email: inviterEmail,
         },
       },
     });
