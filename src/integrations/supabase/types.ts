@@ -152,6 +152,27 @@ export type Database = {
           },
         ]
       }
+      ip_rate_limits: {
+        Row: {
+          created_at: string
+          function_name: string
+          id: string
+          ip_address: string
+        }
+        Insert: {
+          created_at?: string
+          function_name: string
+          id?: string
+          ip_address: string
+        }
+        Update: {
+          created_at?: string
+          function_name?: string
+          id?: string
+          ip_address?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -358,6 +379,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_ip_rate_limits: { Args: never; Returns: undefined }
       get_extended_network: {
         Args: { user_uuid: string }
         Returns: {
