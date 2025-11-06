@@ -9,6 +9,7 @@ interface InvitationAcceptedRequest {
   invitee_email: string;
   invitee_name: string;
   inviter_name: string;
+  inviter_email: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -17,9 +18,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { invitee_email, invitee_name, inviter_name }: InvitationAcceptedRequest = await req.json();
+    const { invitee_email, invitee_name, inviter_name, inviter_email }: InvitationAcceptedRequest = await req.json();
     
-    console.log('Processing invitation accepted notification:', { invitee_email, invitee_name, inviter_name });
+    console.log('Processing invitation notification:', { invitee_email, invitee_name, inviter_name, inviter_email });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
@@ -32,7 +33,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: 'TrusTicket <info@trusticket.com>',
         to: [invitee_email],
-        subject: `${inviter_name} te invita a TrusTicket`,
+        subject: `${inviter_name} te invita a unirte a TrusTicket`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -45,6 +46,7 @@ const handler = async (req: Request): Promise<Response> => {
                 .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
                 .button { display: inline-block; background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
                 .highlight-box { background: #f3f4f6; padding: 15px; border-left: 4px solid #8B5CF6; margin: 20px 0; }
+                .info-box { background: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0; }
                 .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
               </style>
             </head>
@@ -55,29 +57,34 @@ const handler = async (req: Request): Promise<Response> => {
                 </div>
                 <div class="content">
                   <p>Hola <strong>${invitee_name}</strong>,</p>
-                  <p>Buenas noticias: <strong>${inviter_name}</strong> ha aprobado tu solicitud de registro en <strong>TrusTicket</strong>.</p>
+                  <p><strong>${inviter_name}</strong> te ha invitado a unirte a <strong>TrusTicket</strong>, la plataforma para comprar y vender entradas de forma segura entre amigos.</p>
                   
                   <div class="highlight-box">
-                    <p style="margin: 0; font-weight: bold; color: #8B5CF6;">✨ ¡Tu cuenta está activada!</p>
-                    <p style="margin: 5px 0 0 0; font-size: 14px;">Ya puedes iniciar sesión con la contraseña que creaste durante el registro.</p>
+                    <p style="margin: 0; font-weight: bold; color: #8B5CF6;">✨ ¡Estás pre-aprobado!</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">Solo necesitas completar tu registro para empezar.</p>
                   </div>
-                  <p><strong>Recuerda:</strong></p>
-                  <ul style="margin: 10px 0;">
-                    <li>📧 Email: <strong>${invitee_email}</strong></li>
-                    <li>🔑 Contraseña: <strong>La que creaste al registrarte</strong></li>
-                  </ul>
+                  
+                  <div class="info-box">
+                    <p style="margin: 0; font-weight: bold; color: #92400e;">📝 Para completar tu registro:</p>
+                    <ol style="margin: 10px 0 0 0; padding-left: 20px;">
+                      <li>Haz clic en el botón de abajo</li>
+                      <li>Rellena el formulario de registro con tu información</li>
+                      <li><strong>Importante:</strong> Usa el email de tu padrino: <strong>${inviter_email}</strong></li>
+                      <li>Crea una contraseña segura</li>
+                    </ol>
+                  </div>
                   
                   <p style="text-align: center; margin: 30px 0;">
-                    <a href="https://friend-ticket-deal.lovable.app/login" class="button">
-                      🚀 Iniciar sesión ahora
+                    <a href="https://www.trusticket.com/register" class="button">
+                      🚀 Completar mi registro
                     </a>
                   </p>
                   
                   <p style="color: #6b7280; font-size: 13px; border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 20px;">
-                    <strong>¿Olvidaste tu contraseña?</strong> Puedes restablecerla usando la opción "¿Olvidaste tu contraseña?" en la página de login.
+                    Una vez completado el registro, podrás acceder inmediatamente a TrusTicket sin necesidad de esperar aprobación adicional.
                   </p>
                   
-                  <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta invitación, puedes ignorar este email.</p>
+                  <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no esperabas esta invitación, puedes ignorar este email.</p>
                 </div>
                 <div class="footer">
                   <p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p>

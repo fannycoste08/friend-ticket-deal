@@ -165,12 +165,13 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
         return;
       }
 
-      // Send welcome email to the invitee with credentials
+      // Send invitation email to the invitee
       const { error: emailError } = await supabase.functions.invoke('send-invitation-accepted', {
         body: {
           invitee_email: inviteEmail,
           invitee_name: inviteeName,
           inviter_name: profile.name,
+          inviter_email: profile.email,
         },
       });
 
