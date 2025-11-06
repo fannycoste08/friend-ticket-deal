@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { getInvitationPendingEmail } from './_templates/invitation-pending.ts';
-import { checkRateLimit, logEmail } from '../_shared/rate-limiter.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,25 +23,6 @@ const handler = async (req: Request): Promise<Response> => {
     const { inviter_email, inviter_name, invitee_name, invitee_email }: InvitationNotificationRequest = await req.json();
     
     console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
-
-    // Use a temporary user ID for rate limiting (based on email)
-    const tempUserId = `email_${invitee_email}`;
-    
-    // Check rate limit
-    const rateLimitCheck = await checkRateLimit(
-      tempUserId,
-      inviter_email,
-      'send-invitation-notification',
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    if (!rateLimitCheck.allowed) {
-      return new Response(
-        JSON.stringify({ error: rateLimitCheck.error }),
-        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     const APP_URL = 'https://trusticket.lovable.app';
@@ -78,15 +58,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailData = await emailResponse.json();
     console.log("Email sent successfully:", emailData);
-
-    // Log the email send
-    await logEmail(
-      tempUserId,
-      inviter_email,
-      'send-invitation-notification',
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
 
     return new Response(JSON.stringify({ success: true, emailData }), {
       status: 200,
