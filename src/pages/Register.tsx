@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Ticket, CheckCircle, Info, Check, X } from 'lucide-react';
+import { Ticket, CheckCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,8 +15,6 @@ const Register = () => {
   const { signUp, user } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [inviterEmail, setInviterEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -30,33 +28,6 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (password !== confirmPassword) {
-      toast.error('Las contraseñas no coinciden');
-      return;
-    }
-
-    // Strong password validation
-    if (password.length < 8) {
-      toast.error('La contraseña debe tener al menos 8 caracteres');
-      return;
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      toast.error('La contraseña debe contener al menos una mayúscula');
-      return;
-    }
-
-    if (!/[a-z]/.test(password)) {
-      toast.error('La contraseña debe contener al menos una minúscula');
-      return;
-    }
-
-    if (!/[0-9]/.test(password)) {
-      toast.error('La contraseña debe contener al menos un número');
-      return;
-    }
-
     setLoading(true);
 
     // Normalize email
@@ -75,40 +46,9 @@ const Register = () => {
       return;
     }
 
-    // Check if there's an approved invitation for this email (godparent invited them directly)
-    const { data: approvedInvitation } = await supabase
-      .from('invitations')
-      .select('*, inviter:profiles!invitations_inviter_id_fkey(id, name, email)')
-      .ilike('invitee_email', normalizedEmail)
-      .eq('status', 'approved')
-      .maybeSingle();
-
     // Normalize inviter email
     const normalizedInviterEmail = inviterEmail.trim().toLowerCase();
 
-    if (approvedInvitation) {
-      // User was pre-invited by a godparent - create account with inviter email in metadata
-      const { error: signUpError } = await signUp(name, normalizedEmail, password, normalizedInviterEmail);
-      
-      if (signUpError) {
-        if (signUpError.message.includes("already registered") || signUpError.message.includes("User already registered")) {
-          toast.error("Este email ya está registrado");
-        } else {
-          toast.error("Error al crear la cuenta: " + signUpError.message);
-        }
-        setLoading(false);
-        return;
-      }
-
-      toast.success("¡Cuenta creada! Ya puedes iniciar sesión.");
-      navigate("/login");
-      setLoading(false);
-      return;
-    }
-
-    // NO pre-approved invitation - DON'T create user yet, wait for godparent approval
-
-    // No pre-approved invitation - need godparent approval
     // Verify if godparent exists using edge function (to bypass RLS)
     console.log('Verifying inviter email via edge function:', normalizedInviterEmail);
     
@@ -189,7 +129,7 @@ const Register = () => {
                 Recibirás un correo de confirmación cuando tu padrino haya aceptado tu solicitud.
               </p>
               <p className="text-sm text-muted-foreground">
-                Una vez aprobada, podrás iniciar sesión en TrusTicket.
+                Una vez aprobada, recibirás un correo para crear tu contraseña e iniciar sesión.
               </p>
             </DialogDescription>
           </DialogHeader>
@@ -237,70 +177,6 @@ const Register = () => {
                 placeholder="tu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              {password && (
-                <div className="space-y-1.5 pt-2">
-                  <div className="flex items-center gap-2 text-xs">
-                    {password.length >= 8 ? (
-                      <Check className="w-3.5 h-3.5 text-green-500" />
-                    ) : (
-                      <X className="w-3.5 h-3.5 text-muted-foreground" />
-                    )}
-                    <span className={password.length >= 8 ? "text-green-500" : "text-muted-foreground"}>
-                      Mínimo 8 caracteres
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    {/[A-Z]/.test(password) ? (
-                      <Check className="w-3.5 h-3.5 text-green-500" />
-                    ) : (
-                      <X className="w-3.5 h-3.5 text-muted-foreground" />
-                    )}
-                    <span className={/[A-Z]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
-                      Al menos una mayúscula
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    {/[a-z]/.test(password) ? (
-                      <Check className="w-3.5 h-3.5 text-green-500" />
-                    ) : (
-                      <X className="w-3.5 h-3.5 text-muted-foreground" />
-                    )}
-                    <span className={/[a-z]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
-                      Al menos una minúscula
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs">
-                    {/[0-9]/.test(password) ? (
-                      <Check className="w-3.5 h-3.5 text-green-500" />
-                    ) : (
-                      <X className="w-3.5 h-3.5 text-muted-foreground" />
-                    )}
-                    <span className={/[0-9]/.test(password) ? "text-green-500" : "text-muted-foreground"}>
-                      Al menos un número
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
