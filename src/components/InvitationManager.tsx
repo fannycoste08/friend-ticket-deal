@@ -62,6 +62,28 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       // Remove hash from URL without scrolling
       window.history.replaceState(null, '', window.location.pathname);
     }
+
+    // Subscribe to real-time changes in invitations table
+    const channel = supabase
+      .channel('invitations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'invitations',
+          filter: `inviter_id=eq.${userId}`,
+        },
+        (payload) => {
+          console.log('Invitations changed:', payload);
+          loadInvitations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [userId]);
 
   const handleApprove = async (invitationId: string) => {
