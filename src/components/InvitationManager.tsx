@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Check, X, UserPlus } from 'lucide-react';
+import { Mail, Check, X, UserPlus, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -230,13 +230,23 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
             {pendingInvitations.length} solicitudes pendientes
           </p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <UserPlus className="w-4 h-4" />
-              Invitar persona
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => loadInvitations()}
+            disabled={loading}
+            title="Refrescar invitaciones"
+          >
+            <RefreshCw className="w-4 h-4" />
+          </Button>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="gap-2">
+                <UserPlus className="w-4 h-4" />
+                Invitar persona
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Invitar nueva persona</DialogTitle>
@@ -259,6 +269,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
