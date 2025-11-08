@@ -28,19 +28,19 @@ const CreatePassword = () => {
       console.log('CreatePassword: Checking authentication...');
       
       // Wait a moment for the recovery link to authenticate the user
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       const { data: { user }, error } = await supabase.auth.getUser();
       
-      console.log('CreatePassword: User data:', user?.email, 'Error:', error);
+      console.log('CreatePassword: User data:', user, 'Error:', error);
       
       if (user?.email) {
         setUserEmail(user.email);
-        console.log('CreatePassword: User authenticated:', user.email);
+        console.log('CreatePassword: User authenticated successfully:', user.email);
       } else {
-        console.error('CreatePassword: No user found, redirecting to login');
-        toast.error('Sesión no válida. Por favor, solicita un nuevo link a tu padrino.');
-        setTimeout(() => navigate('/login'), 2000);
+        console.error('CreatePassword: No user found after authentication check');
+        toast.error('Sesión no válida. El enlace puede haber expirado. Por favor, solicita un nuevo enlace a tu padrino.');
+        setTimeout(() => navigate('/login'), 3000);
       }
       
       setAuthenticating(false);
@@ -86,13 +86,25 @@ const CreatePassword = () => {
     setLoading(true);
 
     try {
+      console.log('Starting verification for user:', userEmail);
+      
+      if (!userEmail) {
+        toast.error('No se pudo obtener tu email. Por favor, intenta de nuevo.');
+        setLoading(false);
+        return;
+      }
+      
       // Verify inviter email matches the invitation
       console.log('Verifying invitation for:', userEmail, 'with inviter:', inviterEmail);
+      
+      // First, let's check the current session to debug RLS
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Current session:', session ? 'EXISTS' : 'NO SESSION', 'User ID:', session?.user?.id);
       
       const { data: invitations, error: invitationError } = await supabase
         .from('invitations')
         .select('*')
-        .eq('invitee_email', userEmail.toLowerCase())
+        .ilike('invitee_email', userEmail)
         .eq('status', 'approved');
 
       console.log('Invitations found:', invitations, 'Error:', invitationError);
