@@ -23,30 +23,59 @@ const CreatePassword = () => {
   const [authenticating, setAuthenticating] = useState(true);
 
   useEffect(() => {
-    // Wait for auth state to settle and get current user
+    let mounted = true;
+
     const checkAuth = async () => {
       console.log('CreatePassword: Checking authentication...');
       
-      // Wait a moment for the recovery link to authenticate the user
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
-      console.log('CreatePassword: User data:', user, 'Error:', error);
-      
-      if (user?.email) {
-        setUserEmail(user.email);
-        console.log('CreatePassword: User authenticated successfully:', user.email);
-      } else {
-        console.error('CreatePassword: No user found after authentication check');
-        toast.error('Sesión no válida. El enlace puede haber expirado. Por favor, solicita un nuevo enlace a tu padrino.');
-        setTimeout(() => navigate('/login'), 3000);
+      try {
+        // First check if we have a session from the recovery link
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        console.log('CreatePassword: Session check:', session ? 'SESSION EXISTS' : 'NO SESSION', 'Error:', sessionError);
+        
+        if (session?.user?.email) {
+          if (mounted) {
+            setUserEmail(session.user.email);
+            setAuthenticating(false);
+          }
+          console.log('CreatePassword: User authenticated via session:', session.user.email);
+          return;
+        }
+        
+        // If no session yet, wait for the auth state change from the recovery link
+        console.log('CreatePassword: No session found, waiting for recovery link authentication...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Check again after waiting
+        const { data: { session: newSession }, error: newSessionError } = await supabase.auth.getSession();
+        
+        console.log('CreatePassword: Second session check:', newSession ? 'SESSION EXISTS' : 'NO SESSION', 'Error:', newSessionError);
+        
+        if (newSession?.user?.email && mounted) {
+          setUserEmail(newSession.user.email);
+          setAuthenticating(false);
+          console.log('CreatePassword: User authenticated after wait:', newSession.user.email);
+        } else if (mounted) {
+          console.error('CreatePassword: No valid session found');
+          toast.error('El enlace ha expirado o ya fue usado. Solicita un nuevo enlace a tu padrino.');
+          setTimeout(() => navigate('/login'), 3000);
+          setAuthenticating(false);
+        }
+      } catch (error) {
+        console.error('CreatePassword: Error checking authentication:', error);
+        if (mounted) {
+          toast.error('Error al verificar la sesión');
+          setAuthenticating(false);
+        }
       }
-      
-      setAuthenticating(false);
     };
     
     checkAuth();
+
+    return () => {
+      mounted = false;
+    };
   }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
