@@ -380,6 +380,7 @@ export type Database = {
     }
     Functions: {
       cleanup_old_ip_rate_limits: { Args: never; Returns: undefined }
+      delete_expired_tickets: { Args: never; Returns: undefined }
       get_extended_network: {
         Args: { user_uuid: string }
         Returns: {
