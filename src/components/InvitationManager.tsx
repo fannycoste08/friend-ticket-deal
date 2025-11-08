@@ -29,7 +29,16 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
   const [activeTab, setActiveTab] = useState('pending');
 
   const loadInvitations = async () => {
-    console.log('Loading invitations for user:', userId);
+    console.log('🔍 [InvitationManager] Starting to load invitations...');
+    console.log('🔍 [InvitationManager] User ID:', userId);
+    
+    // First, let's verify we can access the table
+    const { count, error: countError } = await supabase
+      .from('invitations')
+      .select('*', { count: 'exact', head: true })
+      .eq('inviter_id', userId);
+    
+    console.log('🔍 [InvitationManager] Total invitations count:', count, 'Error:', countError);
     
     const { data: pending, error: pendingError } = await supabase
       .from('invitations')
@@ -38,7 +47,8 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
 
-    console.log('Pending invitations:', pending, 'Error:', pendingError);
+    console.log('📥 [InvitationManager] Pending invitations:', pending);
+    console.log('❌ [InvitationManager] Pending error:', pendingError);
 
     const { data: approved, error: approvedError } = await supabase
       .from('invitations')
@@ -47,13 +57,23 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       .eq('status', 'approved')
       .order('created_at', { ascending: false });
 
-    console.log('Approved invitations:', approved, 'Error:', approvedError);
+    console.log('✅ [InvitationManager] Approved invitations:', approved);
+    console.log('❌ [InvitationManager] Approved error:', approvedError);
 
     setPendingInvitations(pending || []);
     setApprovedInvitations(approved || []);
+    
+    console.log('🎯 [InvitationManager] State updated - Pending:', pending?.length || 0, 'Approved:', approved?.length || 0);
   };
 
   useEffect(() => {
+    console.log('🚀 [InvitationManager] Component mounted/updated with userId:', userId);
+    
+    if (!userId) {
+      console.error('❌ [InvitationManager] No userId provided!');
+      return;
+    }
+    
     loadInvitations();
     
     // Check if URL has #invitations hash and open pending tab
@@ -64,6 +84,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
     }
 
     // Subscribe to real-time changes in invitations table
+    console.log('📡 [InvitationManager] Setting up realtime subscription for user:', userId);
     const channel = supabase
       .channel('invitations-changes')
       .on(
@@ -75,13 +96,16 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
           filter: `inviter_id=eq.${userId}`,
         },
         (payload) => {
-          console.log('Invitations changed:', payload);
+          console.log('🔔 [InvitationManager] Realtime event received:', payload);
           loadInvitations();
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('📡 [InvitationManager] Subscription status:', status);
+      });
 
     return () => {
+      console.log('🔌 [InvitationManager] Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [userId]);
