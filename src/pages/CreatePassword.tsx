@@ -20,17 +20,34 @@ const CreatePassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [authenticating, setAuthenticating] = useState(true);
 
   useEffect(() => {
-    // Get current user email
-    const getCurrentUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+    // Wait for auth state to settle and get current user
+    const checkAuth = async () => {
+      console.log('CreatePassword: Checking authentication...');
+      
+      // Wait a moment for the recovery link to authenticate the user
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      console.log('CreatePassword: User data:', user?.email, 'Error:', error);
+      
       if (user?.email) {
         setUserEmail(user.email);
+        console.log('CreatePassword: User authenticated:', user.email);
+      } else {
+        console.error('CreatePassword: No user found, redirecting to login');
+        toast.error('Sesión no válida. Por favor, solicita un nuevo link a tu padrino.');
+        setTimeout(() => navigate('/login'), 2000);
       }
+      
+      setAuthenticating(false);
     };
-    getCurrentUser();
-  }, []);
+    
+    checkAuth();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,6 +137,26 @@ const CreatePassword = () => {
       setLoading(false);
     }
   };
+
+  if (authenticating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary/30">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="pt-6">
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center animate-pulse">
+                <Ticket className="w-10 h-10 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold mb-2">Verificando tu identidad...</h2>
+                <p className="text-sm text-muted-foreground">Por favor espera un momento</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
