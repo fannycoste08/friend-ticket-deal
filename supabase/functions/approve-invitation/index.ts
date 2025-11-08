@@ -117,17 +117,21 @@ const handler = async (req: Request): Promise<Response> => {
     const userExists = existingUser?.users?.some(u => u.email === invitation.invitee_email);
 
     let passwordResetLink = '';
+    const redirectUrl = `${Deno.env.get('SUPABASE_URL')?.replace('https://ystnsszlaqhwysgptysd.supabase.co', 'https://friend-ticket-deal.lovable.app')}/reset-password`;
 
     if (userExists) {
-      console.log('User already exists, generating password reset link');
-      // User already exists, just generate a password reset link
+      console.log('User already exists, generating password setup link');
+      // User already exists, generate a magic link for password setup
       const { data: resetLinkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'recovery',
+        type: 'magiclink',
         email: invitation.invitee_email,
+        options: {
+          redirectTo: redirectUrl
+        }
       });
 
       if (resetError) {
-        console.error('Error generating password reset link:', resetError);
+        console.error('Error generating password setup link:', resetError);
       } else {
         passwordResetLink = resetLinkData?.properties?.action_link || '';
       }
@@ -165,14 +169,17 @@ const handler = async (req: Request): Promise<Response> => {
 
       console.log('User account created:', newUser.user?.id);
 
-      // Generate password reset link to send in the notification email
+      // Generate magic link to redirect to password setup page
       const { data: resetLinkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'recovery',
+        type: 'magiclink',
         email: invitation.invitee_email,
+        options: {
+          redirectTo: redirectUrl
+        }
       });
 
       if (resetError) {
-        console.error('Error generating password reset link:', resetError);
+        console.error('Error generating password setup link:', resetError);
       } else {
         passwordResetLink = resetLinkData?.properties?.action_link || '';
       }
