@@ -23,6 +23,18 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log('Processing invitation notification:', { invitee_email, invitee_name, inviter_name, inviter_email, has_reset_link: !!password_reset_link });
 
+    // Only send email if we have a password reset link
+    if (!password_reset_link) {
+      console.error('No password reset link provided, skipping email');
+      return new Response(JSON.stringify({ error: 'No password reset link provided' }), {
+        status: 400,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      });
+    }
+
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
     const emailResponse = await fetch('https://api.resend.com/emails', {
@@ -65,7 +77,6 @@ const handler = async (req: Request): Promise<Response> => {
                     <p style="margin: 5px 0 0 0; font-size: 14px;">Ahora solo necesitas establecer tu contraseña para acceder.</p>
                   </div>
                   
-                  ${password_reset_link ? `
                   <div class="info-box">
                     <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Crear tu contraseña:</p>
                     <p style="margin: 10px 0 15px 0; font-size: 14px;">
@@ -78,14 +89,6 @@ const handler = async (req: Request): Promise<Response> => {
                       <strong>Importante:</strong> Necesitarás el email de tu padrino para verificar tu identidad.
                     </p>
                   </div>
-                  ` : `
-                  <div class="info-box">
-                    <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Próximo paso:</p>
-                    <p style="margin: 10px 0 5px 0; font-size: 14px;">
-                      Contacta con tu padrino para obtener el enlace de creación de contraseña.
-                    </p>
-                  </div>
-                  `}
                   
                   <p style="color: #374151; font-size: 14px; margin-top: 20px;">
                     Una vez que hayas creado tu contraseña, podrás iniciar sesión con:
