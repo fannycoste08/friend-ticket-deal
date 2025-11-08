@@ -87,14 +87,15 @@ const CreatePassword = () => {
 
     try {
       // Verify inviter email matches the invitation
+      console.log('Verifying invitation for:', userEmail, 'with inviter:', inviterEmail);
+      
       const { data: invitations, error: invitationError } = await supabase
         .from('invitations')
-        .select(`
-          *,
-          profiles!invitations_inviter_id_fkey(email)
-        `)
+        .select('*')
         .eq('invitee_email', userEmail.toLowerCase())
         .eq('status', 'approved');
+
+      console.log('Invitations found:', invitations, 'Error:', invitationError);
 
       if (invitationError) {
         console.error('Error fetching invitation:', invitationError);
@@ -109,12 +110,28 @@ const CreatePassword = () => {
         return;
       }
 
-      // Check if the provided inviter email matches any invitation
-      const matchingInvitation = invitations.find(
-        inv => inv.profiles?.email?.toLowerCase() === inviterEmail.toLowerCase()
+      // Get the inviter's email from profiles table
+      const inviterIds = invitations.map(inv => inv.inviter_id);
+      const { data: inviters, error: invitersError } = await supabase
+        .from('profiles')
+        .select('id, email')
+        .in('id', inviterIds);
+
+      console.log('Inviters found:', inviters, 'Error:', invitersError);
+
+      if (invitersError || !inviters) {
+        console.error('Error fetching inviter profiles:', invitersError);
+        toast.error('Error al verificar el padrino');
+        setLoading(false);
+        return;
+      }
+
+      // Check if the provided inviter email matches
+      const matchingInviter = inviters.find(
+        inv => inv.email?.toLowerCase() === inviterEmail.toLowerCase()
       );
 
-      if (!matchingInvitation) {
+      if (!matchingInviter) {
         toast.error('El email del padrino no coincide con tu invitación');
         setLoading(false);
         return;
