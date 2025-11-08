@@ -121,6 +121,7 @@ export type Database = {
           invitee_email: string
           invitee_name: string
           inviter_id: string
+          password_hash: string | null
           status: string | null
           updated_at: string
         }
@@ -130,6 +131,7 @@ export type Database = {
           invitee_email: string
           invitee_name: string
           inviter_id: string
+          password_hash?: string | null
           status?: string | null
           updated_at?: string
         }
@@ -139,6 +141,7 @@ export type Database = {
           invitee_email?: string
           invitee_name?: string
           inviter_id?: string
+          password_hash?: string | null
           status?: string | null
           updated_at?: string
         }
