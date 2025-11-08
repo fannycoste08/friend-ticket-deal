@@ -46,7 +46,7 @@ const handler = async (req: Request): Promise<Response> => {
                 .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
                 .button { display: inline-block; background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; font-weight: bold; }
                 .highlight-box { background: #f0fdf4; padding: 15px; border-left: 4px solid #22c55e; margin: 20px 0; }
-                .info-box { background: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b; margin: 20px 0; }
+                .info-box { background: #eff6ff; padding: 15px; border-left: 4px solid #3b82f6; margin: 20px 0; }
                 .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
               </style>
             </head>
@@ -60,27 +60,30 @@ const handler = async (req: Request): Promise<Response> => {
                   <p>¡Buenas noticias! <strong>${inviter_name}</strong> ha aprobado tu solicitud de registro en <strong>TrusTicket</strong>.</p>
                   
                   <div class="highlight-box">
-                    <p style="margin: 0; font-weight: bold; color: #16a34a;">✅ Tu cuenta está lista</p>
-                    <p style="margin: 5px 0 0 0; font-size: 14px;">Ya puedes iniciar sesión y empezar a usar la plataforma.</p>
+                    <p style="margin: 0; font-weight: bold; color: #16a34a;">✅ Tu cuenta ha sido creada</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px;">Ahora solo necesitas establecer tu contraseña para acceder.</p>
                   </div>
                   
                   <div class="info-box">
-                    <p style="margin: 0; font-weight: bold; color: #92400e;">🔑 Para iniciar sesión:</p>
-                    <ol style="margin: 10px 0 0 0; padding-left: 20px;">
-                      <li>Haz clic en el botón de abajo para ir a la página de inicio de sesión</li>
-                      <li>Usa el email con el que te registraste: <strong>${invitee_email}</strong></li>
-                      <li>Usa la contraseña que creaste durante el registro</li>
-                    </ol>
+                    <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Próximo paso:</p>
+                    <p style="margin: 10px 0 5px 0; font-size: 14px;">
+                      Recibirás un correo adicional de TrusTicket con un enlace para establecer tu contraseña.
+                    </p>
+                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #6b7280;">
+                      <strong>Importante:</strong> Revisa también tu carpeta de spam o correo no deseado si no lo ves en tu bandeja de entrada.
+                    </p>
                   </div>
                   
-                  <p style="text-align: center; margin: 30px 0;">
-                    <a href="https://www.trusticket.com/login" class="button">
-                      🚀 Iniciar sesión ahora
-                    </a>
+                  <p style="color: #374151; font-size: 14px; margin-top: 20px;">
+                    Una vez que hayas establecido tu contraseña, podrás iniciar sesión con:
                   </p>
+                  <ul style="color: #6b7280; font-size: 14px; margin: 10px 0 0 20px;">
+                    <li>Email: <strong style="color: #374151;">${invitee_email}</strong></li>
+                    <li>La contraseña que establezcas</li>
+                  </ul>
                   
-                  <p style="color: #6b7280; font-size: 13px; border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 20px;">
-                    Si has olvidado tu contraseña, puedes restablecerla desde la página de inicio de sesión.
+                  <p style="color: #6b7280; font-size: 13px; border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 25px;">
+                    ¿No encuentras el correo para establecer tu contraseña? Puedes usar la opción "¿Olvidaste tu contraseña?" en la página de inicio de sesión.
                   </p>
                   
                   <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta cuenta, puedes ignorar este email.</p>
