@@ -124,19 +124,22 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (userExists) {
       console.log('User already exists, generating password setup link');
-      // User already exists, generate a magic link for password setup
+      // User already exists, generate a recovery link WITHOUT sending the default email
       const { data: resetLinkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: invitation.invitee_email,
-        options: {
-          redirectTo: redirectUrl
-        }
+        type: 'recovery',
+        email: invitation.invitee_email
       });
 
       if (resetError) {
         console.error('Error generating password setup link:', resetError);
       } else {
-        passwordResetLink = resetLinkData?.properties?.action_link || '';
+        // Modify the action link to redirect to our custom page
+        const originalLink = resetLinkData?.properties?.action_link || '';
+        if (originalLink) {
+          const url = new URL(originalLink);
+          url.searchParams.set('redirect_to', redirectUrl);
+          passwordResetLink = url.toString();
+        }
       }
     } else {
       console.log('Creating new user account');
@@ -172,21 +175,26 @@ const handler = async (req: Request): Promise<Response> => {
 
       console.log('User account created:', newUser.user?.id);
 
-      // Generate magic link to redirect to password setup page
+      // Generate recovery link WITHOUT sending the default email
       const { data: resetLinkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
-        email: invitation.invitee_email,
-        options: {
-          redirectTo: redirectUrl
-        }
+        type: 'recovery',
+        email: invitation.invitee_email
       });
 
       if (resetError) {
         console.error('Error generating password setup link:', resetError);
       } else {
-        passwordResetLink = resetLinkData?.properties?.action_link || '';
+        // Modify the action link to redirect to our custom page
+        const originalLink = resetLinkData?.properties?.action_link || '';
+        if (originalLink) {
+          const url = new URL(originalLink);
+          url.searchParams.set('redirect_to', redirectUrl);
+          passwordResetLink = url.toString();
+        }
       }
     }
+
+    console.log('Generated password reset link:', passwordResetLink ? 'YES' : 'NO');
 
     // Get inviter profile for complete data
     const { data: inviterProfile } = await supabaseAdmin
