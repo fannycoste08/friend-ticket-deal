@@ -67,29 +67,32 @@ const handler = async (req: Request): Promise<Response> => {
                   
                   ${password_reset_link ? `
                   <div class="info-box">
-                    <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Próximo paso:</p>
+                    <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Crear tu contraseña:</p>
                     <p style="margin: 10px 0 15px 0; font-size: 14px;">
-                      Haz clic en el botón de abajo para establecer tu contraseña:
+                      Haz clic en el botón de abajo para crear tu contraseña de acceso:
                     </p>
                     <a href="${password_reset_link}" class="button" style="text-align: center;">
-                      Establecer mi contraseña
+                      Crear mi contraseña
                     </a>
+                    <p style="margin: 15px 0 0 0; font-size: 13px; color: #6b7280;">
+                      <strong>Importante:</strong> Necesitarás el email de tu padrino para verificar tu identidad.
+                    </p>
                   </div>
                   ` : `
                   <div class="info-box">
                     <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Próximo paso:</p>
                     <p style="margin: 10px 0 5px 0; font-size: 14px;">
-                      Usa la opción "¿Olvidaste tu contraseña?" en la página de inicio de sesión para establecer tu contraseña.
+                      Contacta con tu padrino para obtener el enlace de creación de contraseña.
                     </p>
                   </div>
                   `}
                   
                   <p style="color: #374151; font-size: 14px; margin-top: 20px;">
-                    Una vez que hayas establecido tu contraseña, podrás iniciar sesión con:
+                    Una vez que hayas creado tu contraseña, podrás iniciar sesión con:
                   </p>
                   <ul style="color: #6b7280; font-size: 14px; margin: 10px 0 0 20px;">
                     <li>Email: <strong style="color: #374151;">${invitee_email}</strong></li>
-                    <li>La contraseña que establezcas</li>
+                    <li>La contraseña que crees</li>
                   </ul>
                   
                   <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta cuenta, puedes ignorar este email.</p>

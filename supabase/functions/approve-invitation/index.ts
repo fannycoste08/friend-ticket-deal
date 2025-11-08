@@ -117,7 +117,10 @@ const handler = async (req: Request): Promise<Response> => {
     const userExists = existingUser?.users?.some(u => u.email === invitation.invitee_email);
 
     let passwordResetLink = '';
-    const redirectUrl = `${Deno.env.get('SUPABASE_URL')?.replace('https://ystnsszlaqhwysgptysd.supabase.co', 'https://friend-ticket-deal.lovable.app')}/reset-password`;
+    
+    // Get the app URL from environment or use a default
+    const appUrl = 'https://friend-ticket-deal.lovable.app';
+    const redirectUrl = `${appUrl}/create-password`;
 
     if (userExists) {
       console.log('User already exists, generating password setup link');

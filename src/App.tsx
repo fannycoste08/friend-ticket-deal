@@ -12,6 +12,7 @@ import UserProfile from "./pages/UserProfile";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import CreatePassword from "./pages/CreatePassword";
 import Register from "./pages/Register";
 import CreateTestUser from "./pages/CreateTestUser";
 import CreateFounder from "./pages/CreateFounder";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/create-password" element={<CreatePassword />} />
               <Route path="/register" element={<Register />} />
               <Route 
                 path="/create-test-user" 
