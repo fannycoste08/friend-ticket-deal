@@ -155,12 +155,20 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Error generating password reset link:', resetError);
     }
 
+    // Get inviter profile for complete data
+    const { data: inviterProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('name, email')
+      .eq('id', invitation.inviter_id)
+      .single();
+
     // Send acceptance notification email
     const { error: emailError } = await supabaseAdmin.functions.invoke('send-invitation-accepted', {
       body: {
         invitee_email: invitation.invitee_email,
         invitee_name: invitation.invitee_name,
-        inviter_name: user.user_metadata?.name || 'tu padrino'
+        inviter_name: inviterProfile?.name || user.user_metadata?.name || 'tu padrino',
+        inviter_email: inviterProfile?.email || user.email
       }
     });
 
