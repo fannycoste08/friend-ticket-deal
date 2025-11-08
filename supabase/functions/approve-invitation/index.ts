@@ -112,50 +112,71 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Create user account now that invitation is approved
-    // Generate a random password - user will need to reset it via email
-    const tempPassword = crypto.randomUUID();
-    
-    const { data: newUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser({
-      email: invitation.invitee_email,
-      password: tempPassword,
-      email_confirm: true, // Auto-confirm email
-      user_metadata: {
-        name: invitation.invitee_name,
-        inviter_email: user.email,
+    // Check if user already exists
+    const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers();
+    const userExists = existingUser?.users?.some(u => u.email === invitation.invitee_email);
+
+    let passwordResetLink = '';
+
+    if (userExists) {
+      console.log('User already exists, generating password reset link');
+      // User already exists, just generate a password reset link
+      const { data: resetLinkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email: invitation.invitee_email,
+      });
+
+      if (resetError) {
+        console.error('Error generating password reset link:', resetError);
+      } else {
+        passwordResetLink = resetLinkData?.properties?.action_link || '';
       }
-    });
-
-    if (createUserError) {
-      console.error('Error creating user:', createUserError);
-      // Revert invitation status if user creation fails
-      await supabaseAdmin
-        .from('invitations')
-        .update({ status: 'pending' })
-        .eq('id', invitation_id);
+    } else {
+      console.log('Creating new user account');
+      // Create user account now that invitation is approved
+      const tempPassword = crypto.randomUUID();
       
-      return new Response(
-        JSON.stringify({ error: 'Failed to create user account' }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
+      const { data: newUser, error: createUserError } = await supabaseAdmin.auth.admin.createUser({
+        email: invitation.invitee_email,
+        password: tempPassword,
+        email_confirm: true,
+        user_metadata: {
+          name: invitation.invitee_name,
+          inviter_email: user.email,
         }
-      );
+      });
+
+      if (createUserError) {
+        console.error('Error creating user:', createUserError);
+        // Revert invitation status if user creation fails
+        await supabaseAdmin
+          .from('invitations')
+          .update({ status: 'pending' })
+          .eq('id', invitation_id);
+        
+        return new Response(
+          JSON.stringify({ error: 'Failed to create user account' }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          }
+        );
+      }
+
+      console.log('User account created:', newUser.user?.id);
+
+      // Generate password reset link to send in the notification email
+      const { data: resetLinkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email: invitation.invitee_email,
+      });
+
+      if (resetError) {
+        console.error('Error generating password reset link:', resetError);
+      } else {
+        passwordResetLink = resetLinkData?.properties?.action_link || '';
+      }
     }
-
-    console.log('User account created:', newUser.user?.id);
-
-    // Generate password reset link to send in the notification email
-    const { data: resetLinkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
-      type: 'recovery',
-      email: invitation.invitee_email,
-    });
-
-    if (resetError) {
-      console.error('Error generating password reset link:', resetError);
-    }
-
-    const passwordResetLink = resetLinkData?.properties?.action_link || '';
 
     // Get inviter profile for complete data
     const { data: inviterProfile } = await supabaseAdmin
