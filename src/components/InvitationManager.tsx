@@ -29,19 +29,25 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
   const [activeTab, setActiveTab] = useState('pending');
 
   const loadInvitations = async () => {
-    const { data: pending } = await supabase
+    console.log('Loading invitations for user:', userId);
+    
+    const { data: pending, error: pendingError } = await supabase
       .from('invitations')
       .select('*')
       .eq('inviter_id', userId)
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
 
-    const { data: approved } = await supabase
+    console.log('Pending invitations:', pending, 'Error:', pendingError);
+
+    const { data: approved, error: approvedError } = await supabase
       .from('invitations')
       .select('*')
       .eq('inviter_id', userId)
       .eq('status', 'approved')
       .order('created_at', { ascending: false });
+
+    console.log('Approved invitations:', approved, 'Error:', approvedError);
 
     setPendingInvitations(pending || []);
     setApprovedInvitations(approved || []);
