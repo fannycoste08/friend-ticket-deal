@@ -10,6 +10,7 @@ interface InvitationAcceptedRequest {
   invitee_name: string;
   inviter_name: string;
   inviter_email?: string;
+  password_reset_link?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -18,9 +19,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { invitee_email, invitee_name, inviter_name, inviter_email }: InvitationAcceptedRequest = await req.json();
+    const { invitee_email, invitee_name, inviter_name, inviter_email, password_reset_link }: InvitationAcceptedRequest = await req.json();
     
-    console.log('Processing invitation notification:', { invitee_email, invitee_name, inviter_name, inviter_email });
+    console.log('Processing invitation notification:', { invitee_email, invitee_name, inviter_name, inviter_email, has_reset_link: !!password_reset_link });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
@@ -64,15 +65,24 @@ const handler = async (req: Request): Promise<Response> => {
                     <p style="margin: 5px 0 0 0; font-size: 14px;">Ahora solo necesitas establecer tu contraseña para acceder.</p>
                   </div>
                   
+                  ${password_reset_link ? `
+                  <div class="info-box">
+                    <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Próximo paso:</p>
+                    <p style="margin: 10px 0 15px 0; font-size: 14px;">
+                      Haz clic en el botón de abajo para establecer tu contraseña:
+                    </p>
+                    <a href="${password_reset_link}" class="button" style="text-align: center;">
+                      Establecer mi contraseña
+                    </a>
+                  </div>
+                  ` : `
                   <div class="info-box">
                     <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Próximo paso:</p>
                     <p style="margin: 10px 0 5px 0; font-size: 14px;">
-                      Recibirás un correo adicional de TrusTicket con un enlace para establecer tu contraseña.
-                    </p>
-                    <p style="margin: 5px 0 0 0; font-size: 13px; color: #6b7280;">
-                      <strong>Importante:</strong> Revisa también tu carpeta de spam o correo no deseado si no lo ves en tu bandeja de entrada.
+                      Usa la opción "¿Olvidaste tu contraseña?" en la página de inicio de sesión para establecer tu contraseña.
                     </p>
                   </div>
+                  `}
                   
                   <p style="color: #374151; font-size: 14px; margin-top: 20px;">
                     Una vez que hayas establecido tu contraseña, podrás iniciar sesión con:
@@ -81,10 +91,6 @@ const handler = async (req: Request): Promise<Response> => {
                     <li>Email: <strong style="color: #374151;">${invitee_email}</strong></li>
                     <li>La contraseña que establezcas</li>
                   </ul>
-                  
-                  <p style="color: #6b7280; font-size: 13px; border-top: 1px solid #e5e7eb; padding-top: 15px; margin-top: 25px;">
-                    ¿No encuentras el correo para establecer tu contraseña? Puedes usar la opción "¿Olvidaste tu contraseña?" en la página de inicio de sesión.
-                  </p>
                   
                   <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta cuenta, puedes ignorar este email.</p>
                 </div>

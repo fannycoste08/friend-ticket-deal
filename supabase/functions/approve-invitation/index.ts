@@ -145,8 +145,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('User account created:', newUser.user?.id);
 
-    // Send password reset email so user can set their password
-    const { error: resetError } = await supabaseAdmin.auth.admin.generateLink({
+    // Generate password reset link to send in the notification email
+    const { data: resetLinkData, error: resetError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'recovery',
       email: invitation.invitee_email,
     });
@@ -155,6 +155,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Error generating password reset link:', resetError);
     }
 
+    const passwordResetLink = resetLinkData?.properties?.action_link || '';
+
     // Get inviter profile for complete data
     const { data: inviterProfile } = await supabaseAdmin
       .from('profiles')
@@ -162,13 +164,14 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('id', invitation.inviter_id)
       .single();
 
-    // Send acceptance notification email
+    // Send acceptance notification email with password reset link
     const { error: emailError } = await supabaseAdmin.functions.invoke('send-invitation-accepted', {
       body: {
         invitee_email: invitation.invitee_email,
         invitee_name: invitation.invitee_name,
         inviter_name: inviterProfile?.name || user.user_metadata?.name || 'tu padrino',
-        inviter_email: inviterProfile?.email || user.email
+        inviter_email: inviterProfile?.email || user.email,
+        password_reset_link: passwordResetLink
       }
     });
 
