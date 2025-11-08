@@ -81,11 +81,11 @@ Deno.serve(async (req) => {
     // Log successful attempt
     await logIPAttempt(clientIP, 'verify-inviter-email', supabaseUrl, supabaseKey);
 
-    // Only return existence status and basic info, no email
+    // Return inviter info including email for notification purposes
     return new Response(
       JSON.stringify({ 
         exists: !!data,
-        inviter: data ? { id: data.id, name: data.name } : null
+        inviter: data ? { id: data.id, name: data.name, email: data.email } : null
       }),
       { 
         status: 200, 
