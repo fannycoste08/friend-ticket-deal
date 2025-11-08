@@ -32,13 +32,18 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
     console.log('🔍 [InvitationManager] Starting to load invitations...');
     console.log('🔍 [InvitationManager] User ID:', userId);
     
-    // First, let's verify we can access the table
-    const { count, error: countError } = await supabase
-      .from('invitations')
-      .select('*', { count: 'exact', head: true })
-      .eq('inviter_id', userId);
+    // First, verify authentication
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    console.log('🔐 [InvitationManager] Current session:', session?.user?.id, 'Error:', sessionError);
+    console.log('🔐 [InvitationManager] Session user matches userId:', session?.user?.id === userId);
     
-    console.log('🔍 [InvitationManager] Total invitations count:', count, 'Error:', countError);
+    // Test if we can access ANY invitations (without filter)
+    const { data: allInvitations, error: allError } = await supabase
+      .from('invitations')
+      .select('id, inviter_id, status')
+      .limit(5);
+    
+    console.log('📊 [InvitationManager] Can access invitations table:', allInvitations, 'Error:', allError);
     
     const { data: pending, error: pendingError } = await supabase
       .from('invitations')

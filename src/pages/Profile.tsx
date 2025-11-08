@@ -39,6 +39,11 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
+      console.log('👤 [Profile] Current user:', {
+        id: user.id,
+        email: user.email,
+        metadata: user.user_metadata
+      });
       loadProfile();
       loadTickets();
     }
