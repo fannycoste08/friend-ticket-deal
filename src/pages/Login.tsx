@@ -147,15 +147,14 @@ const Login = () => {
       <div className="w-full bg-gradient-to-b from-zinc-900 to-black border-t border-zinc-800 py-16 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-        <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-  ¿Por qué Trusticket?
-</h2>
-<p className="text-zinc-300 text-xl mb-2">
-  La forma más segura de comprar y vender entradas entre personas reales.
-</p>
-<p className="text-zinc-400 text-lg">
-  Porque nadie mejor que tus amigos —y los amigos de tus amigos— para ayudarte a comprar o vender entradas con confianza.
-</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">¿Por qué Trusticket?</h2>
+            <p className="text-zinc-300 text-xl mb-2">
+              La forma más segura de comprar y vender entradas entre personas reales.
+            </p>
+            <p className="text-zinc-400 text-lg">
+              Porque nadie mejor que tus amigos —y los amigos de tus amigos— para ayudarte a comprar o vender entradas
+              con confianza.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -165,7 +164,8 @@ const Login = () => {
               </div>
               <h3 className="text-white font-semibold text-lg mb-2">Tu red de confianza</h3>
               <p className="text-zinc-400">
-                Funciona a través de los amigos de tus amigos. Compra y vende solo con personas conectadas a tu red.
+                Descubre qué entradas venden tus amigos y los amigos de tus amigos. Todas esas personas en las que
+                puedes confiar.
               </p>
             </div>
 
@@ -173,9 +173,9 @@ const Login = () => {
               <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
                 <Shield className="w-8 h-8 text-blue-400" />
               </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Sin intermediarios ni riesgos</h3>
+              <h3 className="text-white font-semibold text-lg mb-2">Sin plataforma de pago</h3>
               <p className="text-zinc-400">
-                Contacta directamente con el vendedor o comprador. Sin comisiones ocultas ni sorpresas.
+                Contacta con el vendedor o comprador y gestiona la transacción por tu cuenta.
               </p>
             </div>
 
@@ -185,7 +185,8 @@ const Login = () => {
               </div>
               <h3 className="text-white font-semibold text-lg mb-2">Comunidad de fans reales</h3>
               <p className="text-zinc-400">
-                Donde la confianza vale más que cualquier comisión. Solo personas reales que aman la música.
+                Solo se accede con invitación para crear una comunidad de personas que quieren disfrutar de la música de
+                una forma más ética.
               </p>
             </div>
           </div>
