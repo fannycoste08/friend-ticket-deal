@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import concertHero from "@/assets/concert-hero.jpg";
+import concertHero from "@/assets/hero-background.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
