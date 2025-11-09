@@ -164,7 +164,7 @@ const Feed = () => {
       .from('wanted_tickets')
       .select(`
         *,
-        profiles(name, email)
+        profiles!wanted_tickets_user_id_fkey(name, email)
       `)
       .in('user_id', allowedUserIds)
       .order('created_at', { ascending: false });
