@@ -68,7 +68,7 @@ const Login = () => {
 
           {/* bloque ¿Por qué Trusticket? dentro del mismo fondo */}
           <div className="w-full mt-10">
-            <h2 className="text-2xl lg:text-3xl font-bold text-white mb-3">
+            <h2 className="text-1xl lg:text-2xl font-bold text-white mb-3">
               Nadie mejor que tus amigos para ayudarte a comprar o vender entradas con confianza.
             </h2>
           </div>
