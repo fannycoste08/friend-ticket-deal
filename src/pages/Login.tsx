@@ -45,68 +45,68 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-black">
-      {/* Hero Section */}
-      <div className="relative w-full min-h-[40vh] overflow-hidden">
+      {/* Hero + ¿Por qué Trusticket? en un solo bloque */}
+      <div className="relative w-full overflow-hidden">
         <img
           src={concertHero}
           alt="Concierto con multitud"
           className="absolute inset-0 w-full h-full object-cover opacity-50"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-blue-900/30" />
+        {/* capa de degradado para que se lea el texto */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black" />
 
-        <div className="relative h-full flex flex-col items-center justify-center text-center px-6 py-16">
+        <div className="relative flex flex-col items-center justify-center text-center px-6 pt-16 pb-10 lg:pt-20 lg:pb-16 max-w-6xl mx-auto">
+          {/* icono */}
           <div className="w-20 h-20 rounded-2xl bg-white/5 backdrop-blur-sm flex items-center justify-center mb-6 shadow-2xl border border-white/10">
             <Ticket className="w-12 h-12 text-white" />
           </div>
 
-          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+          {/* título principal */}
+          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-lg">
             Conecta con los amigos de tus amigos para comprar y vender entradas de conciertos en confianza
           </h1>
-        </div>
-      </div>
 
-      {/* What is Trusticket Section - Full Width */}
-      <div className="w-full bg-gradient-to-b from-zinc-900 to-black border-t border-zinc-800 py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">¿Por qué Trusticket?</h2>
-            <p className="text-zinc-300 text-xl mb-2">
+          {/* bloque ¿Por qué Trusticket? dentro del mismo fondo */}
+          <div className="w-full mt-10">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-3">¿Por qué Trusticket?</h2>
+            <p className="text-zinc-200 text-lg mb-2">
               La forma más segura de comprar y vender entradas entre personas reales.
             </p>
-            <p className="text-zinc-400 text-lg">
+            <p className="text-zinc-300 text-base lg:text-lg max-w-3xl mx-auto">
               Porque nadie mejor que tus amigos —y los amigos de tus amigos— para ayudarte a comprar o vender entradas
               con confianza.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {/* features */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-12">
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
-                <Users className="w-8 h-8 text-blue-400" />
+              <div className="w-16 h-16 rounded-xl bg-blue-900/40 flex items-center justify-center mb-4">
+                <Users className="w-8 h-8 text-blue-200" />
               </div>
               <h3 className="text-white font-semibold text-lg mb-2">Tu red de confianza</h3>
-              <p className="text-zinc-400">
+              <p className="text-zinc-200/80">
                 Descubre qué entradas venden tus amigos y los amigos de tus amigos. Todas esas personas en las que
                 puedes confiar.
               </p>
             </div>
 
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
-                <Shield className="w-8 h-8 text-blue-400" />
+              <div className="w-16 h-16 rounded-xl bg-blue-900/40 flex items-center justify-center mb-4">
+                <Shield className="w-8 h-8 text-blue-200" />
               </div>
               <h3 className="text-white font-semibold text-lg mb-2">Sin plataforma de pago</h3>
-              <p className="text-zinc-400">
+              <p className="text-zinc-200/80">
                 Contacta con el vendedor o comprador y gestiona la transacción por tu cuenta.
               </p>
             </div>
 
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
-                <Heart className="w-8 h-8 text-blue-400" />
+              <div className="w-16 h-16 rounded-xl bg-blue-900/40 flex items-center justify-center mb-4">
+                <Heart className="w-8 h-8 text-blue-200" />
               </div>
               <h3 className="text-white font-semibold text-lg mb-2">Comunidad de fans reales</h3>
-              <p className="text-zinc-400">
+              <p className="text-zinc-200/80">
                 Solo se accede con invitación para crear una comunidad de personas que quieren disfrutar de la música de
                 una forma más ética.
               </p>
@@ -114,6 +114,7 @@ const Login = () => {
           </div>
         </div>
       </div>
+
       {/* Login Form Section */}
       <div className="w-full flex items-center justify-center p-8 bg-gradient-to-b from-zinc-950 to-zinc-900">
         <div className="w-full max-w-md">
