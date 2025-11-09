@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TicketCard } from '@/components/TicketCard';
-import { WantedTicketCard } from '@/components/WantedTicketCard';
-import { ContactDialog } from '@/components/ContactDialog';
-import TicketForm from '@/components/TicketForm';
-import WantedTicketForm from '@/components/WantedTicketForm';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { TicketCard } from "@/components/TicketCard";
+import { WantedTicketCard } from "@/components/WantedTicketCard";
+import { ContactDialog } from "@/components/ContactDialog";
+import TicketForm from "@/components/TicketForm";
+import WantedTicketForm from "@/components/WantedTicketForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface Ticket {
   id: string;
@@ -53,7 +53,7 @@ const Feed = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, loading, navigate]);
 
@@ -68,73 +68,75 @@ const Feed = () => {
 
   const loadTickets = async () => {
     setLoadingTickets(true);
-    
+
     // Get user's extended network (friends and friends of friends)
-    const { data: networkData, error: networkError } = await supabase
-      .rpc('get_extended_network', { user_uuid: user?.id });
+    const { data: networkData, error: networkError } = await supabase.rpc("get_extended_network", {
+      user_uuid: user?.id,
+    });
 
     if (networkError) {
-      console.error('Error loading network:', networkError);
+      console.error("Error loading network:", networkError);
     }
 
     // Create a map of user_id to degree for easy lookup
-    const networkMap = new Map(
-      networkData?.map(n => [n.network_user_id, n.degree]) || []
-    );
-    
-    const networkUserIds = networkData?.map(n => n.network_user_id) || [];
-    
+    const networkMap = new Map(networkData?.map((n) => [n.network_user_id, n.degree]) || []);
+
+    const networkUserIds = networkData?.map((n) => n.network_user_id) || [];
+
     // Include tickets from: network + own tickets
     const allowedUserIds = [...networkUserIds, user?.id];
-    
+
     const { data, error } = await supabase
-      .from('tickets')
-      .select(`
+      .from("tickets")
+      .select(
+        `
         *,
         profiles!tickets_user_id_fkey(name, email)
-      `)
-      .eq('status', 'available')
-      .in('user_id', allowedUserIds)
-      .order('created_at', { ascending: false });
+      `,
+      )
+      .eq("status", "available")
+      .in("user_id", allowedUserIds)
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error('Error loading tickets:', error);
-      toast.error('Error al cargar las entradas');
+      console.error("Error loading tickets:", error);
+      toast.error("Error al cargar las entradas");
       setLoadingTickets(false);
       return;
     }
 
     // Get mutual friends for degree 2 connections
-    const ticketsWithMutualFriends = await Promise.all((data || []).map(async (ticket) => {
-      const degree = networkMap.get(ticket.user_id);
-      let mutualFriends: Array<{ friend_name: string }> = [];
-      
-      if (degree === 2 && user?.id) {
-        const { data: mutualData } = await supabase
-          .rpc('get_mutual_friends', { 
-            user_a: user.id, 
-            user_b: ticket.user_id 
+    const ticketsWithMutualFriends = await Promise.all(
+      (data || []).map(async (ticket) => {
+        const degree = networkMap.get(ticket.user_id);
+        let mutualFriends: Array<{ friend_name: string }> = [];
+
+        if (degree === 2 && user?.id) {
+          const { data: mutualData } = await supabase.rpc("get_mutual_friends", {
+            user_a: user.id,
+            user_b: ticket.user_id,
           });
-        
-        mutualFriends = mutualData?.map(f => ({ friend_name: f.friend_name })) || [];
-      }
-      
-      return {
-        ...ticket,
-        networkDegree: degree,
-        mutualFriends
-      };
-    }));
+
+          mutualFriends = mutualData?.map((f) => ({ friend_name: f.friend_name })) || [];
+        }
+
+        return {
+          ...ticket,
+          networkDegree: degree,
+          mutualFriends,
+        };
+      }),
+    );
 
     // Sort tickets: own tickets at the end, others by event date (soonest first)
     const sortedTickets = ticketsWithMutualFriends.sort((a, b) => {
       const isAOwn = a.user_id === user?.id;
       const isBOwn = b.user_id === user?.id;
-      
+
       // If one is own and the other isn't, own goes to the end
       if (isAOwn && !isBOwn) return 1;
       if (!isAOwn && isBOwn) return -1;
-      
+
       // If both are own or both are not own, sort by event date
       return new Date(a.event_date).getTime() - new Date(b.event_date).getTime();
     });
@@ -145,65 +147,67 @@ const Feed = () => {
 
   const loadWantedTickets = async () => {
     setLoadingWanted(true);
-    
-    const { data: networkData, error: networkError } = await supabase
-      .rpc('get_extended_network', { user_uuid: user?.id });
+
+    const { data: networkData, error: networkError } = await supabase.rpc("get_extended_network", {
+      user_uuid: user?.id,
+    });
 
     if (networkError) {
-      console.error('Error loading network:', networkError);
+      console.error("Error loading network:", networkError);
     }
 
-    const networkMap = new Map(
-      networkData?.map(n => [n.network_user_id, n.degree]) || []
-    );
-    
-    const networkUserIds = networkData?.map(n => n.network_user_id) || [];
+    const networkMap = new Map(networkData?.map((n) => [n.network_user_id, n.degree]) || []);
+
+    const networkUserIds = networkData?.map((n) => n.network_user_id) || [];
     const allowedUserIds = [...networkUserIds, user?.id];
-    
+
     const { data, error } = await supabase
-      .from('wanted_tickets')
-      .select(`
+      .from("wanted_tickets")
+      .select(
+        `
         *,
         profiles!wanted_tickets_user_id_fkey(name, email)
-      `)
-      .in('user_id', allowedUserIds)
-      .order('created_at', { ascending: false });
+      `,
+      )
+      .in("user_id", allowedUserIds)
+      .order("created_at", { ascending: false });
 
     if (error) {
-      console.error('Error loading wanted tickets:', error);
-      toast.error('Error al cargar las búsquedas');
+      console.error("Error loading wanted tickets:", error);
+      toast.error("Error al cargar las búsquedas");
       setLoadingWanted(false);
       return;
     }
 
-    const wantedTicketsWithMutualFriends = await Promise.all((data || []).map(async (ticket) => {
-      const degree = networkMap.get(ticket.user_id);
-      let mutualFriends: Array<{ friend_name: string }> = [];
-      
-      if (degree === 2 && user?.id) {
-        const { data: mutualData } = await supabase
-          .rpc('get_mutual_friends', { 
-            user_a: user.id, 
-            user_b: ticket.user_id 
+    const wantedTicketsWithMutualFriends = await Promise.all(
+      (data || []).map(async (ticket) => {
+        const degree = networkMap.get(ticket.user_id);
+        let mutualFriends: Array<{ friend_name: string }> = [];
+
+        if (degree === 2 && user?.id) {
+          const { data: mutualData } = await supabase.rpc("get_mutual_friends", {
+            user_a: user.id,
+            user_b: ticket.user_id,
           });
-        
-        mutualFriends = mutualData?.map(f => ({ friend_name: f.friend_name })) || [];
-      }
-      
-      return {
-        ...ticket,
-        networkDegree: degree,
-        mutualFriends
-      };
-    }));
+
+          mutualFriends = mutualData?.map((f) => ({ friend_name: f.friend_name })) || [];
+        }
+
+        return {
+          ...ticket,
+          networkDegree: degree,
+          mutualFriends,
+        };
+      }),
+    );
 
     const sortedWantedTickets = wantedTicketsWithMutualFriends.sort((a, b) => {
       const isAOwn = a.user_id === user?.id;
       const isBOwn = b.user_id === user?.id;
-      
+
       if (isAOwn && !isBOwn) return 1;
       if (!isAOwn && isBOwn) return -1;
-      
+
       return new Date(a.event_date).getTime() - new Date(b.event_date).getTime();
     });
 
@@ -213,17 +217,17 @@ const Feed = () => {
 
   const subscribeToTickets = () => {
     const channel = supabase
-      .channel('tickets-changes')
+      .channel("tickets-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'tickets',
+          event: "*",
+          schema: "public",
+          table: "tickets",
         },
         () => {
           loadTickets();
-        }
+        },
       )
       .subscribe();
 
@@ -234,17 +238,17 @@ const Feed = () => {
 
   const subscribeToWantedTickets = () => {
     const channel = supabase
-      .channel('wanted-tickets-changes')
+      .channel("wanted-tickets-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'wanted_tickets',
+          event: "*",
+          schema: "public",
+          table: "wanted_tickets",
         },
         () => {
           loadWantedTickets();
-        }
+        },
       )
       .subscribe();
 
@@ -273,10 +277,10 @@ const Feed = () => {
 
         <Tabs defaultValue="sale" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="sale">Entradas en Venta</TabsTrigger>
-            <TabsTrigger value="wanted">Entradas que Buscan</TabsTrigger>
+            <TabsTrigger value="sale">Entradas a la Venta</TabsTrigger>
+            <TabsTrigger value="wanted">Entradas buscadas</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="sale">
             <div className="mb-6 flex justify-end">
               <TicketForm onSuccess={loadTickets} />
@@ -295,10 +299,10 @@ const Feed = () => {
               <div className="grid gap-6 md:grid-cols-2">
                 {tickets.map((ticket) => {
                   if (!ticket.profiles) {
-                    console.warn('Skipping ticket without profile:', ticket.id);
+                    console.warn("Skipping ticket without profile:", ticket.id);
                     return null;
                   }
-                  
+
                   return (
                     <TicketCard
                       key={ticket.id}
@@ -335,10 +339,10 @@ const Feed = () => {
               <div className="grid gap-6 md:grid-cols-2">
                 {wantedTickets.map((ticket) => {
                   if (!ticket.profiles) {
-                    console.warn('Skipping wanted ticket without profile:', ticket.id);
+                    console.warn("Skipping wanted ticket without profile:", ticket.id);
                     return null;
                   }
-                  
+
                   return (
                     <WantedTicketCard
                       key={ticket.id}
