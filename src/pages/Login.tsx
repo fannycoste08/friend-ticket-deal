@@ -46,14 +46,14 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black">
       {/* Hero + ¿Por qué Trusticket? en un solo bloque */}
-      <div className="relative w-full overflow-hidden">
+      <div className="relative w-full overflow-hidden min-h-screen">
         <img
           src={concertHero}
           alt="Concierto con multitud"
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
         />
         {/* capa de degradado para que se lea el texto */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black" />
 
         <div className="relative flex flex-col items-center justify-center text-center px-6 pt-16 pb-10 lg:pt-20 lg:pb-16 max-w-6xl mx-auto">
           {/* icono */}
