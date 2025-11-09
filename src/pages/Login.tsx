@@ -63,15 +63,12 @@ const Login = () => {
 
           {/* título principal */}
           <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-lg">
-            Conecta con los amigos de tus amigos para comprar y vender entradas de conciertos en confianza
+            La forma más segura de comprar y vender entradas entre personas reales.
           </h1>
 
           {/* bloque ¿Por qué Trusticket? dentro del mismo fondo */}
           <div className="w-full mt-10">
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-3">¿Por qué Trusticket?</h2>
-            <p className="text-zinc-200 text-lg mb-2">
-              La forma más segura de comprar y vender entradas entre personas reales.
-            </p>
             <p className="text-zinc-300 text-base lg:text-lg max-w-3xl mx-auto">
               Porque nadie mejor que tus amigos —y los amigos de tus amigos— para ayudarte a comprar o vender entradas
               con confianza.
