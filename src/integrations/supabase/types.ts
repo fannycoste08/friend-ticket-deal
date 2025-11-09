@@ -374,6 +374,36 @@ export type Database = {
         }
         Relationships: []
       }
+      wanted_tickets: {
+        Row: {
+          artist: string
+          city: string
+          created_at: string
+          event_date: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          artist: string
+          city: string
+          created_at?: string
+          event_date: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          artist?: string
+          city?: string
+          created_at?: string
+          event_date?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

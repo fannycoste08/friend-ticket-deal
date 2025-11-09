@@ -39,10 +39,15 @@ interface ContactDialogProps {
     seller: string;
     seller_email: string;
   };
+  isWantedTicket?: boolean;
 }
 
-export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps) {
+export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = false }: ContactDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const defaultMessage = isWantedTicket 
+    ? `Hola, tengo entrada para ${ticket.artist} que estás buscando. Me gustaría hablar contigo sobre ello.`
+    : "";
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,7 +55,7 @@ export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps
       name: "",
       email: "",
       phone: "",
-      message: "",
+      message: defaultMessage,
     },
   });
 
@@ -119,9 +124,11 @@ export function ContactDialog({ open, onOpenChange, ticket }: ContactDialogProps
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Contactar con {ticket.seller}</DialogTitle>
+          <DialogTitle>
+            {isWantedTicket ? `Ofrecer entrada a ${ticket.seller}` : `Contactar con ${ticket.seller}`}
+          </DialogTitle>
           <DialogDescription>
-            Envía un mensaje sobre: {ticket.artist}
+            {isWantedTicket ? `Tienes entrada para: ${ticket.artist}` : `Envía un mensaje sobre: ${ticket.artist}`}
           </DialogDescription>
         </DialogHeader>
 
