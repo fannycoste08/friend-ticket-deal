@@ -47,7 +47,11 @@ const Login = () => {
     <div className="min-h-screen flex flex-col bg-black">
       {/* Hero Section */}
       <div className="relative w-full min-h-[40vh] overflow-hidden">
-        <img src={concertHero} alt="Concierto con multitud" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+        <img
+          src={concertHero}
+          alt="Concierto con multitud"
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-black/90 via-black/80 to-blue-900/30" />
 
         <div className="relative h-full flex flex-col items-center justify-center text-center px-6 py-16">
@@ -56,7 +60,7 @@ const Login = () => {
           </div>
 
           <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-            Compra y vende entradas de conciertos en confianza
+            Conecta con los amigos de tus amigos para comprar y vender entradas de conciertos en confianza
           </h1>
         </div>
       </div>
@@ -64,7 +68,10 @@ const Login = () => {
       {/* Login Form Section */}
       <div className="w-full flex items-center justify-center p-8 bg-gradient-to-b from-zinc-950 to-zinc-900">
         <div className="w-full max-w-md">
-          <Card className="w-full bg-zinc-900/50 border-zinc-800 backdrop-blur-sm" style={{ boxShadow: "0 0 50px rgba(0,0,0,0.5)" }}>
+          <Card
+            className="w-full bg-zinc-900/50 border-zinc-800 backdrop-blur-sm"
+            style={{ boxShadow: "0 0 50px rgba(0,0,0,0.5)" }}
+          >
             <CardHeader className="space-y-4 text-center">
               <div className="mx-auto w-16 h-16 rounded-lg bg-gradient-to-br from-blue-600 to-blue-900 flex items-center justify-center">
                 <Ticket className="w-10 h-10 text-white" />
@@ -77,7 +84,9 @@ const Login = () => {
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-zinc-300">Email</Label>
+                  <Label htmlFor="email" className="text-zinc-300">
+                    Email
+                  </Label>
                   <Input
                     id="email"
                     type="email"
@@ -90,7 +99,9 @@ const Login = () => {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-zinc-300">Contraseña</Label>
+                    <Label htmlFor="password" className="text-zinc-300">
+                      Contraseña
+                    </Label>
                     <Link to="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300 hover:underline">
                       ¿Olvidaste tu contraseña?
                     </Link>
@@ -109,15 +120,15 @@ const Login = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-300 transition-colors"
                     >
-                      {showPassword ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>
-                <Button type="submit" className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900" disabled={loading}>
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                  disabled={loading}
+                >
                   {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                 </Button>
               </form>
@@ -137,11 +148,9 @@ const Login = () => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">¿Qué es Trusticket?</h2>
-            <p className="text-zinc-300 text-xl">
-              La forma más segura de comprar y vender entradas
-            </p>
+            <p className="text-zinc-300 text-xl">La forma más segura de comprar y vender entradas</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
