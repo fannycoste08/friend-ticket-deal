@@ -147,9 +147,15 @@ const Login = () => {
       <div className="w-full bg-gradient-to-b from-zinc-900 to-black border-t border-zinc-800 py-16 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">¿Qué es Trusticket?</h2>
-            <p className="text-zinc-300 text-xl">La forma más segura de comprar y vender entradas</p>
-          </div>
+        <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+  ¿Por qué Trusticket?
+</h2>
+<p className="text-zinc-300 text-xl mb-2">
+  La forma más segura de comprar y vender entradas entre personas reales.
+</p>
+<p className="text-zinc-400 text-lg">
+  Porque nadie mejor que tus amigos —y los amigos de tus amigos— para ayudarte a comprar o vender entradas con confianza.
+</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="flex flex-col items-center text-center">
