@@ -156,6 +156,7 @@ const Login = () => {
 <p className="text-zinc-400 text-lg">
   Porque nadie mejor que tus amigos —y los amigos de tus amigos— para ayudarte a comprar o vender entradas con confianza.
 </p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             <div className="flex flex-col items-center text-center">
