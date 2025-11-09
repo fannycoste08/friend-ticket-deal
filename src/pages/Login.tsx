@@ -65,6 +65,55 @@ const Login = () => {
         </div>
       </div>
 
+      {/* What is Trusticket Section - Full Width */}
+      <div className="w-full bg-gradient-to-b from-zinc-900 to-black border-t border-zinc-800 py-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">¿Por qué Trusticket?</h2>
+            <p className="text-zinc-300 text-xl mb-2">
+              La forma más segura de comprar y vender entradas entre personas reales.
+            </p>
+            <p className="text-zinc-400 text-lg">
+              Porque nadie mejor que tus amigos —y los amigos de tus amigos— para ayudarte a comprar o vender entradas
+              con confianza.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
+                <Users className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-2">Tu red de confianza</h3>
+              <p className="text-zinc-400">
+                Descubre qué entradas venden tus amigos y los amigos de tus amigos. Todas esas personas en las que
+                puedes confiar.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
+                <Shield className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-2">Sin plataforma de pago</h3>
+              <p className="text-zinc-400">
+                Contacta con el vendedor o comprador y gestiona la transacción por tu cuenta.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
+                <Heart className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-2">Comunidad de fans reales</h3>
+              <p className="text-zinc-400">
+                Solo se accede con invitación para crear una comunidad de personas que quieren disfrutar de la música de
+                una forma más ética.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
       {/* Login Form Section */}
       <div className="w-full flex items-center justify-center p-8 bg-gradient-to-b from-zinc-950 to-zinc-900">
         <div className="w-full max-w-md">
@@ -140,56 +189,6 @@ const Login = () => {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
-
-      {/* What is Trusticket Section - Full Width */}
-      <div className="w-full bg-gradient-to-b from-zinc-900 to-black border-t border-zinc-800 py-16 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">¿Por qué Trusticket?</h2>
-            <p className="text-zinc-300 text-xl mb-2">
-              La forma más segura de comprar y vender entradas entre personas reales.
-            </p>
-            <p className="text-zinc-400 text-lg">
-              Porque nadie mejor que tus amigos —y los amigos de tus amigos— para ayudarte a comprar o vender entradas
-              con confianza.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
-                <Users className="w-8 h-8 text-blue-400" />
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Tu red de confianza</h3>
-              <p className="text-zinc-400">
-                Descubre qué entradas venden tus amigos y los amigos de tus amigos. Todas esas personas en las que
-                puedes confiar.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
-                <Shield className="w-8 h-8 text-blue-400" />
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Sin plataforma de pago</h3>
-              <p className="text-zinc-400">
-                Contacta con el vendedor o comprador y gestiona la transacción por tu cuenta.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/30 flex items-center justify-center mb-4">
-                <Heart className="w-8 h-8 text-blue-400" />
-              </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Comunidad de fans reales</h3>
-              <p className="text-zinc-400">
-                Solo se accede con invitación para crear una comunidad de personas que quieren disfrutar de la música de
-                una forma más ética.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>
