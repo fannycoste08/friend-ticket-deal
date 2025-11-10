@@ -179,33 +179,45 @@ const Profile = () => {
 
     setLoadingFriends(true);
     
-    const { data, error } = await supabase
+    // Get friendships where user is involved
+    const { data: friendshipsData, error: friendshipsError } = await supabase
       .from('friendships')
-      .select('user_id, friend_id, profiles!friendships_user_id_fkey(id, name, email), profiles!friendships_friend_id_fkey(id, name, email)')
+      .select('user_id, friend_id')
       .eq('status', 'accepted')
       .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
 
-    if (error) {
-      console.error('Error loading friends:', error);
+    if (friendshipsError) {
+      console.error('Error loading friendships:', friendshipsError);
       toast.error('Error al cargar tus amigos');
       setLoadingFriends(false);
       return;
     }
 
-    const friendsList: Friend[] = (data || []).map((friendship: any) => {
-      const isUserInitiator = friendship.user_id === user.id;
-      const friendProfile = isUserInitiator 
-        ? friendship['profiles!friendships_friend_id_fkey']
-        : friendship['profiles!friendships_user_id_fkey'];
-      
-      return {
-        id: friendProfile.id,
-        name: friendProfile.name,
-        email: friendProfile.email
-      };
+    if (!friendshipsData || friendshipsData.length === 0) {
+      setFriends([]);
+      setLoadingFriends(false);
+      return;
+    }
+
+    // Get the friend IDs
+    const friendIds = friendshipsData.map((friendship) => {
+      return friendship.user_id === user.id ? friendship.friend_id : friendship.user_id;
     });
 
-    setFriends(friendsList);
+    // Get profiles for those friends
+    const { data: profilesData, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .in('id', friendIds);
+
+    if (profilesError) {
+      console.error('Error loading friend profiles:', profilesError);
+      toast.error('Error al cargar información de amigos');
+      setLoadingFriends(false);
+      return;
+    }
+
+    setFriends(profilesData || []);
     setLoadingFriends(false);
   };
 
