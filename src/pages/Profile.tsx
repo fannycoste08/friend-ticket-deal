@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail } from 'lucide-react';
+import { Mail, UserMinus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { InvitationManager } from '@/components/InvitationManager';
 import { FriendshipRequests } from '@/components/FriendshipRequests';
 import { MyTicketCard } from '@/components/MyTicketCard';
@@ -32,6 +33,12 @@ interface MyWantedTicket {
   event_date: string;
 }
 
+interface Friend {
+  id: string;
+  name: string;
+  email: string;
+}
+
 const Profile = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -42,6 +49,8 @@ const Profile = () => {
   const [editingTicket, setEditingTicket] = useState<MyTicket | undefined>();
   const [editingWantedTicket, setEditingWantedTicket] = useState<MyWantedTicket | undefined>();
   const [profileData, setProfileData] = useState<{ name: string; email: string } | null>(null);
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [loadingFriends, setLoadingFriends] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -59,6 +68,7 @@ const Profile = () => {
       loadProfile();
       loadTickets();
       loadWantedTickets();
+      loadFriends();
     }
   }, [user]);
 
@@ -164,6 +174,59 @@ const Profile = () => {
     loadWantedTickets();
   };
 
+  const loadFriends = async () => {
+    if (!user) return;
+
+    setLoadingFriends(true);
+    
+    const { data, error } = await supabase
+      .from('friendships')
+      .select('user_id, friend_id, profiles!friendships_user_id_fkey(id, name, email), profiles!friendships_friend_id_fkey(id, name, email)')
+      .eq('status', 'accepted')
+      .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
+
+    if (error) {
+      console.error('Error loading friends:', error);
+      toast.error('Error al cargar tus amigos');
+      setLoadingFriends(false);
+      return;
+    }
+
+    const friendsList: Friend[] = (data || []).map((friendship: any) => {
+      const isUserInitiator = friendship.user_id === user.id;
+      const friendProfile = isUserInitiator 
+        ? friendship['profiles!friendships_friend_id_fkey']
+        : friendship['profiles!friendships_user_id_fkey'];
+      
+      return {
+        id: friendProfile.id,
+        name: friendProfile.name,
+        email: friendProfile.email
+      };
+    });
+
+    setFriends(friendsList);
+    setLoadingFriends(false);
+  };
+
+  const handleDeleteFriend = async (friendId: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('friendships')
+      .delete()
+      .or(`and(user_id.eq.${user.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${user.id})`);
+
+    if (error) {
+      toast.error('Error al eliminar amigo');
+      console.error(error);
+      return;
+    }
+
+    toast.success('Amigo eliminado');
+    loadFriends();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 flex items-center justify-center">
@@ -204,6 +267,47 @@ const Profile = () => {
         <FriendshipRequests />
 
         <InvitationManager userId={user.id} />
+
+        <div className="mt-6">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-foreground">Mis Amigos</h2>
+            <p className="text-sm text-muted-foreground">
+              {friends.length} amigos conectados
+            </p>
+          </div>
+
+          {loadingFriends ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Cargando tus amigos...</p>
+            </div>
+          ) : friends.length === 0 ? (
+            <div className="text-center py-12 bg-secondary/30 rounded-lg">
+              <p className="text-muted-foreground">No tienes amigos conectados aún</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {friends.map((friend) => (
+                <Card key={friend.id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground">{friend.name}</h3>
+                      <p className="text-sm text-muted-foreground">{friend.email}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteFriend(friend.id)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <UserMinus className="w-4 h-4 mr-1" />
+                      Eliminar
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
 
         <div className="mt-6">
           <div className="mb-4 flex items-center justify-between">
