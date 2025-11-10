@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TicketCard } from '@/components/TicketCard';
+import { WantedTicketCard } from '@/components/WantedTicketCard';
 import { ContactDialog } from '@/components/ContactDialog';
 import { ArrowLeft, UserPlus, UserCheck, Clock, Users } from 'lucide-react';
 import { toast } from 'sonner';
@@ -31,6 +32,18 @@ interface Ticket {
   };
 }
 
+interface WantedTicket {
+  id: string;
+  artist: string;
+  city: string;
+  event_date: string;
+  user_id: string;
+  profiles: {
+    name: string;
+    email: string;
+  };
+}
+
 interface FriendshipStatus {
   status: 'none' | 'pending_sent' | 'pending_received' | 'accepted';
   friendshipId?: string;
@@ -42,6 +55,7 @@ const UserProfile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [wantedTickets, setWantedTickets] = useState<WantedTicket[]>([]);
   const [networkDegree, setNetworkDegree] = useState<number | null>(null);
   const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus>({ status: 'none' });
   const [loading, setLoading] = useState(true);
@@ -82,6 +96,18 @@ const UserProfile = () => {
       .order('created_at', { ascending: false });
 
     setTickets(ticketsData || []);
+
+    // Load user's wanted tickets
+    const { data: wantedTicketsData } = await supabase
+      .from('wanted_tickets')
+      .select(`
+        *,
+        profiles!wanted_tickets_user_id_fkey(name, email)
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    setWantedTickets(wantedTicketsData || []);
 
     // Get network degree
     const { data: networkData } = await supabase
@@ -359,6 +385,32 @@ const UserProfile = () => {
                 }}
                 currentUserId={user?.id}
                 onContact={() => setSelectedTicket(ticket)}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="mt-8 mb-6">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
+            Entradas que Busca
+          </h2>
+        </div>
+
+        {wantedTickets.length === 0 ? (
+          <Card className="p-12 text-center">
+            <p className="text-muted-foreground">Este usuario no está buscando entradas</p>
+          </Card>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2">
+            {wantedTickets.map((ticket) => (
+              <WantedTicketCard
+                key={ticket.id}
+                ticket={{
+                  ...ticket,
+                  seeker_name: ticket.profiles.name,
+                }}
+                currentUserId={user?.id}
+                onContact={() => {}} 
               />
             ))}
           </div>

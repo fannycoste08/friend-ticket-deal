@@ -299,7 +299,11 @@ const Profile = () => {
           ) : (
             <div className="grid gap-3 md:grid-cols-2">
               {friends.map((friend) => (
-                <Card key={friend.id} className="p-4">
+                <Card 
+                  key={friend.id} 
+                  className="p-4 cursor-pointer hover:bg-accent/5 transition-colors"
+                  onClick={() => navigate(`/user/${friend.id}`)}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground">{friend.name}</h3>
@@ -308,7 +312,10 @@ const Profile = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteFriend(friend.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteFriend(friend.id);
+                      }}
                       className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <UserMinus className="w-4 h-4 mr-1" />
