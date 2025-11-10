@@ -12,19 +12,21 @@ const LegalNotice = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Identificación</h2>
               <p className="text-muted-foreground">
-                En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y Comercio Electrónico, se informa:
+                En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la
+                Información y Comercio Electrónico, se informa:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
                 <li>Denominación social: TrusTicket</li>
                 <li>Actividad: Plataforma de compraventa de entradas de conciertos</li>
-                <li>Email de contacto: info@trusticket.com</li>
+                <li>Email de contacto: trusticketinfo@gmail.com</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold mb-3">2. Objeto</h2>
               <p className="text-muted-foreground">
-                TrusTicket es una plataforma que conecta a usuarios para la compraventa segura de entradas de conciertos y eventos musicales, basada en un sistema de recomendaciones y confianza entre usuarios.
+                TrusTicket es una plataforma que conecta a usuarios para la compraventa segura de entradas de conciertos
+                y eventos musicales, basada en un sistema de recomendaciones y confianza entre usuarios.
               </p>
             </section>
 
@@ -59,14 +61,16 @@ const LegalNotice = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">5. Propiedad Intelectual</h2>
               <p className="text-muted-foreground">
-                Todos los contenidos de la plataforma (diseño, código, logos, textos) están protegidos por derechos de propiedad intelectual y son propiedad de TrusTicket o sus licenciantes.
+                Todos los contenidos de la plataforma (diseño, código, logos, textos) están protegidos por derechos de
+                propiedad intelectual y son propiedad de TrusTicket o sus licenciantes.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold mb-3">6. Legislación Aplicable</h2>
               <p className="text-muted-foreground">
-                Estas condiciones se rigen por la legislación española. Para cualquier controversia, las partes se someterán a los juzgados y tribunales del domicilio del usuario.
+                Estas condiciones se rigen por la legislación española. Para cualquier controversia, las partes se
+                someterán a los juzgados y tribunales del domicilio del usuario.
               </p>
             </section>
           </CardContent>
