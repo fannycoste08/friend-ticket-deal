@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import concertHero from "@/assets/hero-background.jpg";
+import concertHero from "@/assets/concert-hero.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -49,28 +49,37 @@ const Login = () => {
       <div className="w-full bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-800 py-16 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* COLUMNA IZQUIERDA */}
-          <div className="space-y-8">
-            <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
-              Compra y vende entradas entre amigos
-            </h1>
-            <div className="space-y-4">
-              <h2 className="text-2xl font-semibold text-blue-400">
-                Un espacio de confianza:
-              </h2>
-              <ul className="space-y-4 text-zinc-300 text-lg">
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin sobreprecios por la entrada</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin costes por la plataforma</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin miedos, todo queda entre amigos</span>
-                </li>
-              </ul>
+          <div 
+            className="space-y-8 rounded-2xl p-8 bg-cover bg-center bg-no-repeat relative overflow-hidden"
+            style={{ backgroundImage: `url(${concertHero})` }}
+          >
+            {/* Overlay oscuro para mejorar legibilidad */}
+            <div className="absolute inset-0 bg-black/60 rounded-2xl"></div>
+            
+            {/* Contenido */}
+            <div className="relative z-10">
+              <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
+                Compra y vende entradas entre amigos
+              </h1>
+              <div className="space-y-4 mt-8">
+                <h2 className="text-2xl font-semibold text-blue-400">
+                  Un espacio de confianza:
+                </h2>
+                <ul className="space-y-4 text-zinc-300 text-lg">
+                  <li className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
+                    <span>Sin sobreprecios por la entrada</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
+                    <span>Sin costes por la plataforma</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
+                    <span>Sin miedos, todo queda entre amigos</span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
 
