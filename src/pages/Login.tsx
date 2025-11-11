@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Ticket, Shield, Users, Heart, Eye, EyeOff } from "lucide-react";
+import { Ticket, DollarSign, Users, Heart, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -163,7 +163,7 @@ const Login = () => {
             {/* Bloque 1 */}
             <div className="flex flex-col items-center text-center space-y-4">
               <div className="w-16 h-16 rounded-xl bg-blue-900/40 flex items-center justify-center">
-                <Shield className="w-8 h-8 text-blue-200" />
+                <DollarSign className="w-8 h-8 text-blue-200" />
               </div>
               <h3 className="text-white font-semibold text-xl">Respetamos precios</h3>
               <p className="text-zinc-400 leading-relaxed">
