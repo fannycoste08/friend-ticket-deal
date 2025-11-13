@@ -239,6 +239,57 @@ export type Database = {
         }
         Relationships: []
       }
+      session_rate_limits: {
+        Row: {
+          created_at: string | null
+          function_name: string
+          id: string
+          metadata: Json | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          function_name: string
+          id?: string
+          metadata?: Json | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string | null
+          function_name?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string
+        }
+        Relationships: []
+      }
+      suspicious_activity_log: {
+        Row: {
+          created_at: string | null
+          function_name: string
+          id: string
+          identifier: string
+          metadata: Json | null
+          reason: string
+        }
+        Insert: {
+          created_at?: string | null
+          function_name: string
+          id?: string
+          identifier: string
+          metadata?: Json | null
+          reason: string
+        }
+        Update: {
+          created_at?: string | null
+          function_name?: string
+          id?: string
+          identifier?: string
+          metadata?: Json | null
+          reason?: string
+        }
+        Relationships: []
+      }
       ticket_requests: {
         Row: {
           created_at: string
