@@ -301,26 +301,32 @@ const Profile = () => {
               {friends.map((friend) => (
                 <Card 
                   key={friend.id} 
-                  className="p-4 cursor-pointer hover:bg-accent/5 transition-colors"
-                  onClick={() => navigate(`/user/${friend.id}`)}
+                  className="p-4"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <h3 className="font-semibold text-foreground">{friend.name}</h3>
                       <p className="text-sm text-muted-foreground">{friend.email}</p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteFriend(friend.id);
-                      }}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <UserMinus className="w-4 h-4 mr-1" />
-                      Eliminar
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => navigate(`/user/${friend.id}`)}
+                        className="text-primary hover:text-primary/80"
+                      >
+                        Ver perfil
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteFriend(friend.id)}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      >
+                        <UserMinus className="w-4 h-4 mr-1" />
+                        Eliminar
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               ))}
