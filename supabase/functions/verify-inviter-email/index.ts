@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { checkIPRateLimit, logIPAttempt, getClientIP } from '../_shared/ip-rate-limiter.ts';
+import { checkSessionRateLimit, logSessionAttempt, generateSessionFingerprint, logSuspiciousActivity } from '../_shared/session-rate-limiter.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,21 +14,59 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // IP-based rate limiting (20 requests per 15 minutes)
+    // Get client identifiers
     const clientIP = getClientIP(req);
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const sessionId = generateSessionFingerprint(req, clientIP);
     
-    const rateLimitCheck = await checkIPRateLimit(
+    // IP-based rate limiting (5 requests per 15 minutes)
+    const ipRateLimitCheck = await checkIPRateLimit(
       clientIP,
       'verify-inviter-email',
       supabaseUrl,
       supabaseKey,
-      { maxAttempts: 20, windowMinutes: 15 }
+      { maxAttempts: 5, windowMinutes: 15 }
     );
 
-    if (!rateLimitCheck.allowed) {
-      console.warn(`Rate limit exceeded for IP: ${clientIP}`);
+    if (!ipRateLimitCheck.allowed) {
+      console.warn(`IP rate limit exceeded: ${clientIP}`);
+      await logSuspiciousActivity(
+        clientIP,
+        'verify-inviter-email',
+        'IP rate limit exceeded',
+        supabaseUrl,
+        supabaseKey,
+        { attempts: 5, window: '15min' }
+      );
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please try again later.', exists: false }),
+        { 
+          status: 429, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Session-based rate limiting (3 requests per 15 minutes)
+    const sessionRateLimitCheck = await checkSessionRateLimit(
+      sessionId,
+      'verify-inviter-email',
+      supabaseUrl,
+      supabaseKey,
+      { maxAttempts: 3, windowMinutes: 15 }
+    );
+
+    if (!sessionRateLimitCheck.allowed) {
+      console.warn(`Session rate limit exceeded: ${sessionId}`);
+      await logSuspiciousActivity(
+        sessionId,
+        'verify-inviter-email',
+        'Session rate limit exceeded',
+        supabaseUrl,
+        supabaseKey,
+        { ip: clientIP, attempts: sessionRateLimitCheck.attempts, window: '15min' }
+      );
       return new Response(
         JSON.stringify({ error: 'Too many requests. Please try again later.', exists: false }),
         { 
@@ -76,17 +115,38 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('Inviter found:', data ? 'yes' : 'no');
+    const emailExists = !!data;
+    console.log('Inviter found:', emailExists ? 'yes' : 'no');
 
-    // Log successful attempt
-    await logIPAttempt(clientIP, 'verify-inviter-email', supabaseUrl, supabaseKey);
+    // Log attempts for both IP and session tracking
+    await Promise.all([
+      logIPAttempt(clientIP, 'verify-inviter-email', supabaseUrl, supabaseKey),
+      logSessionAttempt(sessionId, 'verify-inviter-email', supabaseUrl, supabaseKey, { 
+        ip: clientIP,
+        email_checked: normalizedEmail,
+        exists: emailExists
+      })
+    ]);
 
-    // Return inviter info including email for notification purposes
+    // Log suspicious activity if checking multiple emails that don't exist
+    if (!emailExists && (sessionRateLimitCheck.attempts ?? 0) >= 2) {
+      await logSuspiciousActivity(
+        sessionId,
+        'verify-inviter-email',
+        'Multiple failed email verification attempts',
+        supabaseUrl,
+        supabaseKey,
+        { 
+          ip: clientIP,
+          attempts: (sessionRateLimitCheck.attempts ?? 0) + 1,
+          last_email: normalizedEmail
+        }
+      );
+    }
+
+    // Return only boolean result - no user details to prevent enumeration
     return new Response(
-      JSON.stringify({ 
-        exists: !!data,
-        inviter: data ? { id: data.id, name: data.name, email: data.email } : null
-      }),
+      JSON.stringify({ exists: emailExists }),
       { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
