@@ -65,12 +65,24 @@ const Register = () => {
       return;
     }
 
-    const inviterData = verifyResult.inviter;
+    // Get inviter data from profiles table
+    const { data: inviterProfile, error: inviterProfileError } = await supabase
+      .from('profiles')
+      .select('id, name, email')
+      .ilike('email', normalizedInviterEmail)
+      .maybeSingle();
+
+    if (inviterProfileError || !inviterProfile) {
+      console.error('Error fetching inviter profile:', inviterProfileError);
+      toast.error('Error al obtener datos del padrino');
+      setLoading(false);
+      return;
+    }
 
     // Create invitation request via edge function (to bypass RLS)
     const { data: invitationResult, error: invitationError } = await supabase.functions.invoke('create-invitation-request', {
       body: {
-        inviter_id: inviterData.id,
+        inviter_id: inviterProfile.id,
         invitee_email: normalizedEmail,
         invitee_name: name,
       }
@@ -92,8 +104,8 @@ const Register = () => {
     // Send notification email to godparent
     const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
       body: {
-        inviter_email: inviterData.email,
-        inviter_name: inviterData.name || 'Usuario',
+        inviter_email: inviterProfile.email,
+        inviter_name: inviterProfile.name || 'Usuario',
         invitee_name: name,
         invitee_email: normalizedEmail,
       },
@@ -104,7 +116,7 @@ const Register = () => {
       // Don't fail the registration if email fails
     }
 
-    setInviterName(inviterData.name || 'tu padrino');
+    setInviterName(inviterProfile.name || 'tu padrino');
     setShowSuccessModal(true);
     setLoading(false);
   };
