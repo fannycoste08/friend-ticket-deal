@@ -265,7 +265,11 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
               onChange={(e) => handleChange('description', e.target.value)}
               placeholder="Añade cualquier detalle adicional sobre las entradas..."
               rows={4}
+              maxLength={100}
             />
+            <p className="text-xs text-muted-foreground">
+              {formData.description.length}/100 caracteres
+            </p>
           </div>
 
           <div className="flex gap-2 justify-end">
