@@ -65,15 +65,11 @@ const Register = () => {
       return;
     }
 
-    // Get inviter data from profiles table
-    const { data: inviterProfile, error: inviterProfileError } = await supabase
-      .from('profiles')
-      .select('id, name, email')
-      .ilike('email', normalizedInviterEmail)
-      .maybeSingle();
-
-    if (inviterProfileError || !inviterProfile) {
-      console.error('Error fetching inviter profile:', inviterProfileError);
+    // Get inviter data from the verification result
+    const inviterProfile = verifyResult.inviter;
+    
+    if (!inviterProfile) {
+      console.error('No inviter data returned from verification');
       toast.error('Error al obtener datos del padrino');
       setLoading(false);
       return;
