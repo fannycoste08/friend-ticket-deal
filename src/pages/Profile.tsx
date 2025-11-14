@@ -224,6 +224,12 @@ const Profile = () => {
   const handleDeleteFriend = async (friendId: string) => {
     if (!user) return;
 
+    // Confirm deletion
+    if (!confirm('¿Estás seguro de que quieres eliminar este amigo?')) {
+      return;
+    }
+
+    // Delete friendship in both directions (user_id->friend_id OR friend_id->user_id)
     const { error } = await supabase
       .from('friendships')
       .delete()
@@ -231,12 +237,13 @@ const Profile = () => {
 
     if (error) {
       toast.error('Error al eliminar amigo');
-      console.error(error);
+      console.error('Error deleting friend:', error);
       return;
     }
 
+    // Immediately update UI state
+    setFriends((prevFriends) => prevFriends.filter((f) => f.id !== friendId));
     toast.success('Amigo eliminado');
-    loadFriends();
   };
 
   if (loading) {
