@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, UserMinus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { InvitationManager } from '@/components/InvitationManager';
 import { FriendshipRequests } from '@/components/FriendshipRequests';
 import { MyTicketCard } from '@/components/MyTicketCard';
@@ -51,6 +52,7 @@ const Profile = () => {
   const [profileData, setProfileData] = useState<{ name: string; email: string } | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
+  const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -221,29 +223,26 @@ const Profile = () => {
     setLoadingFriends(false);
   };
 
-  const handleDeleteFriend = async (friendId: string) => {
-    if (!user) return;
-
-    // Confirm deletion
-    if (!confirm('¿Estás seguro de que quieres eliminar este amigo?')) {
-      return;
-    }
+  const handleDeleteFriend = async () => {
+    if (!user || !friendToDelete) return;
 
     // Delete friendship in both directions (user_id->friend_id OR friend_id->user_id)
     const { error } = await supabase
       .from('friendships')
       .delete()
-      .or(`and(user_id.eq.${user.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${user.id})`);
+      .or(`and(user_id.eq.${user.id},friend_id.eq.${friendToDelete.id}),and(user_id.eq.${friendToDelete.id},friend_id.eq.${user.id})`);
 
     if (error) {
       toast.error('Error al eliminar amigo');
       console.error('Error deleting friend:', error);
+      setFriendToDelete(null);
       return;
     }
 
     // Immediately update UI state
-    setFriends((prevFriends) => prevFriends.filter((f) => f.id !== friendId));
+    setFriends((prevFriends) => prevFriends.filter((f) => f.id !== friendToDelete.id));
     toast.success('Amigo eliminado');
+    setFriendToDelete(null);
   };
 
   if (loading) {
@@ -327,7 +326,7 @@ const Profile = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteFriend(friend.id)}
+                        onClick={() => setFriendToDelete(friend)}
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         <UserMinus className="w-4 h-4 mr-1" />
@@ -430,6 +429,23 @@ const Profile = () => {
           />
         )}
       </div>
+
+      <AlertDialog open={!!friendToDelete} onOpenChange={(open) => !open && setFriendToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar este amigo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará a {friendToDelete?.name} de tu lista de amigos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteFriend} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Aceptar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
