@@ -144,9 +144,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Return only boolean result - no user details to prevent enumeration
+    // Return boolean result with inviter data if exists
+    // Data is needed for registration flow to work without RLS issues
     return new Response(
-      JSON.stringify({ exists: emailExists }),
+      JSON.stringify({ 
+        exists: emailExists,
+        inviter: emailExists ? data : null
+      }),
       { 
         status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
