@@ -226,11 +226,12 @@ const Profile = () => {
   const handleDeleteFriend = async () => {
     if (!user || !friendToDelete) return;
 
-    // Delete friendship in both directions (user_id->friend_id OR friend_id->user_id)
+    // Delete all friendship records where these two users are involved (bidirectional)
     const { error } = await supabase
       .from('friendships')
       .delete()
-      .or(`and(user_id.eq.${user.id},friend_id.eq.${friendToDelete.id}),and(user_id.eq.${friendToDelete.id},friend_id.eq.${user.id})`);
+      .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`)
+      .or(`user_id.eq.${friendToDelete.id},friend_id.eq.${friendToDelete.id}`);
 
     if (error) {
       toast.error('Error al eliminar amigo');
