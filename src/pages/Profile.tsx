@@ -32,6 +32,7 @@ interface MyWantedTicket {
   artist: string;
   city: string;
   event_date: string;
+  email_notifications: boolean;
 }
 
 interface Friend {
@@ -382,6 +383,9 @@ const Profile = () => {
               <h2 className="text-2xl font-bold text-foreground">Entradas que Busco</h2>
               <p className="text-sm text-muted-foreground">
                 {wantedTickets.length} búsquedas activas
+                {wantedTickets.filter(wt => wt.email_notifications).length > 0 && (
+                  <span className="ml-2 text-purple-600">• Notificaciones activadas</span>
+                )}
               </p>
             </div>
             <WantedTicketForm onSuccess={loadWantedTickets} />

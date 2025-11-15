@@ -31,6 +31,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
     artist: editTicket?.artist || '',
     city: editTicket?.city || '',
     event_date: editTicket?.event_date ? new Date(editTicket.event_date) : undefined as Date | undefined,
+    email_notifications: true,
   });
 
   useEffect(() => {
@@ -40,6 +41,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
         artist: editTicket.artist,
         city: editTicket.city,
         event_date: new Date(editTicket.event_date),
+        email_notifications: true,
       });
     }
   }, [editTicket]);
@@ -63,6 +65,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
       artist: formData.artist,
       city: formData.city,
       event_date: format(formData.event_date, 'yyyy-MM-dd'),
+      email_notifications: formData.email_notifications,
     };
 
     let error;
@@ -94,6 +97,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
       artist: '',
       city: '',
       event_date: undefined,
+      email_notifications: true,
     });
     setOpen(false);
     setLoading(false);

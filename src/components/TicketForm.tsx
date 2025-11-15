@@ -89,6 +89,7 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
     };
 
     let error;
+    let newTicketId;
 
     if (editTicket) {
       // Actualizar entrada existente
@@ -101,8 +102,11 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
       // Crear nueva entrada
       const result = await supabase
         .from('tickets')
-        .insert({ ...ticketData, user_id: user.id });
+        .insert({ ...ticketData, user_id: user.id })
+        .select()
+        .single();
       error = result.error;
+      newTicketId = result.data?.id;
     }
 
     if (error) {
@@ -110,6 +114,33 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
       console.error(error);
       setLoading(false);
       return;
+    }
+
+    // Si es una nueva entrada, enviar notificaciones
+    if (!editTicket && newTicketId) {
+      try {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', user.id)
+          .single();
+
+        await supabase.functions.invoke('notify-wanted-ticket-matches', {
+          body: {
+            ticket_id: newTicketId,
+            artist: formData.artist,
+            venue: formData.venue,
+            city: formData.city,
+            event_date: format(formData.event_date, 'yyyy-MM-dd'),
+            price: parseFloat(formData.price),
+            seller_id: user.id,
+            seller_name: profileData?.name || 'Usuario',
+          },
+        });
+      } catch (notifyError) {
+        console.error('Error sending notifications:', notifyError);
+        // No mostramos error al usuario, las notificaciones son secundarias
+      }
     }
 
     toast.success(editTicket ? '¡Entrada actualizada con éxito!' : '¡Entrada publicada con éxito!');
