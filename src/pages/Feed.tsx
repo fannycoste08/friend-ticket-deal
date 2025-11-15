@@ -6,6 +6,7 @@ import { ContactDialog } from "@/components/ContactDialog";
 import TicketForm from "@/components/TicketForm";
 import WantedTicketForm from "@/components/WantedTicketForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -50,6 +51,7 @@ const Feed = () => {
   const [loadingWanted, setLoadingWanted] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [selectedWantedTicket, setSelectedWantedTicket] = useState<WantedTicket | null>(null);
+  const [userWantedTickets, setUserWantedTickets] = useState<string[]>([]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -61,10 +63,20 @@ const Feed = () => {
     if (user) {
       loadTickets();
       loadWantedTickets();
+      loadUserWantedArtists();
       subscribeToTickets();
       subscribeToWantedTickets();
     }
   }, [user]);
+
+  const loadUserWantedArtists = async () => {
+    const { data } = await supabase
+      .from('wanted_tickets')
+      .select('artist')
+      .eq('user_id', user?.id);
+    
+    setUserWantedTickets(data?.map(wt => wt.artist.toLowerCase()) || []);
+  };
 
   const loadTickets = async () => {
     setLoadingTickets(true);
@@ -297,26 +309,44 @@ const Feed = () => {
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
-                {tickets.map((ticket) => {
-                  if (!ticket.profiles) {
-                    console.warn("Skipping ticket without profile:", ticket.id);
-                    return null;
-                  }
+                {tickets
+                  .sort((a, b) => {
+                    // Priorizar entradas que coinciden con búsquedas
+                    const aMatches = userWantedTickets.includes(a.artist.toLowerCase());
+                    const bMatches = userWantedTickets.includes(b.artist.toLowerCase());
+                    if (aMatches && !bMatches) return -1;
+                    if (!aMatches && bMatches) return 1;
+                    return 0;
+                  })
+                  .map((ticket) => {
+                    if (!ticket.profiles) {
+                      console.warn("Skipping ticket without profile:", ticket.id);
+                      return null;
+                    }
 
-                  return (
-                    <TicketCard
-                      key={ticket.id}
-                      ticket={{
-                        ...ticket,
-                        seller_name: ticket.profiles.name,
-                      }}
-                      currentUserId={user?.id}
-                      networkDegree={ticket.networkDegree}
-                      mutualFriends={ticket.mutualFriends}
-                      onContact={() => setSelectedTicket(ticket)}
-                    />
-                  );
-                })}
+                    const matchesSearch = userWantedTickets.includes(ticket.artist.toLowerCase());
+                    
+                    return (
+                      <div key={ticket.id} className="relative">
+                        {matchesSearch && (
+                          <Badge className="absolute -top-2 -right-2 z-10 bg-purple-500 text-white border-purple-600">
+                            🔔 Coincide con tu búsqueda
+                          </Badge>
+                        )}
+                        <TicketCard
+                          ticket={{
+                            ...ticket,
+                            seller_name: ticket.profiles.name,
+                          }}
+                          currentUserId={user?.id}
+                          networkDegree={ticket.networkDegree}
+                          mutualFriends={ticket.mutualFriends}
+                          onContact={() => setSelectedTicket(ticket)}
+                        />
+                      </div>
+                    );
+                  })}
+
               </div>
             )}
           </TabsContent>

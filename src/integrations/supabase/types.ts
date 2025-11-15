@@ -430,6 +430,7 @@ export type Database = {
           artist: string
           city: string
           created_at: string
+          email_notifications: boolean
           event_date: string
           id: string
           updated_at: string
@@ -439,6 +440,7 @@ export type Database = {
           artist: string
           city: string
           created_at?: string
+          email_notifications?: boolean
           event_date: string
           id?: string
           updated_at?: string
@@ -448,6 +450,7 @@ export type Database = {
           artist?: string
           city?: string
           created_at?: string
+          email_notifications?: boolean
           event_date?: string
           id?: string
           updated_at?: string
