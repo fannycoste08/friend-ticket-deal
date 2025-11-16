@@ -1,4 +1,4 @@
-import { Calendar, MapPin, User, Search } from 'lucide-react';
+import { Calendar, MapPin, User, Search, Pencil, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,9 +19,11 @@ interface WantedTicketCardProps {
   networkDegree?: number;
   mutualFriends?: Array<{ friend_name: string }>;
   onContact: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export const WantedTicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends = [], onContact }: WantedTicketCardProps) => {
+export const WantedTicketCard = ({ ticket, currentUserId, networkDegree, mutualFriends = [], onContact, onEdit, onDelete }: WantedTicketCardProps) => {
   const navigate = useNavigate();
   const isMyTicket = currentUserId === ticket.user_id;
   
@@ -97,13 +99,26 @@ export const WantedTicketCard = ({ ticket, currentUserId, networkDegree, mutualF
         </div>
 
         {isMyTicket ? (
-          <Button 
-            className="w-full"
-            variant="outline"
-            disabled
-          >
-            Tu búsqueda
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onEdit}
+              className="flex-1 border-accent/20 hover:bg-accent/10 hover:text-accent"
+            >
+              <Pencil className="w-3 h-3 mr-1" />
+              Editar
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onDelete}
+              className="flex-1 border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              Borrar
+            </Button>
+          </div>
         ) : (
           <Button 
             className="w-full bg-gradient-to-r from-accent to-primary hover:opacity-90 transition-opacity"
