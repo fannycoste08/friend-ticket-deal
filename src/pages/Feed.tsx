@@ -7,6 +7,7 @@ import TicketForm from "@/components/TicketForm";
 import WantedTicketForm from "@/components/WantedTicketForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -52,6 +53,8 @@ const Feed = () => {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [selectedWantedTicket, setSelectedWantedTicket] = useState<WantedTicket | null>(null);
   const [userWantedTickets, setUserWantedTickets] = useState<string[]>([]);
+  const [editingWantedTicket, setEditingWantedTicket] = useState<WantedTicket | null>(null);
+  const [wantedTicketToDelete, setWantedTicketToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -269,6 +272,26 @@ const Feed = () => {
     };
   };
 
+  const handleDeleteWantedTicket = async (ticketId: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('wanted_tickets')
+      .delete()
+      .eq('id', ticketId);
+
+    if (error) {
+      toast.error('Error al eliminar búsqueda');
+      console.error('Error deleting wanted ticket:', error);
+      return;
+    }
+
+    setWantedTickets((prev) => prev.filter((t) => t.id !== ticketId));
+    setWantedTicketToDelete(null);
+    toast.success('Búsqueda eliminada');
+    loadUserWantedArtists();
+  };
+
   if (loading || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 flex items-center justify-center">
@@ -384,6 +407,8 @@ const Feed = () => {
                       networkDegree={ticket.networkDegree}
                       mutualFriends={ticket.mutualFriends}
                       onContact={() => setSelectedWantedTicket(ticket)}
+                      onEdit={() => setEditingWantedTicket(ticket)}
+                      onDelete={() => setWantedTicketToDelete(ticket.id)}
                     />
                   );
                 })}
@@ -419,6 +444,37 @@ const Feed = () => {
           isWantedTicket
         />
       )}
+
+      {editingWantedTicket && (
+        <WantedTicketForm
+          editTicket={editingWantedTicket}
+          onSuccess={() => {
+            loadWantedTickets();
+            loadUserWantedArtists();
+            setEditingWantedTicket(null);
+          }}
+        />
+      )}
+
+      <AlertDialog open={!!wantedTicketToDelete} onOpenChange={(open) => !open && setWantedTicketToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar búsqueda?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. La búsqueda será eliminada permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => wantedTicketToDelete && handleDeleteWantedTicket(wantedTicketToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
