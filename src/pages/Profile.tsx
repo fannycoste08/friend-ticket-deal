@@ -375,32 +375,7 @@ const Profile = () => {
           </Card>
         </div>
 
-        {/* Preferencias de Notificaciones */}
-        <div className="mt-6" ref={preferencesRef}>
-          <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <Bell className="w-5 h-5 text-primary" />
-                  <h2 className="text-xl font-bold text-foreground">Preferencias de Notificaciones</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Te avisaremos cuando aparezcan entradas que buscas
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <Label htmlFor="email-notifications" className="text-sm font-medium text-foreground cursor-pointer">
-                  Recibir notificaciones por email
-                </Label>
-                <Switch
-                  id="email-notifications"
-                  checked={emailNotificationsEnabled}
-                  onCheckedChange={toggleEmailNotifications}
-                />
-              </div>
-            </div>
-          </Card>
-        </div>
+
 
         <div className="mt-6">
           <div className="mb-4 flex items-center justify-between">
