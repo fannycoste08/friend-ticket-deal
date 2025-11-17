@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, UserMinus } from 'lucide-react';
+import { Mail, UserMinus, Bell } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -11,8 +11,12 @@ import { MyWantedTicketCard } from '@/components/MyWantedTicketCard';
 import TicketForm from '@/components/TicketForm';
 import WantedTicketForm from '@/components/WantedTicketForm';
 import { useAuth } from '@/hooks/useAuth';
+import { useEmailNotifications } from '@/hooks/useEmailNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface MyTicket {
   id: string;
@@ -54,6 +58,8 @@ const Profile = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
+  const { emailNotificationsEnabled, toggleEmailNotifications } = useEmailNotifications(user?.id);
+  const preferencesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -342,6 +348,60 @@ const Profile = () => {
           )}
         </div>
 
+        {/* Preferencias de Notificaciones */}
+        <div className="mt-6" ref={preferencesRef}>
+          <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Bell className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">Preferencias de Notificaciones</h2>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Te avisaremos cuando aparezcan entradas que buscas
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Label htmlFor="email-notifications" className="text-sm font-medium text-foreground cursor-pointer">
+                  Recibir notificaciones por email
+                </Label>
+                <Switch
+                  id="email-notifications"
+                  checked={emailNotificationsEnabled}
+                  onCheckedChange={toggleEmailNotifications}
+                />
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Preferencias de Notificaciones */}
+        <div className="mt-6" ref={preferencesRef}>
+          <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Bell className="w-5 h-5 text-primary" />
+                  <h2 className="text-xl font-bold text-foreground">Preferencias de Notificaciones</h2>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Te avisaremos cuando aparezcan entradas que buscas
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Label htmlFor="email-notifications" className="text-sm font-medium text-foreground cursor-pointer">
+                  Recibir notificaciones por email
+                </Label>
+                <Switch
+                  id="email-notifications"
+                  checked={emailNotificationsEnabled}
+                  onCheckedChange={toggleEmailNotifications}
+                />
+              </div>
+            </div>
+          </Card>
+        </div>
+
         <div className="mt-6">
           <div className="mb-4 flex items-center justify-between">
             <div>
@@ -390,6 +450,24 @@ const Profile = () => {
             </div>
             <WantedTicketForm onSuccess={loadWantedTickets} />
           </div>
+
+          {!emailNotificationsEnabled && (
+            <Alert className="mb-4 border-muted-foreground/20 bg-muted/30">
+              <AlertDescription className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">
+                  ℹ️ Notificaciones desactivadas. Actívalas en Preferencias
+                </span>
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={() => preferencesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                  className="text-primary hover:text-primary/80 h-auto p-0"
+                >
+                  Activar
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
 
           {loadingWanted ? (
             <div className="text-center py-12">
