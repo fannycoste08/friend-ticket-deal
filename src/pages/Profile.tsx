@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, UserMinus, Bell } from 'lucide-react';
+import { Mail, UserMinus, Bell, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
 
 interface MyTicket {
   id: string;
@@ -60,6 +61,9 @@ const Profile = () => {
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
   const { emailNotificationsEnabled, toggleEmailNotifications } = useEmailNotifications(user?.id);
   const preferencesRef = useRef<HTMLDivElement>(null);
+  const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -251,6 +255,38 @@ const Profile = () => {
     setFriends((prevFriends) => prevFriends.filter((f) => f.id !== friendToDelete.id));
     toast.success('Amigo eliminado');
     setFriendToDelete(null);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user || deleteConfirmText !== 'ELIMINAR') return;
+
+    setIsDeletingAccount(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('delete-user', {
+        body: { userId: user.id }
+      });
+
+      if (error) throw error;
+
+      // Show success message
+      toast.success('Tu cuenta ha sido eliminada');
+
+      // Sign out
+      await supabase.auth.signOut();
+
+      // Wait 2 seconds before redirect
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      toast.error('Error al eliminar la cuenta');
+      setIsDeletingAccount(false);
+      setShowDeleteAccountDialog(false);
+      setDeleteConfirmText('');
+    }
   };
 
   if (loading) {
@@ -477,6 +513,47 @@ const Profile = () => {
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteFriend} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Aceptar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Account Confirmation Dialog */}
+      <AlertDialog open={showDeleteAccountDialog} onOpenChange={setShowDeleteAccountDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro de que quieres eliminar tu cuenta?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-4">
+              <p>Esta acción eliminará permanentemente:</p>
+              <ul className="list-disc list-inside space-y-1 text-sm">
+                <li>Tu perfil y datos personales</li>
+                <li>Todas tus entradas publicadas</li>
+                <li>Tus búsquedas guardadas</li>
+                <li>Tus conexiones e invitaciones</li>
+              </ul>
+              <div className="pt-4">
+                <Label htmlFor="confirm-delete" className="text-foreground">
+                  Escribe <span className="font-bold">ELIMINAR</span> para confirmar
+                </Label>
+                <Input
+                  id="confirm-delete"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="ELIMINAR"
+                  className="mt-2"
+                  disabled={isDeletingAccount}
+                />
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingAccount}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={deleteConfirmText !== 'ELIMINAR' || isDeletingAccount}
+              className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+            >
+              {isDeletingAccount ? 'Eliminando...' : 'Eliminar definitivamente'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
