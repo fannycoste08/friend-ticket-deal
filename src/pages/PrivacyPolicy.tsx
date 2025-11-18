@@ -11,9 +11,9 @@ const PrivacyPolicy = () => {
           <CardContent className="prose prose-sm max-w-none space-y-6">
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Responsable del Tratamiento</h2>
-              <p><strong>Titular:</strong> Fanny Coste<br>
-              <strong>DNI:</strong> 60006070J<br>
-              <strong>Domicilio:</strong> Calle Atocha 117, 5º Dcha, 28012 Madrid<br>
+              <p><strong>Titular:</strong> Fanny Coste<br />
+              <strong>DNI:</strong> 60006070J<br />
+              <strong>Domicilio:</strong> Calle Atocha 117, 5º Dcha, 28012 Madrid<br />
               <strong>Correo electrónico:</strong> trusticketinfo@gmail.com</p>
             </section>
 
@@ -52,7 +52,6 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">4. Base Legal</h2>
               <p>La base jurídica es el consentimiento del usuario al registrarse y la ejecución del servicio solicitado.</p>
-              </ul>
             </section>
 
             <section>
