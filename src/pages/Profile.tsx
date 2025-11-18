@@ -389,31 +389,10 @@ const Profile = () => {
               <h2 className="text-2xl font-bold text-foreground">Entradas que Busco</h2>
               <p className="text-sm text-muted-foreground">
                 {wantedTickets.length} búsquedas activas
-                {wantedTickets.filter(wt => wt.email_notifications).length > 0 && (
-                  <span className="ml-2 text-purple-600">• Notificaciones activadas</span>
-                )}
               </p>
             </div>
             <WantedTicketForm onSuccess={loadWantedTickets} />
           </div>
-
-          {!emailNotificationsEnabled && (
-            <Alert className="mb-4 border-muted-foreground/20 bg-muted/30">
-              <AlertDescription className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">
-                  ℹ️ Notificaciones desactivadas. Actívalas en Preferencias
-                </span>
-                <Button
-                  variant="link"
-                  size="sm"
-                  onClick={() => preferencesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
-                  className="text-primary hover:text-primary/80 h-auto p-0"
-                >
-                  Activar
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
 
           {loadingWanted ? (
             <div className="text-center py-12">
