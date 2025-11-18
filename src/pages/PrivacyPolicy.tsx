@@ -11,25 +11,27 @@ const PrivacyPolicy = () => {
           <CardContent className="prose prose-sm max-w-none space-y-6">
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Responsable del Tratamiento</h2>
-              <p className="text-muted-foreground">
-                TrusTicket es el responsable del tratamiento de los datos personales que nos proporciones.
-              </p>
-              <p className="text-muted-foreground mt-2">
-                Email de contacto: info@trusticket.com
-              </p>
+              <p><strong>Titular:</strong> Fanny Coste<br>
+              <strong>DNI:</strong> 60006070J<br>
+              <strong>Domicilio:</strong> Calle Atocha 117, 5º Dcha, 28012 Madrid<br>
+              <strong>Correo electrónico:</strong> trusticketinfo@gmail.com</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold mb-3">2. Datos que Recopilamos</h2>
+              <h2 className="text-xl font-semibold mb-3">2. Datos que se recogen</h2>
               <p className="text-muted-foreground">
-                Recopilamos y tratamos los siguientes datos personales:
+                Trusticket únicamente recopila los datos necesarios para crear y mantener una cuenta de usuario en la plataforma:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
-                <li><strong>Datos de registro:</strong> Nombre, email, contraseña (encriptada)</li>
-                <li><strong>Datos de perfil:</strong> Información adicional que decidas compartir</li>
-                <li><strong>Datos de uso:</strong> Información sobre cómo usas la plataforma</li>
-                <li><strong>Datos de invitaciones:</strong> Conexiones con otros usuarios</li>
+                <li>Nombre y apellidos</li>
+                <li>Correo electrónico</li>
+                <li>Lista de amigos o contactos dentro de la plataforma</li>
+                <li>Entradas publicadas o solicitadas</li>
+                <li>Preferencias de notificaciones</li>
               </ul>
+
+              <p>No se recopilan datos bancarios ni datos sensibles.</p>
+              
             </section>
 
             <section>
@@ -38,23 +40,18 @@ const PrivacyPolicy = () => {
                 Utilizamos tus datos para:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
-                <li>Gestionar tu cuenta y autenticación</li>
-                <li>Facilitar la compraventa de entradas entre usuarios</li>
-                <li>Gestionar el sistema de invitaciones y confianza</li>
-                <li>Enviarte notificaciones importantes sobre tu cuenta</li>
-                <li>Mejorar nuestros servicios</li>
+                <li>Gestionar el registro y acceso a la plataforma</li>
+                <li>Mostrar relaciones de amistad y contactos en común</li>
+                <li>Permitir la publicación y visualización de entradas</li>
+                <li>Facilitar el contacto entre usuarios</li>
+                <li>Enviar notificaciones opcionales sobre nuevas entradas</li>
+                <li>Mejorar la experiencia de uso del servicio</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold mb-3">4. Base Legal</h2>
-              <p className="text-muted-foreground">
-                El tratamiento de tus datos se basa en:
-              </p>
-              <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
-                <li><strong>Ejecución del contrato:</strong> Para proporcionar el servicio solicitado</li>
-                <li><strong>Consentimiento:</strong> Para enviar comunicaciones comerciales (si lo autorizas)</li>
-                <li><strong>Interés legítimo:</strong> Para mejorar la seguridad y prevenir fraudes</li>
+              <p>La base jurídica es el consentimiento del usuario al registrarse y la ejecución del servicio solicitado.</p>
               </ul>
             </section>
 
@@ -91,7 +88,7 @@ const PrivacyPolicy = () => {
                 <li><strong>Limitación:</strong> Solicitar la limitación del tratamiento</li>
               </ul>
               <p className="text-muted-foreground mt-2">
-                Para ejercer estos derechos, contacta con nosotros en: info@trusticket.com
+                Para ejercer estos derechos, contacta con nosotros en: trusticketinfo@gmail.com
               </p>
             </section>
 
