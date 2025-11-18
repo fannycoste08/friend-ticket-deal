@@ -12,12 +12,11 @@ const LegalNotice = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">1. Identificación</h2>
               <p className="text-muted-foreground">
-                En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la
-                Información y Comercio Electrónico, se informa:
+                En cumplimiento de lo establecido en la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE), se informa que el titular del sitio web www.trusticket.com es:a:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
-                <li>Denominación social: TrusTicket</li>
-                <li>Actividad: Plataforma de compraventa de entradas de conciertos</li>
+                <li>Titular: Fanny Coste</li>
+                <li>DNI: 60006070J</li>
                 <li>Email de contacto: trusticketinfo@gmail.com</li>
               </ul>
             </section>
@@ -25,8 +24,9 @@ const LegalNotice = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3">2. Objeto</h2>
               <p className="text-muted-foreground">
-                TrusTicket es una plataforma que conecta a usuarios para la compraventa segura de entradas de conciertos
-                y eventos musicales, basada en un sistema de recomendaciones y confianza entre usuarios.
+                Trusticket es una plataforma social que permite a los usuarios conectar entre sí mediante contactos en común para publicar, solicitar o descubrir entradas de conciertos y eventos.
+                Trusticket no vende entradas, no gestiona pagos, no cobra comisiones y no interviene en las transacciones. La plataforma únicamente facilita el contacto entre usuarios.
+
               </p>
             </section>
 
@@ -36,11 +36,16 @@ const LegalNotice = () => {
                 El acceso y uso de la plataforma implica la aceptación de estos términos. Los usuarios se comprometen a:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
-                <li>Proporcionar información veraz y actualizada</li>
-                <li>Hacer un uso responsable de la plataforma</li>
-                <li>Respetar los derechos de otros usuarios</li>
-                <li>No realizar actividades fraudulentas o ilegales</li>
+                <li>Utilizar la plataforma de forma lícita</li>
+                <li>No publicar contenido falso, fraudulento u ofensivo</li>
+                <li>No suplantar identidades ni crear perfiles falsos</li>
+                <li>No utilizar Trusticket para actividades comerciales no autorizadas</li>
+                <li>No interferir en el funcionamiento técnico de la web</li>
+                
               </ul>
+              Trusticket podrá limitar o suspender el acceso a usuarios que incumplan estas normas.
+              </p>
+            
             </section>
 
             <section>
@@ -62,7 +67,7 @@ const LegalNotice = () => {
               <h2 className="text-xl font-semibold mb-3">5. Propiedad Intelectual</h2>
               <p className="text-muted-foreground">
                 Todos los contenidos de la plataforma (diseño, código, logos, textos) están protegidos por derechos de
-                propiedad intelectual y son propiedad de TrusTicket o sus licenciantes.
+                propiedad intelectual y son propiedad del titular o sus licenciantes.
               </p>
             </section>
 
