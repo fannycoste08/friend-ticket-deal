@@ -43,9 +43,9 @@ const LegalNotice = () => {
                 <li>No interferir en el funcionamiento técnico de la web</li>
                 
               </ul>
-              Trusticket podrá limitar o suspender el acceso a usuarios que incumplan estas normas.
+              <p className="text-muted-foreground mt-2">
+                Trusticket podrá limitar o suspender el acceso a usuarios que incumplan estas normas.
               </p>
-            
             </section>
 
             <section>
