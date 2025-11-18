@@ -480,6 +480,33 @@ const Profile = () => {
           </Card>
         </div>
 
+        {/* Eliminar Cuenta */}
+        <div className="mt-6">
+          <Card className="p-6 bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900/50">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-1" />
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-red-900 dark:text-red-100 mb-2">
+                    Quiero borrar mi cuenta de Trusticket
+                  </h2>
+                  <p className="text-sm text-red-800 dark:text-red-200 mb-4">
+                    Una vez eliminada tu cuenta, no hay vuelta atrás. Toda tu información será borrada permanentemente.
+                  </p>
+                  <Button
+                    variant="destructive"
+                    onClick={() => setShowDeleteAccountDialog(true)}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Eliminar mi cuenta
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
         {editingTicket && (
           <TicketForm
             editTicket={editingTicket}
