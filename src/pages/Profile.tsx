@@ -482,26 +482,26 @@ const Profile = () => {
 
         {/* Eliminar Cuenta */}
         <div className="mt-6">
-          <Card className="p-6 bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900/50">
-            <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-1" />
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold text-red-900 dark:text-red-100 mb-2">
-                    Quiero borrar mi cuenta de Trusticket
-                  </h2>
-                  <p className="text-sm text-red-800 dark:text-red-200 mb-4">
-                    Una vez eliminada tu cuenta, no hay vuelta atrás. Toda tu información será borrada permanentemente.
-                  </p>
-                  <Button
-                    variant="destructive"
-                    onClick={() => setShowDeleteAccountDialog(true)}
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar mi cuenta
-                  </Button>
+          <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Trash2 className="w-5 h-5 text-destructive" />
+                  <h2 className="text-xl font-bold text-foreground">Eliminar mi cuenta</h2>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  Una vez eliminada tu cuenta, no hay vuelta atrás. Toda tu información será borrada permanentemente.
+                </p>
+              </div>
+              <div className="flex items-center">
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowDeleteAccountDialog(true)}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Eliminar mi cuenta
+                </Button>
               </div>
             </div>
           </Card>
