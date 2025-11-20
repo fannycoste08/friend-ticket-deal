@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { getInvitationPendingEmail } from './_templates/invitation-pending.ts';
+import { checkIPRateLimit, logIPAttempt, getClientIP } from '../_shared/ip-rate-limiter.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,28 +21,79 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Create Supabase Admin client (no authentication required for this public function)
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+
+    // Get client IP for rate limiting
+    const clientIP = getClientIP(req);
+    
+    // Check IP-based rate limit: max 10 attempts per 15 minutes
+    const rateLimitCheck = await checkIPRateLimit(
+      clientIP,
+      'send-invitation-notification',
+      supabaseUrl,
+      supabaseServiceKey,
+      { maxAttempts: 10, windowMinutes: 15 }
+    );
+
+    if (!rateLimitCheck.allowed) {
+      console.warn(`Rate limit exceeded for IP ${clientIP}`);
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+        { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Get the authorization header for JWT verification
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Create authenticated Supabase client
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user's JWT and get their ID
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      console.error('Authentication failed:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     const { inviter_email, inviter_name, invitee_name, invitee_email }: InvitationNotificationRequest = await req.json();
     
-    // Verify that the pending invitation exists
-    const { data: invitation, error: invitationError } = await supabase
+    // Create admin client for database queries
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // Verify that the pending invitation exists AND that the authenticated user is the inviter
+    const { data: invitation, error: invitationError } = await supabaseAdmin
       .from('invitations')
-      .select('*')
+      .select('inviter_id, invitee_email, status')
       .eq('invitee_email', invitee_email)
       .eq('status', 'pending')
+      .eq('inviter_id', user.id)
       .maybeSingle();
 
     if (invitationError || !invitation) {
       console.error('Invitation validation error:', invitationError);
       return new Response(
-        JSON.stringify({ error: 'Invalid request - invitation not found' }),
+        JSON.stringify({ error: 'Invalid request - invitation not found or unauthorized' }),
         { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    // Log successful rate limit check
+    await logIPAttempt(clientIP, 'send-invitation-notification', supabaseUrl, supabaseServiceKey);
     
     console.log('Processing invitation notification:', { inviter_email, inviter_name, invitee_name, invitee_email });
 
