@@ -30,5 +30,8 @@ verify_jwt = false
 [functions.create-invitation-request]
 verify_jwt = false
 
+[functions.send-friendship-notification]
+verify_jwt = true
+
 [functions.notify-wanted-ticket-matches]
 verify_jwt = true
