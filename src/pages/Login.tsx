@@ -46,13 +46,13 @@ const Login = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black">
       {/* Sección Central - 2 Columnas */}
-      <div 
+      <div
         className="w-full py-16 px-6 lg:px-12 bg-cover bg-center bg-no-repeat relative"
         style={{ backgroundImage: `url(${concertHero})` }}
       >
         {/* Overlay oscuro */}
         <div className="absolute inset-0 bg-black/70"></div>
-        
+
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
           {/* COLUMNA IZQUIERDA */}
           <div className="space-y-8">
@@ -60,13 +60,11 @@ const Login = () => {
               Compra y vende entradas entre amigos
             </h1>
             <div className="space-y-4">
-              <h2 className="text-2xl font-semibold text-blue-400">
-                Un espacio de confianza:
-              </h2>
+              <h2 className="text-2xl font-semibold text-blue-400">Un espacio de confianza:</h2>
               <ul className="space-y-4 text-zinc-300 text-lg">
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin sobreprecios por la entrada</span>
+                  <span>Donde la gente se compromete a no especular con las entradas</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
@@ -74,7 +72,7 @@ const Login = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin miedos, todo queda entre amigos</span>
+                  <span>Sin miedos por comprar entradas falsas, todo queda entre amigos</span>
                 </li>
               </ul>
             </div>
@@ -158,7 +156,7 @@ const Login = () => {
           <h2 className="text-3xl lg:text-4xl font-bold text-white text-center mb-16">
             Somos fans de la música en directo, no carne del mercado de entradas
           </h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Bloque 1 */}
             <div className="flex flex-col items-center text-center space-y-4">
@@ -167,7 +165,8 @@ const Login = () => {
               </div>
               <h3 className="text-white font-semibold text-xl">Respetamos precios</h3>
               <p className="text-zinc-400 leading-relaxed">
-                No sacamos beneficio de la compraventa de entradas. Estamos para compartir nuestra pasión por la música en directo.
+                No sacamos beneficio de la compraventa de entradas. Estamos para compartir nuestra pasión por la música
+                en directo.
               </p>
             </div>
 
@@ -178,7 +177,8 @@ const Login = () => {
               </div>
               <h3 className="text-white font-semibold text-xl">Reconectamos fans</h3>
               <p className="text-zinc-400 leading-relaxed">
-                Sin plataformas de pago. Conectamos hasta 2 grados de amistad para compartir entradas como lo que somos: amigos.
+                Sin plataformas de pago. Conectamos hasta 2 grados de amistad para compartir entradas como lo que somos:
+                amigos.
               </p>
             </div>
 
@@ -189,7 +189,8 @@ const Login = () => {
               </div>
               <h3 className="text-white font-semibold text-xl">Restablecemos comunidad</h3>
               <p className="text-zinc-400 leading-relaxed">
-                Está en nuestra mano apoyarnos comprando entradas de amigos que no pueden ir, aunque el concierto no esté sold out.
+                Está en nuestra mano apoyarnos comprando entradas de amigos que no pueden ir, aunque el concierto no
+                esté sold out.
               </p>
             </div>
           </div>
