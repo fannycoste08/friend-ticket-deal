@@ -144,12 +144,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Return boolean result with inviter data if exists
-    // Data is needed for registration flow to work without RLS issues
+    // Return only boolean result - no PII exposure
     return new Response(
       JSON.stringify({ 
-        exists: emailExists,
-        inviter: emailExists ? data : null
+        exists: emailExists
       }),
       { 
         status: 200, 

@@ -23,12 +23,45 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Verify authentication and extract user from JWT
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+    const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+    
+    if (authError || !user) {
+      console.error('Invalid or expired token:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { ticket_id, artist, venue, city, event_date, price, seller_id, seller_name }: NotifyRequest = await req.json();
+    
+    // Verify the authenticated user is the ticket seller
+    if (user.id !== seller_id) {
+      console.error(`Authorization failed: User ${user.id} attempted to notify for ticket owned by ${seller_id}`);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - you can only send notifications for your own tickets' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
     
     console.log('Processing wanted ticket match notifications for ticket:', ticket_id);
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const APP_URL = 'https://trusticket.lovable.app';
 
