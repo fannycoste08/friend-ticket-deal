@@ -65,20 +65,11 @@ const Register = () => {
       return;
     }
 
-    // Get inviter data from the verification result
-    const inviterProfile = verifyResult.inviter;
-    
-    if (!inviterProfile) {
-      console.error('No inviter data returned from verification');
-      toast.error('Error al obtener datos del padrino');
-      setLoading(false);
-      return;
-    }
-
     // Create invitation request via edge function (to bypass RLS)
+    // The function will look up the inviter_id server-side based on the email
     const { data: invitationResult, error: invitationError } = await supabase.functions.invoke('create-invitation-request', {
       body: {
-        inviter_id: inviterProfile.id,
+        inviter_email: normalizedInviterEmail,
         invitee_email: normalizedEmail,
         invitee_name: name,
       }
@@ -100,8 +91,8 @@ const Register = () => {
     // Send notification email to godparent
     const { error: emailError } = await supabase.functions.invoke('send-invitation-notification', {
       body: {
-        inviter_email: inviterProfile.email,
-        inviter_name: inviterProfile.name || 'Usuario',
+        inviter_email: normalizedInviterEmail,
+        inviter_name: invitationResult.invitation?.inviter_name || 'Usuario',
         invitee_name: name,
         invitee_email: normalizedEmail,
       },
@@ -112,7 +103,7 @@ const Register = () => {
       // Don't fail the registration if email fails
     }
 
-    setInviterName(inviterProfile.name || 'tu padrino');
+    setInviterName('tu padrino');
     setShowSuccessModal(true);
     setLoading(false);
   };

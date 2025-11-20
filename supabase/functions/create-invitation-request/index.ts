@@ -38,10 +38,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { inviter_id, invitee_email, invitee_name } = await req.json();
+    const { inviter_email, invitee_email, invitee_name } = await req.json();
 
     // Validate inputs
-    if (!inviter_id || !invitee_email || !invitee_name) {
+    if (!inviter_email || !invitee_email || !invitee_name) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { 
@@ -69,7 +69,26 @@ Deno.serve(async (req) => {
     );
 
     const normalizedEmail = invitee_email.trim().toLowerCase();
-    console.log('Creating invitation request for:', normalizedEmail);
+    const normalizedInviterEmail = inviter_email.trim().toLowerCase();
+    console.log('Creating invitation request for:', normalizedEmail, 'from inviter:', normalizedInviterEmail);
+
+    // Look up inviter by email
+    const { data: inviterProfile, error: inviterError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, name')
+      .ilike('email', normalizedInviterEmail)
+      .single();
+
+    if (inviterError || !inviterProfile) {
+      console.error('Inviter not found:', inviterError);
+      return new Response(
+        JSON.stringify({ error: 'Inviter not found' }),
+        { 
+          status: 404, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
     // Check if there's already a pending invitation for this email
     const { data: existingInvitation } = await supabaseAdmin
@@ -93,7 +112,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabaseAdmin
       .from('invitations')
       .insert({
-        inviter_id,
+        inviter_id: inviterProfile.id,
         invitee_email: normalizedEmail,
         invitee_name: invitee_name.trim(),
         status: 'pending',
