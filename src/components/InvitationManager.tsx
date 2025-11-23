@@ -251,29 +251,31 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
   };
 
   return (
-    <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Gestionar Invitaciones</h2>
+    <Card className="p-4 sm:p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground">Gestionar Invitaciones</h2>
           <p className="text-sm text-muted-foreground">
             {pendingInvitations.length} solicitudes pendientes
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-shrink-0">
           <Button 
             variant="outline" 
             size="icon"
             onClick={() => loadInvitations()}
             disabled={loading}
             title="Refrescar invitaciones"
+            className="flex-shrink-0"
           >
             <RefreshCw className="w-4 h-4" />
           </Button>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 flex-shrink-0">
                 <UserPlus className="w-4 h-4" />
-                Invitar persona
+                <span className="hidden sm:inline">Invitar persona</span>
+                <span className="sm:hidden">Invitar</span>
               </Button>
             </DialogTrigger>
           <DialogContent>
@@ -319,41 +321,41 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
           ) : (
             pendingInvitations.map((invitation) => (
               <Card key={invitation.id} className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Mail className="w-4 h-4 text-primary" />
-                      <h3 className="font-semibold text-foreground">
+                      <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                      <h3 className="font-semibold text-foreground break-words">
                         {invitation.invitee_name}
                       </h3>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-1">
+                    <p className="text-sm text-muted-foreground mb-1 break-all">
                       {invitation.invitee_email}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Solicitado el {format(new Date(invitation.created_at), 'dd MMM yyyy', { locale: es })}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleApprove(invitation.id)}
                       disabled={loading}
-                      className="gap-1"
+                      className="gap-1 flex-1 sm:flex-initial"
                     >
                       <Check className="w-4 h-4" />
-                      Aprobar
+                      <span className="hidden sm:inline">Aprobar</span>
                     </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleReject(invitation.id)}
                       disabled={loading}
-                      className="gap-1"
+                      className="gap-1 flex-1 sm:flex-initial"
                     >
                       <X className="w-4 h-4" />
-                      Rechazar
+                      <span className="hidden sm:inline">Rechazar</span>
                     </Button>
                   </div>
                 </div>
@@ -370,22 +372,22 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
           ) : (
             approvedInvitations.map((invitation) => (
               <Card key={invitation.id} className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <Mail className="w-4 h-4 text-primary" />
-                      <h3 className="font-semibold text-foreground">
+                      <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                      <h3 className="font-semibold text-foreground break-words">
                         {invitation.invitee_name}
                       </h3>
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground break-all">
                       {invitation.invitee_email}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Aprobado el {format(new Date(invitation.created_at), 'dd MMM yyyy', { locale: es })}
                     </p>
                   </div>
-                  <Badge className="bg-green-500/10 text-green-600 border-green-500/20">
+                  <Badge className="bg-green-500/10 text-green-600 border-green-500/20 flex-shrink-0 w-fit">
                     Aprobado
                   </Badge>
                 </div>
