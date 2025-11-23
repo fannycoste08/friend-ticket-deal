@@ -37,10 +37,10 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to={user ? "/" : "/login"} className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center bg-blue-600 shadow-none opacity-100">
               <Ticket className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-blue-800">
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-blue-600">
               Trusticket
             </span>
           </Link>
