@@ -98,20 +98,17 @@ export default {
   		},
   		fontFamily: {
   			sans: [
-  				'DM Sans',
+  				'Roboto',
   				'ui-sans-serif',
   				'system-ui',
-  				'-apple-system',
-  				'BlinkMacSystemFont',
-  				'Segoe UI',
-  				'Roboto',
-  				'Helvetica Neue',
-  				'Arial',
-  				'Noto Sans',
-  				'sans-serif'
+  				'sans-serif',
+  				'Apple Color Emoji',
+  				'Segoe UI Emoji',
+  				'Segoe UI Symbol',
+  				'Noto Color Emoji'
   			],
   			serif: [
-  				'Crimson Pro',
+  				'Libre Caslon Text',
   				'ui-serif',
   				'Georgia',
   				'Cambria',
@@ -120,7 +117,7 @@ export default {
   				'serif'
   			],
   			mono: [
-  				'SF Mono',
+  				'Roboto Mono',
   				'ui-monospace',
   				'SFMono-Regular',
   				'Menlo',
