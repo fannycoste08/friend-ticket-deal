@@ -311,16 +311,16 @@ const Profile = () => {
           <p className="text-muted-foreground">Información de tu cuenta</p>
         </div>
 
-        <Card className="p-8 mb-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+        <Card className="p-4 sm:p-8 mb-6" style={{ boxShadow: 'var(--shadow-card)' }}>
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold text-foreground mb-1">{profileData.name}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1 break-words">{profileData.name}</h2>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary flex-shrink-0" />
-                <span className="flex-1 text-foreground">{profileData.email}</span>
+                <span className="flex-1 text-foreground break-all text-sm sm:text-base">{profileData.email}</span>
               </div>
             </div>
           </div>
@@ -353,17 +353,17 @@ const Profile = () => {
                   key={friend.id} 
                   className="p-4"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground">{friend.name}</h3>
-                      <p className="text-sm text-muted-foreground">{friend.email}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-foreground break-words">{friend.name}</h3>
+                      <p className="text-sm text-muted-foreground break-all">{friend.email}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-shrink-0">
                       <Button
                         variant="link"
                         size="sm"
                         onClick={() => navigate(`/user/${friend.id}`)}
-                        className="text-primary hover:text-primary/80"
+                        className="text-primary hover:text-primary/80 p-0 h-auto"
                       >
                         Ver perfil
                       </Button>
@@ -373,8 +373,8 @@ const Profile = () => {
                         onClick={() => setFriendToDelete(friend)}
                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
-                        <UserMinus className="w-4 h-4 mr-1" />
-                        Eliminar
+                        <UserMinus className="w-4 h-4 sm:mr-1" />
+                        <span className="hidden sm:inline">Eliminar</span>
                       </Button>
                     </div>
                   </div>
@@ -455,18 +455,18 @@ const Profile = () => {
 
         {/* Preferencias de Notificaciones */}
         <div className="mt-6" ref={preferencesRef}>
-          <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
-            <div className="flex items-start justify-between gap-4">
+          <Card className="p-4 sm:p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <Bell className="w-5 h-5 text-primary" />
-                  <h2 className="text-xl font-bold text-foreground">Preferencias de Notificaciones</h2>
+                  <Bell className="w-5 h-5 text-primary flex-shrink-0" />
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground">Preferencias de Notificaciones</h2>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Te avisaremos cuando aparezcan entradas que buscas
                 </p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-shrink-0">
                 <Label htmlFor="email-notifications" className="text-sm font-medium text-foreground cursor-pointer">
                   Recibir notificaciones por email
                 </Label>
@@ -482,25 +482,26 @@ const Profile = () => {
 
         {/* Eliminar Cuenta */}
         <div className="mt-6">
-          <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
-            <div className="flex items-start justify-between gap-4">
+          <Card className="p-4 sm:p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <Trash2 className="w-5 h-5 text-destructive" />
-                  <h2 className="text-xl font-bold text-foreground">Eliminar mi cuenta</h2>
+                  <Trash2 className="w-5 h-5 text-destructive flex-shrink-0" />
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground">Eliminar mi cuenta</h2>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   Una vez eliminada tu cuenta, no hay vuelta atrás. Toda tu información será borrada permanentemente.
                 </p>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center flex-shrink-0">
                 <Button
                   variant="destructive"
                   onClick={() => setShowDeleteAccountDialog(true)}
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Eliminar mi cuenta
+                  <Trash2 className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Eliminar mi cuenta</span>
+                  <span className="sm:hidden">Eliminar</span>
                 </Button>
               </div>
             </div>
