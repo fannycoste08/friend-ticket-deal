@@ -38,3 +38,6 @@ verify_jwt = true
 
 [functions.send-invitation-accepted]
 verify_jwt = true
+
+[functions.check-email-exists]
+verify_jwt = false
