@@ -196,13 +196,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Generated password reset link:', passwordResetLink ? 'YES' : 'NO');
 
-    // Get inviter profile for complete data
-    const { data: inviterProfile } = await supabaseAdmin
-      .from('profiles')
-      .select('name, email')
-      .eq('id', invitation.inviter_id)
-      .single();
-
     // Send acceptance notification email with password reset link
     // Pass the auth header so send-invitation-accepted can verify the caller
     const { error: emailError } = await supabaseAdmin.functions.invoke('send-invitation-accepted', {
