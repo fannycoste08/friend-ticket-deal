@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Search, X } from "lucide-react";
 import { TicketCard } from "@/components/TicketCard";
 import { WantedTicketCard } from "@/components/WantedTicketCard";
 import { ContactDialog } from "@/components/ContactDialog";
@@ -7,11 +8,11 @@ import TicketForm from "@/components/TicketForm";
 import WantedTicketForm from "@/components/WantedTicketForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-
 interface Ticket {
   id: string;
   artist: string;
@@ -55,6 +56,7 @@ const Feed = () => {
   const [userWantedTickets, setUserWantedTickets] = useState<string[]>([]);
   const [editingWantedTicket, setEditingWantedTicket] = useState<WantedTicket | null>(null);
   const [wantedTicketToDelete, setWantedTicketToDelete] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -310,6 +312,26 @@ const Feed = () => {
           <p className="text-muted-foreground">Encuentra las mejores entradas</p>
         </div>
 
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Buscar por artista..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-10 rounded-full"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
         <Tabs defaultValue="sale" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="sale">Entradas a la Venta</TabsTrigger>
@@ -333,6 +355,10 @@ const Feed = () => {
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
                 {tickets
+                  .filter((ticket) => 
+                    searchQuery === "" || 
+                    ticket.artist.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
                   .sort((a, b) => {
                     // Priorizar entradas que coinciden con búsquedas
                     const aMatches = userWantedTickets.includes(a.artist.toLowerCase());
@@ -370,6 +396,14 @@ const Feed = () => {
                     );
                   })}
 
+                {tickets.filter((ticket) => 
+                  searchQuery === "" || 
+                  ticket.artist.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 0 && searchQuery !== "" && (
+                  <div className="col-span-2 text-center py-8">
+                    <p className="text-muted-foreground">No se encontraron entradas</p>
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>
@@ -390,28 +424,41 @@ const Feed = () => {
               </div>
             ) : (
               <div className="grid gap-6 md:grid-cols-2">
-                {wantedTickets.map((ticket) => {
-                  if (!ticket.profiles) {
-                    console.warn("Skipping wanted ticket without profile:", ticket.id);
-                    return null;
-                  }
+                {wantedTickets
+                  .filter((ticket) => 
+                    searchQuery === "" || 
+                    ticket.artist.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map((ticket) => {
+                    if (!ticket.profiles) {
+                      console.warn("Skipping wanted ticket without profile:", ticket.id);
+                      return null;
+                    }
 
-                  return (
-                    <WantedTicketCard
-                      key={ticket.id}
-                      ticket={{
-                        ...ticket,
-                        seeker_name: ticket.profiles.name,
-                      }}
-                      currentUserId={user?.id}
-                      networkDegree={ticket.networkDegree}
-                      mutualFriends={ticket.mutualFriends}
-                      onContact={() => setSelectedWantedTicket(ticket)}
-                      onEdit={() => setEditingWantedTicket(ticket)}
-                      onDelete={() => setWantedTicketToDelete(ticket.id)}
-                    />
-                  );
-                })}
+                    return (
+                      <WantedTicketCard
+                        key={ticket.id}
+                        ticket={{
+                          ...ticket,
+                          seeker_name: ticket.profiles.name,
+                        }}
+                        currentUserId={user?.id}
+                        networkDegree={ticket.networkDegree}
+                        mutualFriends={ticket.mutualFriends}
+                        onContact={() => setSelectedWantedTicket(ticket)}
+                        onEdit={() => setEditingWantedTicket(ticket)}
+                        onDelete={() => setWantedTicketToDelete(ticket.id)}
+                      />
+                    );
+                  })}
+                {wantedTickets.filter((ticket) => 
+                  searchQuery === "" || 
+                  ticket.artist.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 0 && searchQuery !== "" && (
+                  <div className="col-span-2 text-center py-8">
+                    <p className="text-muted-foreground">No se encontraron entradas</p>
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>
