@@ -204,13 +204,14 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     // Send acceptance notification email with password reset link
+    // Pass the auth header so send-invitation-accepted can verify the caller
     const { error: emailError } = await supabaseAdmin.functions.invoke('send-invitation-accepted', {
       body: {
-        invitee_email: invitation.invitee_email,
-        invitee_name: invitation.invitee_name,
-        inviter_name: inviterProfile?.name || user.user_metadata?.name || 'tu padrino',
-        inviter_email: inviterProfile?.email || user.email,
+        invitation_id: invitation_id,
         password_reset_link: passwordResetLink
+      },
+      headers: {
+        Authorization: authHeader
       }
     });
 
