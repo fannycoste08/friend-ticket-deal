@@ -35,3 +35,6 @@ verify_jwt = true
 
 [functions.notify-wanted-ticket-matches]
 verify_jwt = true
+
+[functions.send-invitation-accepted]
+verify_jwt = true

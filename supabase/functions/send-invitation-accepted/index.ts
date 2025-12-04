@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,11 +7,8 @@ const corsHeaders = {
 };
 
 interface InvitationAcceptedRequest {
-  invitee_email: string;
-  invitee_name: string;
-  inviter_name: string;
-  inviter_email?: string;
-  password_reset_link?: string;
+  invitation_id: string;
+  password_reset_link: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -19,21 +17,90 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { invitee_email, invitee_name, inviter_name, inviter_email, password_reset_link }: InvitationAcceptedRequest = await req.json();
-    
-    console.log('Processing invitation notification:', { invitee_email, invitee_name, inviter_name, inviter_email, has_reset_link: !!password_reset_link });
-
-    // Only send email if we have a password reset link
-    if (!password_reset_link) {
-      console.error('No password reset link provided, skipping email');
-      return new Response(JSON.stringify({ error: 'No password reset link provided' }), {
-        status: 400,
-        headers: {
-          "Content-Type": "application/json",
-          ...corsHeaders,
-        },
+    // Verify JWT token
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Create client with user's JWT to verify auth
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
+    if (userError || !user) {
+      console.error('Invalid or expired token:', userError?.message);
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const { invitation_id, password_reset_link }: InvitationAcceptedRequest = await req.json();
+    
+    if (!invitation_id || !password_reset_link) {
+      console.error('Missing required fields');
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Validate password_reset_link is from our own domain
+    const allowedDomains = [supabaseUrl, 'https://ystnsszlaqhwysgptysd.supabase.co'];
+    const linkUrl = new URL(password_reset_link);
+    const isValidDomain = allowedDomains.some(domain => password_reset_link.startsWith(domain));
+    if (!isValidDomain) {
+      console.error('Invalid password reset link domain:', linkUrl.hostname);
+      return new Response(JSON.stringify({ error: 'Invalid password reset link' }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Use service role to fetch invitation details
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify the invitation exists, is approved, and belongs to the authenticated user
+    const { data: invitation, error: invitationError } = await supabaseAdmin
+      .from('invitations')
+      .select('id, invitee_email, invitee_name, inviter_id, status')
+      .eq('id', invitation_id)
+      .eq('inviter_id', user.id)
+      .eq('status', 'approved')
+      .single();
+
+    if (invitationError || !invitation) {
+      console.error('Invitation not found or unauthorized:', invitationError?.message);
+      return new Response(JSON.stringify({ error: 'Invitation not found or unauthorized' }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    // Get inviter's name from profiles
+    const { data: inviterProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('name')
+      .eq('id', user.id)
+      .single();
+
+    const inviterName = inviterProfile?.name || 'Tu padrino';
+
+    console.log('Sending invitation accepted email:', { 
+      invitee_email: invitation.invitee_email, 
+      invitee_name: invitation.invitee_name, 
+      inviter_name: inviterName 
+    });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
@@ -45,7 +112,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: 'TrusTicket <info@trusticket.com>',
-        to: [invitee_email],
+        to: [invitation.invitee_email],
         subject: `¡Tu solicitud de registro ha sido aprobada!`,
         html: `
           <!DOCTYPE html>
@@ -69,8 +136,8 @@ const handler = async (req: Request): Promise<Response> => {
                   <h1 style="margin: 0;">🎉 ¡Tu cuenta ha sido aprobada!</h1>
                 </div>
                 <div class="content">
-                  <p>Hola <strong>${invitee_name}</strong>,</p>
-                  <p>¡Buenas noticias! <strong>${inviter_name}</strong> ha aprobado tu solicitud de registro en <strong>TrusTicket</strong>.</p>
+                  <p>Hola <strong>${invitation.invitee_name}</strong>,</p>
+                  <p>¡Buenas noticias! <strong>${inviterName}</strong> ha aprobado tu solicitud de registro en <strong>TrusTicket</strong>.</p>
                   
                   <div class="highlight-box">
                     <p style="margin: 0; font-weight: bold; color: #16a34a;">✅ Tu cuenta ha sido creada</p>
@@ -94,7 +161,7 @@ const handler = async (req: Request): Promise<Response> => {
                     Una vez que hayas creado tu contraseña, podrás iniciar sesión con:
                   </p>
                   <ul style="color: #6b7280; font-size: 14px; margin: 10px 0 0 20px;">
-                    <li>Email: <strong style="color: #374151;">${invitee_email}</strong></li>
+                    <li>Email: <strong style="color: #374151;">${invitation.invitee_email}</strong></li>
                     <li>La contraseña que crees</li>
                   </ul>
                   
