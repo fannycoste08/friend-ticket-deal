@@ -14,55 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      conversations: {
-        Row: {
-          created_at: string
-          id: string
-          ticket_id: string | null
-          updated_at: string
-          user1_id: string
-          user2_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          ticket_id?: string | null
-          updated_at?: string
-          user1_id: string
-          user2_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          ticket_id?: string | null
-          updated_at?: string
-          user1_id?: string
-          user2_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversations_ticket_id_fkey"
-            columns: ["ticket_id"]
-            isOneToOne: false
-            referencedRelation: "tickets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conversations_user1_id_fkey"
-            columns: ["user1_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conversations_user2_id_fkey"
-            columns: ["user2_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       email_logs: {
         Row: {
           function_name: string
@@ -172,48 +123,6 @@ export type Database = {
           ip_address?: string
         }
         Relationships: []
-      }
-      messages: {
-        Row: {
-          content: string
-          conversation_id: string
-          created_at: string
-          id: string
-          read: boolean
-          sender_id: string
-        }
-        Insert: {
-          content: string
-          conversation_id: string
-          created_at?: string
-          id?: string
-          read?: boolean
-          sender_id: string
-        }
-        Update: {
-          content?: string
-          conversation_id?: string
-          created_at?: string
-          id?: string
-          read?: boolean
-          sender_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       profiles: {
         Row: {
