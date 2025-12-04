@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import concertHero from '@/assets/concert-hero.jpg';
 
@@ -19,17 +20,44 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await resetPassword(email);
+    const normalizedEmail = email.trim().toLowerCase();
 
-    if (error) {
-      toast.error('Error al enviar el email: ' + error.message);
+    try {
+      // Check if email exists using edge function
+      const { data, error: checkError } = await supabase.functions.invoke('check-email-exists', {
+        body: { email: normalizedEmail }
+      });
+
+      if (checkError) {
+        console.error('Error checking email:', checkError);
+        toast.error('Error al verificar el email. Inténtalo de nuevo.');
+        setLoading(false);
+        return;
+      }
+
+      if (!data?.exists) {
+        toast.error('Este email no está registrado en la plataforma.');
+        setLoading(false);
+        return;
+      }
+
+      // Email exists, proceed with password reset
+      const { error } = await resetPassword(normalizedEmail);
+
+      if (error) {
+        toast.error('Error al enviar el email: ' + error.message);
+        setLoading(false);
+        return;
+      }
+
+      setEmailSent(true);
+      toast.success('Email enviado. Revisa tu bandeja de entrada.');
+    } catch (err) {
+      console.error('Error:', err);
+      toast.error('Error al procesar la solicitud. Inténtalo de nuevo.');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setEmailSent(true);
-    toast.success('Email enviado. Revisa tu bandeja de entrada.');
-    setLoading(false);
   };
 
   return (
@@ -90,7 +118,7 @@ const ForgotPassword = () => {
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Enviando...' : 'Enviar instrucciones'}
+                  {loading ? 'Verificando...' : 'Enviar instrucciones'}
                 </Button>
               </form>
             ) : (
