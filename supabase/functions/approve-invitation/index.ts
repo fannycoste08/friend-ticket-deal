@@ -11,6 +11,8 @@ interface ApproveInvitationRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  console.log('📨 [approve-invitation] Request received, method:', req.method);
+  
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -18,7 +20,10 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     // Get JWT token from Authorization header
     const authHeader = req.headers.get('Authorization');
+    console.log('🔐 [approve-invitation] Auth header present:', !!authHeader);
+    
     if (!authHeader) {
+      console.error('❌ [approve-invitation] No auth header');
       return new Response(
         JSON.stringify({ error: 'No autorizado: falta token de autenticación' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -33,8 +38,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Verify the user is authenticated
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    console.log('👤 [approve-invitation] User verified:', user?.id, 'Error:', authError?.message);
     
     if (authError || !user) {
+      console.error('❌ [approve-invitation] Auth failed:', authError?.message);
       return new Response(
         JSON.stringify({ error: 'No autorizado: token inválido' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }

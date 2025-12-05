@@ -126,41 +126,27 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       return;
     }
 
+    console.log('🎫 [handleApprove] Approving invitation:', invitationId);
+
     // Call edge function to create user and approve invitation
-    const { error: approveError } = await supabase.functions.invoke('approve-invitation', {
+    const { data, error: approveError } = await supabase.functions.invoke('approve-invitation', {
       body: {
         invitation_id: invitationId,
       },
     });
 
+    console.log('🎫 [handleApprove] Response:', { data, error: approveError });
+
     if (approveError) {
       console.error('Error approving invitation:', approveError);
-      toast.error('Error al aprobar la invitación');
+      // Parse the error message if available
+      const errorMessage = approveError.message || 'Error al aprobar la invitación';
+      toast.error(errorMessage);
       setLoading(false);
       return;
     }
 
-    // Get inviter name
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('name')
-      .eq('id', userId)
-      .single();
-
-    // Send email notification
-    try {
-      await supabase.functions.invoke('send-invitation-accepted', {
-        body: {
-          invitee_email: invitation.invitee_email,
-          invitee_name: invitation.invitee_name,
-          inviter_name: profile?.name || 'Tu padrino',
-        },
-      });
-    } catch (emailError) {
-      console.error('Error sending email:', emailError);
-      // Don't fail if email doesn't send
-    }
-
+    // The approve-invitation edge function handles sending the email internally
     toast.success('Invitación aprobada y usuario creado');
     loadInvitations();
     setLoading(false);
