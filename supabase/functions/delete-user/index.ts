@@ -30,13 +30,19 @@ const handler = async (req: Request): Promise<Response> => {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Verify the user is authenticated
-    const supabase = createClient(
+    // Verify the user is authenticated using service role key for robust token verification
+    const supabaseAuth = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
     );
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
     
     if (authError || !user) {
       return new Response(
