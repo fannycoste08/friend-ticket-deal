@@ -187,6 +187,9 @@ const CreatePassword = () => {
         return;
       }
 
+      // Sign out so user must log in manually with their new password
+      await supabase.auth.signOut();
+      
       toast.success('¡Contraseña creada correctamente! Ya puedes iniciar sesión');
       navigate('/login');
     } catch (error) {
