@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 interface ContactEmailRequest {
-  seller_email: string;
+  seller_id: string;
   seller_name: string;
   buyer_name: string;
   buyer_email: string;
@@ -80,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { 
-      seller_email, 
+      seller_id, 
       seller_name, 
       buyer_name, 
       buyer_email, 
@@ -91,7 +91,7 @@ const handler = async (req: Request): Promise<Response> => {
     }: ContactEmailRequest = await req.json();
 
     // Validate required fields
-    if (!seller_email || !buyer_name || !buyer_email || !buyer_phone || !message || !artist || !ticket_id) {
+    if (!seller_id || !buyer_name || !buyer_email || !buyer_phone || !message || !artist || !ticket_id) {
       console.error('Missing required fields');
       return new Response(
         JSON.stringify({ error: 'Request could not be processed' }),
@@ -100,8 +100,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Validate email formats and lengths
-    if (!isValidEmail(seller_email) || !isValidEmail(buyer_email) || 
-        seller_email.length > 255 || buyer_email.length > 255) {
+    if (!isValidEmail(buyer_email) || buyer_email.length > 255) {
       console.error('Invalid email format or length');
       return new Response(
         JSON.stringify({ error: 'Invalid input provided' }),
@@ -128,6 +127,23 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    // Get the seller's email securely from the database
+    const { data: sellerProfile, error: sellerError } = await supabaseAdmin
+      .from('profiles')
+      .select('email')
+      .eq('id', seller_id)
+      .single();
+
+    if (sellerError || !sellerProfile?.email) {
+      console.error('Seller profile not found:', sellerError);
+      return new Response(
+        JSON.stringify({ error: 'Seller not found' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const seller_email = sellerProfile.email;
+
     // Check rate limit before proceeding
     const rateLimitCheck = await checkRateLimit(
       user.id,
@@ -144,7 +160,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify user has access to this ticket (they are the buyer interested in it)
+    // Verify user has access to this ticket and seller_id matches
     const { data: ticket, error: ticketError } = await supabaseAdmin
       .from('tickets')
       .select('id, user_id')
@@ -156,6 +172,15 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ error: 'Unable to process request' }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Verify seller_id matches the ticket owner
+    if (ticket.user_id !== seller_id) {
+      console.error('Seller ID mismatch:', { ticket_user_id: ticket.user_id, seller_id });
+      return new Response(
+        JSON.stringify({ error: 'Invalid seller' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 

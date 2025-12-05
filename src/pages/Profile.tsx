@@ -40,7 +40,6 @@ interface MyWantedTicket {
 interface Friend {
   id: string;
   name: string;
-  email: string;
 }
 const Profile = () => {
   const {
@@ -200,7 +199,7 @@ const Profile = () => {
     const {
       data: profilesData,
       error: profilesError
-    } = await supabase.from('profiles').select('id, name, email').in('id', friendIds);
+    } = await supabase.from('profiles').select('id, name').in('id', friendIds);
     if (profilesError) {
       console.error('Error loading friend profiles:', profilesError);
       toast.error('Error al cargar información de amigos');
@@ -315,7 +314,6 @@ const Profile = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-foreground break-words">{friend.name}</h3>
-                      <p className="text-sm text-muted-foreground break-all">{friend.email}</p>
                     </div>
                     <div className="flex gap-2 flex-shrink-0">
                       <Button variant="link" size="sm" onClick={() => navigate(`/user/${friend.id}`)} className="text-primary hover:text-primary/80 p-0 h-auto">

@@ -19,7 +19,6 @@ interface FriendRequest {
   created_at: string;
   profiles: {
     name: string;
-    email: string;
   };
 }
 
@@ -57,7 +56,7 @@ export const FriendRequestsDialog = () => {
     const userIds = friendshipsData.map(f => f.user_id);
     const { data: profilesData } = await supabase
       .from('profiles')
-      .select('id, name, email')
+      .select('id, name')
       .in('id', userIds);
 
     // Combine data
@@ -65,7 +64,7 @@ export const FriendRequestsDialog = () => {
       const profile = profilesData?.find(p => p.id === friendship.user_id);
       return {
         ...friendship,
-        profiles: profile || { name: 'Unknown', email: '' }
+        profiles: profile || { name: 'Unknown' }
       };
     });
 
@@ -139,7 +138,6 @@ export const FriendRequestsDialog = () => {
               >
                 <div>
                   <p className="font-medium">{request.profiles.name}</p>
-                  <p className="text-sm text-muted-foreground">{request.profiles.email}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button

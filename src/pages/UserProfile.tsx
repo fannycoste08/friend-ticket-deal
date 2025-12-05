@@ -14,7 +14,6 @@ import { toast } from 'sonner';
 interface Profile {
   id: string;
   name: string;
-  email: string;
 }
 
 interface Ticket {
@@ -28,7 +27,6 @@ interface Ticket {
   user_id: string;
   profiles: {
     name: string;
-    email: string;
   };
 }
 
@@ -40,7 +38,6 @@ interface WantedTicket {
   user_id: string;
   profiles: {
     name: string;
-    email: string;
   };
 }
 
@@ -76,7 +73,7 @@ const UserProfile = () => {
     // Load profile
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('id, name, email')
+      .select('id, name')
       .eq('id', userId)
       .single();
 
@@ -89,7 +86,7 @@ const UserProfile = () => {
       .from('tickets')
       .select(`
         *,
-        profiles!tickets_user_id_fkey(name, email)
+        profiles!tickets_user_id_fkey(name)
       `)
       .eq('user_id', userId)
       .eq('status', 'available')
@@ -102,7 +99,7 @@ const UserProfile = () => {
       .from('wanted_tickets')
       .select(`
         *,
-        profiles!wanted_tickets_user_id_fkey(name, email)
+        profiles!wanted_tickets_user_id_fkey(name)
       `)
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
@@ -178,7 +175,7 @@ const UserProfile = () => {
       return;
     }
 
-    // Send notification email
+    // Send notification email using edge function that will look up email securely
     try {
       const { data: currentUserProfile } = await supabase
         .from('profiles')
@@ -188,7 +185,7 @@ const UserProfile = () => {
 
       await supabase.functions.invoke('send-friendship-notification', {
         body: {
-          recipient_email: profile.email,
+          recipient_id: userId,
           recipient_name: profile.name,
           requester_name: currentUserProfile?.name || 'Un usuario',
         },
@@ -425,7 +422,7 @@ const UserProfile = () => {
             id: selectedTicket.id,
             artist: selectedTicket.artist,
             seller: selectedTicket.profiles.name,
-            seller_email: selectedTicket.profiles.email,
+            seller_id: selectedTicket.user_id,
           }}
         />
       )}
