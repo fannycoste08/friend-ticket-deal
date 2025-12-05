@@ -22,10 +22,8 @@ const Admin = () => {
   }, []);
 
   const loadUsers = async () => {
-    console.log('[Admin] Fetching profiles_with_friend_count...');
-    const { data, error } = await supabase
-      .from('profiles_with_friend_count')
-      .select('*');
+    console.log('[Admin] Fetching profiles via secure admin function...');
+    const { data, error } = await supabase.rpc('get_profiles_with_friend_count_admin');
 
     console.log('[Admin] Query result:', { data, error });
     if (error) {

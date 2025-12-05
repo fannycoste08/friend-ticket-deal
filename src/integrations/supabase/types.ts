@@ -455,6 +455,16 @@ export type Database = {
           friend_name: string
         }[]
       }
+      get_profiles_with_friend_count_admin: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          friend_count: number
+          id: string
+          name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
