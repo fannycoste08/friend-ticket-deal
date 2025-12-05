@@ -17,17 +17,21 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('[Admin] Component mounted, loading users...');
     loadUsers();
   }, []);
 
   const loadUsers = async () => {
+    console.log('[Admin] Fetching profiles_with_friend_count...');
     const { data, error } = await supabase
       .from('profiles_with_friend_count')
       .select('*');
 
+    console.log('[Admin] Query result:', { data, error });
     if (error) {
-      console.error('Error loading users:', error);
+      console.error('[Admin] Error loading users:', error);
     } else {
+      console.log('[Admin] Loaded', data?.length, 'users');
       setUsers(data || []);
     }
     setLoading(false);
