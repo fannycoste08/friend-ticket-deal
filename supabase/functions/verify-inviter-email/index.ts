@@ -20,13 +20,13 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
     const sessionId = generateSessionFingerprint(req, clientIP);
     
-    // IP-based rate limiting (5 requests per 15 minutes)
+    // IP-based rate limiting (15 requests per 15 minutes)
     const ipRateLimitCheck = await checkIPRateLimit(
       clientIP,
       'verify-inviter-email',
       supabaseUrl,
       supabaseKey,
-      { maxAttempts: 5, windowMinutes: 15 }
+      { maxAttempts: 15, windowMinutes: 15 }
     );
 
     if (!ipRateLimitCheck.allowed) {
@@ -48,13 +48,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Session-based rate limiting (3 requests per 15 minutes)
+    // Session-based rate limiting (10 requests per 15 minutes)
     const sessionRateLimitCheck = await checkSessionRateLimit(
       sessionId,
       'verify-inviter-email',
       supabaseUrl,
       supabaseKey,
-      { maxAttempts: 3, windowMinutes: 15 }
+      { maxAttempts: 10, windowMinutes: 15 }
     );
 
     if (!sessionRateLimitCheck.allowed) {
@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
     ]);
 
     // Log suspicious activity if checking multiple emails that don't exist
-    if (!emailExists && (sessionRateLimitCheck.attempts ?? 0) >= 2) {
+    if (!emailExists && (sessionRateLimitCheck.attempts ?? 0) >= 7) {
       await logSuspiciousActivity(
         sessionId,
         'verify-inviter-email',
