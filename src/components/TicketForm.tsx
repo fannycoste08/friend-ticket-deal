@@ -188,8 +188,12 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
               value={formData.artist}
               onChange={(e) => handleChange('artist', e.target.value)}
               placeholder="Ej: Bad Bunny"
+              maxLength={100}
               required
             />
+            <p className="text-xs text-muted-foreground">
+              {formData.artist.length}/100 caracteres
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
