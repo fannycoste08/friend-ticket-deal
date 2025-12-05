@@ -77,31 +77,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Delete all user data in the correct order (respecting foreign keys)
     
-    // 1. Delete messages
-    const { error: messagesError } = await supabaseAdmin
-      .from('messages')
-      .delete()
-      .eq('sender_id', userId);
-    
-    if (messagesError) {
-      console.error('Error deleting messages:', messagesError);
-      throw messagesError;
-    }
-    console.log('Deleted messages for user:', userId);
-
-    // 2. Delete conversations
-    const { error: conversationsError } = await supabaseAdmin
-      .from('conversations')
-      .delete()
-      .or(`user1_id.eq.${userId},user2_id.eq.${userId}`);
-    
-    if (conversationsError) {
-      console.error('Error deleting conversations:', conversationsError);
-      throw conversationsError;
-    }
-    console.log('Deleted conversations for user:', userId);
-
-    // 3. Delete ticket requests (as requester or seller)
+    // 1. Delete ticket requests (as requester or seller)
     const { error: ticketRequestsError } = await supabaseAdmin
       .from('ticket_requests')
       .delete()
