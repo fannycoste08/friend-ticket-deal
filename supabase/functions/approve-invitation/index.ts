@@ -30,25 +30,27 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Create Supabase client with the user's auth header
-    const supabase = createClient(
+    // Create admin client to verify the token
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
-        global: {
-          headers: { Authorization: authHeader }
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
         }
       }
     );
 
-    // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Extract token and verify with admin client
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     console.log('👤 [approve-invitation] User verified:', user?.id, 'Error:', authError?.message);
     
     if (authError || !user) {
       console.error('❌ [approve-invitation] Auth failed:', authError?.message);
       return new Response(
-        JSON.stringify({ error: 'No autorizado: token inválido' }),
+        JSON.stringify({ error: 'No autorizado: sesión expirada. Por favor, vuelve a iniciar sesión.' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -63,17 +65,6 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     console.log('Processing invitation approval:', invitation_id);
-
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    );
 
     // Get invitation details and verify ownership
     const { data: invitation, error: invitationError } = await supabaseAdmin
