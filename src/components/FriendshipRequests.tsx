@@ -13,7 +13,6 @@ interface FriendRequest {
   created_at: string;
   profiles: {
     name: string;
-    email: string;
   };
 }
 
@@ -51,16 +50,16 @@ export const FriendshipRequests = () => {
       const userIds = data.map(r => r.user_id);
       const { data: profilesData } = await supabase
         .from('profiles')
-        .select('id, name, email')
+        .select('id, name')
         .in('id', userIds);
 
       const profilesMap = new Map(
-        profilesData?.map(p => [p.id, { name: p.name, email: p.email }]) || []
+        profilesData?.map(p => [p.id, { name: p.name }]) || []
       );
 
       const requestsWithProfiles = data.map(r => ({
         ...r,
-        profiles: profilesMap.get(r.user_id) || { name: 'Usuario', email: '' }
+        profiles: profilesMap.get(r.user_id) || { name: 'Usuario' }
       }));
 
       setRequests(requestsWithProfiles);
@@ -141,7 +140,6 @@ export const FriendshipRequests = () => {
           >
             <div>
               <p className="font-medium">{request.profiles.name}</p>
-              <p className="text-sm text-muted-foreground">{request.profiles.email}</p>
             </div>
             <div className="flex gap-2">
               <Button

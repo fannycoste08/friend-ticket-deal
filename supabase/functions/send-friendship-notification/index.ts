@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface FriendshipNotificationRequest {
-  recipient_email: string;
+  recipient_id: string;
   recipient_name: string;
   requester_name: string;
 }
@@ -27,15 +27,17 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Create Supabase client
+    const token = authHeader.replace('Bearer ', '');
+
+    // Create Supabase admin client for secure operations
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: authHeader } },
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
     });
 
     // Get authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     if (authError || !user) {
       console.error('Authentication error:', authError);
       return new Response(
@@ -44,15 +46,16 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { recipient_email, recipient_name, requester_name }: FriendshipNotificationRequest = await req.json();
+    const { recipient_id, recipient_name, requester_name }: FriendshipNotificationRequest = await req.json();
     
-    console.log('Processing friendship notification:', { recipient_email, recipient_name, requester_name, user_id: user.id });
+    console.log('Processing friendship notification:', { recipient_id, recipient_name, requester_name, user_id: user.id });
 
     // Verify that a friendship request actually exists from this user to the recipient
-    const { data: friendshipRequest, error: friendshipError } = await supabase
+    const { data: friendshipRequest, error: friendshipError } = await supabaseAdmin
       .from('friendships')
       .select('id, friend_id')
       .eq('user_id', user.id)
+      .eq('friend_id', recipient_id)
       .eq('status', 'pending')
       .single();
 
@@ -64,21 +67,22 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify the recipient exists and matches the friend_id
-    const { data: recipientProfile } = await supabase
+    // Get the recipient's email securely from the database
+    const { data: recipientProfile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('email')
-      .eq('id', friendshipRequest.friend_id)
-      .ilike('email', recipient_email)
+      .eq('id', recipient_id)
       .single();
 
-    if (!recipientProfile) {
-      console.error('Recipient email does not match friendship request');
+    if (profileError || !recipientProfile?.email) {
+      console.error('Recipient profile not found:', profileError);
       return new Response(
         JSON.stringify({ error: 'Invalid recipient' }),
         { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    const recipient_email = recipientProfile.email;
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     const APP_URL = 'https://trusticket.lovable.app';

@@ -37,7 +37,7 @@ interface ContactDialogProps {
     id: string;
     artist: string;
     seller: string;
-    seller_email: string;
+    seller_id: string;
   };
   isWantedTicket?: boolean;
 }
@@ -72,7 +72,7 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
       }
 
       console.log('Sending contact email with data:', {
-        seller_email: ticket.seller_email,
+        seller_id: ticket.seller_id,
         seller_name: ticket.seller,
         artist: ticket.artist,
         ticket_id: ticket.id,
@@ -80,7 +80,7 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
 
       const { data, error } = await supabase.functions.invoke('send-contact-email', {
         body: {
-          seller_email: ticket.seller_email,
+          seller_id: ticket.seller_id,
           seller_name: ticket.seller,
           buyer_name: values.name,
           buyer_email: values.email,

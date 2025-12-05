@@ -26,7 +26,6 @@ interface Ticket {
   mutualFriends?: Array<{ friend_name: string }>;
   profiles: {
     name: string;
-    email: string;
   } | null;
 }
 
@@ -40,7 +39,6 @@ interface WantedTicket {
   mutualFriends?: Array<{ friend_name: string }>;
   profiles: {
     name: string;
-    email: string;
   } | null;
 }
 
@@ -108,7 +106,7 @@ const Feed = () => {
       .select(
         `
         *,
-        profiles!tickets_user_id_fkey(name, email)
+        profiles!tickets_user_id_fkey(name)
       `,
       )
       .eq("status", "available")
@@ -183,7 +181,7 @@ const Feed = () => {
       .select(
         `
         *,
-        profiles!wanted_tickets_user_id_fkey(name, email)
+        profiles!wanted_tickets_user_id_fkey(name)
       `,
       )
       .in("user_id", allowedUserIds)
@@ -473,7 +471,7 @@ const Feed = () => {
             id: selectedTicket.id,
             artist: selectedTicket.artist,
             seller: selectedTicket.profiles.name,
-            seller_email: selectedTicket.profiles.email,
+            seller_id: selectedTicket.user_id,
           }}
         />
       )}
@@ -486,7 +484,7 @@ const Feed = () => {
             id: selectedWantedTicket.id,
             artist: selectedWantedTicket.artist,
             seller: selectedWantedTicket.profiles.name,
-            seller_email: selectedWantedTicket.profiles.email,
+            seller_id: selectedWantedTicket.user_id,
           }}
           isWantedTicket
         />
