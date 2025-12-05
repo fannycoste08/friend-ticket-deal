@@ -30,14 +30,19 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const token = authHeader.replace('Bearer ', '');
+    // Create Supabase client with the user's auth header
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: authHeader }
+        }
+      }
     );
 
     // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     console.log('👤 [approve-invitation] User verified:', user?.id, 'Error:', authError?.message);
     
     if (authError || !user) {
