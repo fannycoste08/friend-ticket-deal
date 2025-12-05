@@ -1,7 +1,8 @@
-import { Home, Ticket, User, LogOut } from "lucide-react";
+import { Home, Ticket, User, LogOut, Shield } from "lucide-react";
 import { NavLink, useNavigate, Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useFriendRequests } from "@/hooks/useFriendRequests";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ const Header = () => {
     signOut
   } = useAuth();
   const navigate = useNavigate();
+  const { isAdmin } = useAdminCheck();
   const pendingRequestsCount = useFriendRequests();
   const navItems = [{
     to: "/",
@@ -21,7 +23,11 @@ const Header = () => {
     to: "/profile",
     icon: User,
     label: "Perfil"
-  }];
+  }, ...(isAdmin ? [{
+    to: "/admin",
+    icon: Shield,
+    label: "Admin"
+  }] : [])];
   const handleSignOut = async () => {
     const {
       error

@@ -20,6 +20,7 @@ import CreateFounder from "./pages/CreateFounder";
 import LegalNotice from "./pages/LegalNotice";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requireAdmin>
                     <CreateFounder />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <Admin />
                   </ProtectedRoute>
                 } 
               />
