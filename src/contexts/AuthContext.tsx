@@ -68,8 +68,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    try {
+      const { error } = await supabase.auth.signOut();
+      // Even if server-side logout fails (e.g., 403 due to invalid token),
+      // clear local state to allow user to log in again
+      if (error) {
+        console.warn('[AuthContext] Server signOut failed, clearing local state:', error.message);
+        setSession(null);
+        setUser(null);
+      }
+      return { error: null }; // Always return success since we cleared local state
+    } catch (e) {
+      console.warn('[AuthContext] SignOut exception, clearing local state:', e);
+      setSession(null);
+      setUser(null);
+      return { error: null };
+    }
   };
 
   const resetPassword = async (email: string) => {
