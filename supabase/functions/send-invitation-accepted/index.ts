@@ -146,12 +146,18 @@ const handler = async (req: Request): Promise<Response> => {
                   
                   <div class="info-box">
                     <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Crear tu contraseña:</p>
-                    <p style="margin: 10px 0 15px 0; font-size: 14px;">
+                    <p style="margin: 10px 0 20px 0; font-size: 14px;">
                       Haz clic en el botón de abajo para crear tu contraseña de acceso:
                     </p>
-                    <a href="${password_reset_link}" class="button" style="text-align: center;">
-                      Crear mi contraseña
-                    </a>
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                      <tr>
+                        <td align="center" bgcolor="#3b82f6" style="border-radius: 8px;">
+                          <a href="${password_reset_link}" target="_blank" style="display: inline-block; padding: 16px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; background-color: #3b82f6; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;">
+                            Crear mi contraseña
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
                     <p style="margin: 15px 0 0 0; font-size: 13px; color: #6b7280;">
                       <strong>Importante:</strong> Necesitarás el email de tu padrino para verificar tu identidad.
                     </p>
