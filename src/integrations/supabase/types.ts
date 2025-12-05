@@ -447,6 +447,7 @@ export type Database = {
           network_user_id: string
         }[]
       }
+      get_friend_count: { Args: { profile_id: string }; Returns: number }
       get_mutual_friends: {
         Args: { user_a: string; user_b: string }
         Returns: {
