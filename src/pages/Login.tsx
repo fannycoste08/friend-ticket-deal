@@ -60,19 +60,19 @@ const Login = () => {
               Compra y vende entradas entre amigos
             </h1>
             <div className="space-y-4">
-              <h2 className="text-2xl font-semibold text-blue-400">Un espacio de confianza:</h2>
+              <h2 className="text-2xl font-semibold text-blue-400">Este es un espacio de confianza:</h2>
               <ul className="space-y-4 text-zinc-300 text-lg">
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Donde la gente se compromete a no especular con las entradas</span>
+                  <span>Donde los usuarios se comprometen a no especular con las entradas</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin costes por la plataforma</span>
+                  <span>Sin beneficio para la plataforma</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin miedos por comprar entradas falsas, todo queda entre amigos</span>
+                  <span>Sin bots que revenden entradas falsas, todo queda entre amigos</span>
                 </li>
               </ul>
             </div>
@@ -83,7 +83,7 @@ const Login = () => {
             <Card className="w-full bg-zinc-900/90 border-zinc-800 backdrop-blur-sm shadow-2xl">
               <CardHeader className="space-y-2">
                 <CardTitle className="text-2xl text-white text-center">
-                  Entra y descubre qué ofrecen o buscan tus amigos
+                  Entra y descubre qué ofrecen o buscan tus amigos (y los amigos de tus amigos)
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -154,7 +154,7 @@ const Login = () => {
       <div className="w-full bg-black border-t border-zinc-800 py-16 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl lg:text-4xl font-bold text-white text-center mb-16">
-            Somos fans de la música en directo, no carne del mercado de entradas
+            Somos fans de la música en directo, no participamos en el mercadeo de entradas
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
