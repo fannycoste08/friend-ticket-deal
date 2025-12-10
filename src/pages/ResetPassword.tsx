@@ -22,8 +22,6 @@ const ResetPassword = () => {
     // Listen for auth state changes, specifically PASSWORD_RECOVERY event
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth event in ResetPassword:', event, session?.user?.email);
-        
         if (event === 'PASSWORD_RECOVERY') {
           // User clicked the recovery link and token was valid
           setSessionValid(true);

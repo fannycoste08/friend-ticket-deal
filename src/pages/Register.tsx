@@ -50,16 +50,11 @@ const Register = () => {
     const normalizedInviterEmail = inviterEmail.trim().toLowerCase();
 
     // Verify if godparent exists using edge function (to bypass RLS)
-    console.log('Verifying inviter email via edge function:', normalizedInviterEmail);
-    
     const { data: verifyResult, error: verifyError } = await supabase.functions.invoke('verify-inviter-email', {
       body: { email: normalizedInviterEmail }
     });
 
-    console.log('Verification result:', verifyResult);
-
     if (verifyError || !verifyResult?.exists) {
-      console.error('Inviter verification error:', verifyError);
       toast.error('El email del padrino no existe en el sistema');
       setLoading(false);
       return;
@@ -76,7 +71,6 @@ const Register = () => {
     });
 
     if (invitationError || !invitationResult?.success) {
-      console.error('Error creating invitation:', invitationError, invitationResult);
       
       if (invitationResult?.error === 'Pending invitation already exists') {
         toast.error('Ya existe una solicitud pendiente para este email');
@@ -99,7 +93,6 @@ const Register = () => {
     });
 
     if (emailError) {
-      console.error('Error sending notification email:', emailError);
       // Don't fail the registration if email fails
     }
 
