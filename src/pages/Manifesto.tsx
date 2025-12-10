@@ -52,7 +52,7 @@ const Manifesto = () => {
             <hr className="border-border" />
 
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">🤝 Nuestro Compromiso como Comunidad</h2>
+              <h2 className="text-xl font-semibold">Nuestro Compromiso como Comunidad</h2>
 
               <div className="space-y-4">
                 <div>
@@ -113,7 +113,7 @@ const Manifesto = () => {
             <hr className="border-border" />
 
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">🌱 Lo que Hacemos Juntos</h2>
+              <h2 className="text-xl font-semibold">Lo que Hacemos Juntos</h2>
 
               <p>
                 Cuando alguien compra o vende una entrada aquí, no solo intercambia un ticket: construye confianza para
@@ -129,7 +129,7 @@ const Manifesto = () => {
             <hr className="border-border" />
 
             <div className="space-y-4 text-center py-4">
-              <h2 className="text-xl font-semibold">💛 Gracias por formar parte.</h2>
+              <h2 className="text-xl font-semibold">Gracias por formar parte.</h2>
 
               <p>
                 Tu presencia aquí hace posible lo que ninguna plataforma ha conseguido: una red de confianza real entre
