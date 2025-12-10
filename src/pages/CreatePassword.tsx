@@ -26,44 +26,33 @@ const CreatePassword = () => {
     let mounted = true;
 
     const checkAuth = async () => {
-      console.log('CreatePassword: Checking authentication...');
-      
       try {
         // First check if we have a session from the recovery link
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        console.log('CreatePassword: Session check:', session ? 'SESSION EXISTS' : 'NO SESSION', 'Error:', sessionError);
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user?.email) {
           if (mounted) {
             setUserEmail(session.user.email);
             setAuthenticating(false);
           }
-          console.log('CreatePassword: User authenticated via session:', session.user.email);
           return;
         }
         
         // If no session yet, wait for the auth state change from the recovery link
-        console.log('CreatePassword: No session found, waiting for recovery link authentication...');
         await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Check again after waiting
-        const { data: { session: newSession }, error: newSessionError } = await supabase.auth.getSession();
-        
-        console.log('CreatePassword: Second session check:', newSession ? 'SESSION EXISTS' : 'NO SESSION', 'Error:', newSessionError);
+        const { data: { session: newSession } } = await supabase.auth.getSession();
         
         if (newSession?.user?.email && mounted) {
           setUserEmail(newSession.user.email);
           setAuthenticating(false);
-          console.log('CreatePassword: User authenticated after wait:', newSession.user.email);
         } else if (mounted) {
-          console.error('CreatePassword: No valid session found');
           toast.error('El enlace ha expirado o ya fue usado. Solicita un nuevo enlace a tu padrino.');
           setTimeout(() => navigate('/login'), 3000);
           setAuthenticating(false);
         }
       } catch (error) {
-        console.error('CreatePassword: Error checking authentication:', error);
         if (mounted) {
           toast.error('Error al verificar la sesión');
           setAuthenticating(false);
@@ -115,8 +104,6 @@ const CreatePassword = () => {
     setLoading(true);
 
     try {
-      console.log('Starting verification for user:', userEmail);
-      
       if (!userEmail) {
         toast.error('No se pudo obtener tu email. Por favor, intenta de nuevo.');
         setLoading(false);
@@ -124,11 +111,7 @@ const CreatePassword = () => {
       }
       
       // Verify inviter email matches the invitation
-      console.log('Verifying invitation for:', userEmail, 'with inviter:', inviterEmail);
-      
-      // First, let's check the current session to debug RLS
       const { data: { session } } = await supabase.auth.getSession();
-      console.log('Current session:', session ? 'EXISTS' : 'NO SESSION', 'User ID:', session?.user?.id);
       
       const { data: invitations, error: invitationError } = await supabase
         .from('invitations')
@@ -136,10 +119,7 @@ const CreatePassword = () => {
         .ilike('invitee_email', userEmail)
         .eq('status', 'approved');
 
-      console.log('Invitations found:', invitations, 'Error:', invitationError);
-
       if (invitationError) {
-        console.error('Error fetching invitation:', invitationError);
         toast.error('Error al verificar la invitación');
         setLoading(false);
         return;
@@ -158,10 +138,7 @@ const CreatePassword = () => {
         .select('id, email')
         .in('id', inviterIds);
 
-      console.log('Inviters found:', inviters, 'Error:', invitersError);
-
       if (invitersError || !inviters) {
-        console.error('Error fetching inviter profiles:', invitersError);
         toast.error('Error al verificar el padrino');
         setLoading(false);
         return;

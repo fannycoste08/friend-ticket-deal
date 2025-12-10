@@ -71,13 +71,6 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
         return;
       }
 
-      console.log('Sending contact email with data:', {
-        seller_id: ticket.seller_id,
-        seller_name: ticket.seller,
-        artist: ticket.artist,
-        ticket_id: ticket.id,
-      });
-
       const { data, error } = await supabase.functions.invoke('send-contact-email', {
         body: {
           seller_id: ticket.seller_id,
@@ -92,11 +85,8 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
       });
 
       if (error) {
-        console.error('Edge function error:', error);
         throw error;
       }
-
-      console.log('Contact email sent successfully:', data);
 
       toast.success("Mensaje enviado", {
         description: "Tu mensaje ha sido enviado al vendedor",
@@ -105,12 +95,6 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
       form.reset();
       onOpenChange(false);
     } catch (error: any) {
-      console.error('Error sending contact email:', error);
-      console.error('Error details:', {
-        message: error?.message,
-        status: error?.status,
-        details: error
-      });
       
       toast.error("Error al enviar el mensaje", {
         description: error?.message || "Por favor, inténtalo de nuevo más tarde",
