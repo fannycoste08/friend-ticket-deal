@@ -60,19 +60,19 @@ const Login = () => {
               Compra y vende entradas entre amigos
             </h1>
             <div className="space-y-4">
-              <h2 className="text-2xl font-semibold text-blue-400">Este es un espacio de confianza:</h2>
+              <h2 className="text-2xl font-semibold text-blue-400">¿Por qué existe Trusticket?</h2>
               <ul className="space-y-4 text-zinc-300 text-lg">
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Donde los usuarios se comprometen a no especular con las entradas</span>
+                  <span>Compramos entradas con meses de antelación sin saber si vamos a poder asistir</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin beneficio para la plataforma</span>
+                  <span>Las plataformas de reventa no son seguras y fomentan la especulación</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Sin bots que revenden entradas falsas, todo queda entre amigos</span>
+                  <span>A parte de vender y comprar entradas a tus amigos, ¿porqué no a los amigos de tus amigos?</span>
                 </li>
               </ul>
             </div>
