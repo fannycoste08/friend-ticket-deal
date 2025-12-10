@@ -21,6 +21,7 @@ import CreateFounder from "./pages/CreateFounder";
 import LegalNotice from "./pages/LegalNotice";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
+import Manifesto from "./pages/Manifesto";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -69,6 +70,7 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/manifesto" element={<Manifesto />} />
               <Route path="/legal-notice" element={<LegalNotice />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/cookies-policy" element={<CookiesPolicy />} />
