@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +20,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [inviterName, setInviterName] = useState("");
+  const [acceptedManifesto, setAcceptedManifesto] = useState(false);
 
   // Redirect if already logged in
   if (user) {
@@ -192,7 +194,26 @@ const Register = () => {
                 <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <p className="text-sm text-foreground">Tu registro debe ser aprobado por la persona que te invita</p>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="manifesto"
+                  checked={acceptedManifesto}
+                  onCheckedChange={(checked) => setAcceptedManifesto(checked === true)}
+                />
+                <label htmlFor="manifesto" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                  Estoy de acuerdo con el{" "}
+                  <a
+                    href="/manifesto"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    manifiesto
+                  </a>{" "}
+                  trusticket y me comprometo a seguir las reglas de uso del servicio.
+                </label>
+              </div>
+              <Button type="submit" className="w-full" disabled={loading || !acceptedManifesto}>
                 {loading ? "Solicitando registro..." : "Solicitar registro"}
               </Button>
             </form>
