@@ -150,7 +150,7 @@ const Register = () => {
             </div>
             <div>
               <CardTitle className="text-2xl">Registro por Invitación</CardTitle>
-              <CardDescription>Solo puedes registrarte con una invitación</CardDescription>
+              <CardDescription>Solo puedes registrarte si alguien te apadrina</CardDescription>
             </div>
           </CardHeader>
           <CardContent>
@@ -190,7 +190,7 @@ const Register = () => {
               </div>
               <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
                 <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-foreground">Tu registro debe ser aprobado por la persona que te apadrina</p>
+                <p className="text-sm text-foreground">Tu registro debe ser aprobado por la persona que te invita</p>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Solicitando registro..." : "Solicitar registro"}
