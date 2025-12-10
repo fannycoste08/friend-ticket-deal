@@ -27,6 +27,14 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link 
+                  to="/manifesto" 
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Manifiesto TrusTicket
+                </Link>
+              </li>
+              <li>
+                <Link 
                   to="/legal-notice" 
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
