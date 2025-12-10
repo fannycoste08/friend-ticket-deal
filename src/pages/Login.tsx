@@ -64,15 +64,18 @@ const Login = () => {
               <ul className="space-y-4 text-zinc-300 text-lg">
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Compramos entradas con meses de antelación sin saber si vamos a poder asistir</span>
+                  <span>Compramos entradas con meses de antelación sin saber si vamos a poder asistir.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Las plataformas de reventa no son seguras y fomentan la especulación</span>
+                  <span>Las plataformas de reventa no son seguras y fomentan la especulación.</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>A parte de vender y comprar entradas a tus amigos, ¿porqué no a los amigos de tus amigos?</span>
+                  <span>
+                    Vender y comprar una entrada se ha convertido en un dolor real para los fans de la música en
+                    directo.
+                  </span>
                 </li>
               </ul>
             </div>
