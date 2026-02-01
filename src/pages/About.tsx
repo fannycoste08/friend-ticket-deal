@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import fannyPhoto from "@/assets/fanny-photo.jpg";
 
 const About = () => {
   return (
@@ -18,9 +19,12 @@ const About = () => {
             Quién está detrás de Trusticket
           </h1>
 
-          {/* Espacio para foto */}
-          <div className="w-full h-64 bg-muted rounded-lg mb-8 flex items-center justify-center">
-            <span className="text-muted-foreground">Espacio para foto</span>
+          <div className="w-full mb-8 flex justify-center">
+            <img 
+              src={fannyPhoto} 
+              alt="Fanny - Fundadora de Trusticket" 
+              className="max-h-96 rounded-lg object-cover shadow-md"
+            />
           </div>
 
           <div className="prose prose-lg max-w-none text-muted-foreground space-y-6">
