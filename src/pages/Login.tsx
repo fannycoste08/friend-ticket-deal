@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,22 +64,21 @@ const Login = () => {
                 <br />
                 <span className="text-primary">amigos.</span>
               </h1>
-              <p className="text-lg text-white/70 max-w-md leading-relaxed">
-                Compra y vende entradas de conciertos dentro de tu red de
-                confianza. Sin especulación, sin comisiones.
+              <p className="text-lg font-semibold text-primary max-w-md">
+                ¿Por qué existe Trusticket?
               </p>
               <div className="space-y-4">
                 {[
-                  "Sin sobreprecio. Precios justos entre personas reales.",
-                  "Sin plataformas de pago. Conecta con amigos y amigos de amigos.",
-                  "Sin riesgo. Solo personas verificadas por la comunidad.",
+                  "Compramos entradas con meses de antelación sin saber si vamos a poder asistir.",
+                  "Las plataformas de reventa no son seguras y fomentan la especulación.",
+                  "Vender y comprar una entrada se ha convertido en un dolor real para los fans de la música en directo.",
                 ].map((text, i) => (
                   <div
                     key={i}
                     className={`flex items-start gap-3 fade-in-up-delay-${i + 1}`}
                   >
                     <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0" />
-                    <p className="text-sm text-white/60">{text}</p>
+                    <p className="text-sm text-white/80">{text}</p>
                   </div>
                 ))}
               </div>
@@ -89,12 +88,9 @@ const Login = () => {
             <div className="w-full max-w-md mx-auto lg:mx-0 lg:ml-auto fade-in-up-delay-1">
               <div className="bg-card/95 backdrop-blur-lg rounded-xl p-8 border border-border/50 shadow-lg">
                 <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-card-foreground">
-                    Iniciar sesión
+                  <h2 className="text-base font-semibold text-card-foreground leading-snug">
+                    Entra y descubre qué ofrecen o buscan tus amigos (y los amigos de tus amigos)
                   </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Accede a tu cuenta
-                  </p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
@@ -146,18 +142,18 @@ const Login = () => {
                     className="w-full h-11 font-medium"
                     disabled={loading}
                   >
-                    {loading ? "Entrando..." : "Entrar"}
-                    {!loading && <ArrowRight className="w-4 h-4 ml-1" />}
+                    {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                   </Button>
                 </form>
                 <p className="mt-5 text-center text-sm text-muted-foreground">
-                  ¿No tienes cuenta?{" "}
+                  ¿No tienes cuenta aún? Si ya te han apadrinado,{" "}
                   <Link
                     to="/register"
-                    className="text-primary hover:text-primary/80 font-medium transition-colors"
+                    className="text-primary hover:text-primary/80 font-medium underline transition-colors"
                   >
-                    Regístrate
+                    regístrate
                   </Link>
+                  .
                 </p>
               </div>
             </div>
@@ -168,26 +164,23 @@ const Login = () => {
       {/* Bottom section — Value blocks */}
       <section className="bg-background py-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground text-center mb-4">
-            Nuestra filosofía
-          </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-center mb-16 tracking-tight leading-tight max-w-2xl mx-auto">
-            Somos fans de la música, no del mercadeo de entradas
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-center mb-16 tracking-tight leading-tight max-w-3xl mx-auto">
+            Somos fans de la música en directo, no participamos en el mercadeo de entradas
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
               {
-                title: "Precios justos",
-                desc: "No sacamos beneficio de la compraventa. Estamos para compartir nuestra pasión por la música en directo.",
+                title: "Respetamos precios",
+                desc: "No sacamos beneficio de la compraventa de entradas. Estamos para compartir nuestra pasión por la música en directo.",
               },
               {
-                title: "Red de confianza",
-                desc: "Conectamos hasta 2 grados de amistad para compartir entradas como lo que somos: amigos.",
+                title: "Reconectamos fans",
+                desc: "Sin plataformas de pago. Conectamos hasta 2 grados de amistad para compartir entradas como lo que somos: amigos.",
               },
               {
-                title: "Comunidad real",
-                desc: "Apoyarnos comprando entradas de amigos que no pueden ir. Sin intermediarios, sin algoritmos.",
+                title: "Restablecemos comunidad",
+                desc: "Está en nuestra mano apoyarnos comprando entradas de amigos que no pueden ir, aunque el concierto no esté sold out.",
               },
             ].map((block, i) => (
               <div key={i} className={`space-y-4 fade-in-up-delay-${i + 1}`}>

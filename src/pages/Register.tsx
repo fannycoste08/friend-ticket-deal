@@ -205,9 +205,9 @@ const Register = () => {
                     rel="noopener noreferrer"
                     className="text-primary underline hover:text-primary/80"
                   >
-                    manifiesto
+                    manifiesto trusticket
                   </a>{" "}
-                  y me comprometo a seguir las reglas de uso.
+                  y me comprometo a seguir las reglas de uso del servicio.
                 </label>
               </div>
 
