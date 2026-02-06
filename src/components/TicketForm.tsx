@@ -135,7 +135,7 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
         <DialogTrigger asChild>
           <Button size="sm" className="gap-2">
             <Plus className="w-4 h-4" />
-            Publicar
+            Publicar Entrada
           </Button>
         </DialogTrigger>
       )}

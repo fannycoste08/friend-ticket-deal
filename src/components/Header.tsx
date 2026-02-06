@@ -43,7 +43,7 @@ const Header = () => {
             to={user ? "/" : "/login"}
             className="text-xl font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity"
           >
-            <span className="gradient-text">trusticket</span>
+            <span className="gradient-text">Trusticket</span>
           </Link>
 
           {/* Desktop nav */}

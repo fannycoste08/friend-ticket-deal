@@ -50,10 +50,10 @@ type Section = 'profile' | 'friends' | 'invitations' | 'tickets' | 'wanted' | 's
 
 const menuItems: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: 'profile', label: 'Mi Perfil', icon: User },
-  { id: 'friends', label: 'Amigos', icon: Users },
+  { id: 'friends', label: 'Mis Amigos', icon: Users },
   { id: 'invitations', label: 'Invitaciones', icon: Mail },
   { id: 'tickets', label: 'Mis Entradas', icon: Ticket },
-  { id: 'wanted', label: 'Lo que Busco', icon: Search },
+  { id: 'wanted', label: 'Entradas que Busco', icon: Search },
   { id: 'settings', label: 'Ajustes', icon: Settings },
 ];
 
@@ -242,7 +242,7 @@ const Profile = () => {
   const renderFriends = () => (
     <div className="space-y-6 fade-in-up">
       <div>
-        <h2 className="text-2xl font-bold text-foreground tracking-tight">Amigos</h2>
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Amigos</h2>
         <p className="text-sm text-muted-foreground mt-1">{friends.length} amigos conectados</p>
       </div>
       {loadingFriends ? (
@@ -272,15 +272,16 @@ const Profile = () => {
                     onClick={() => navigate(`/user/${friend.id}`)}
                     className="text-muted-foreground hover:text-foreground text-xs"
                   >
-                    Ver
-                  </Button>
-                  <Button
+                    Ver perfil
+                   </Button>
+                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setFriendToDelete(friend)}
-                    className="text-muted-foreground hover:text-destructive"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
-                    <UserMinus className="w-3.5 h-3.5" />
+                    <UserMinus className="w-3.5 h-3.5 mr-1" />
+                    Eliminar
                   </Button>
                 </div>
               </div>
@@ -337,7 +338,7 @@ const Profile = () => {
     <div className="space-y-6 fade-in-up">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Lo que Busco</h2>
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Entradas que Busco</h2>
           <p className="text-sm text-muted-foreground mt-1">{wantedTickets.length} búsquedas activas</p>
         </div>
         <WantedTicketForm onSuccess={loadWantedTickets} />
@@ -375,16 +376,19 @@ const Profile = () => {
       <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 className="font-semibold text-foreground mb-1">Notificaciones por email</h3>
+            <h3 className="font-semibold text-foreground mb-1">Preferencias de Notificaciones</h3>
             <p className="text-sm text-muted-foreground">
               Te avisaremos cuando aparezcan entradas que buscas
             </p>
           </div>
-          <Switch
-            id="email-notifications"
-            checked={emailNotificationsEnabled}
-            onCheckedChange={toggleEmailNotifications}
-          />
+          <div className="flex items-center gap-2">
+            <Label htmlFor="email-notifications" className="text-sm text-foreground">Recibir notificaciones por email</Label>
+            <Switch
+              id="email-notifications"
+              checked={emailNotificationsEnabled}
+              onCheckedChange={toggleEmailNotifications}
+            />
+          </div>
         </div>
       </div>
 
@@ -394,7 +398,7 @@ const Profile = () => {
           <div>
             <h3 className="font-semibold text-foreground mb-1">Eliminar mi cuenta</h3>
             <p className="text-sm text-muted-foreground">
-              Una vez eliminada, no hay vuelta atrás.
+              Una vez eliminada tu cuenta, no hay vuelta atrás. Toda tu información será borrada permanentemente.
             </p>
           </div>
           <Button
@@ -403,7 +407,7 @@ const Profile = () => {
             className="text-destructive border-destructive/30 hover:bg-destructive/5 shrink-0"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Eliminar
+            Eliminar mi cuenta
           </Button>
         </div>
       </div>

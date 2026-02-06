@@ -92,7 +92,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
         <DialogTrigger asChild>
           <Button size="sm" className="gap-2">
             <Plus className="w-4 h-4" />
-            Buscar
+            Añadir búsqueda
           </Button>
         </DialogTrigger>
       )}
