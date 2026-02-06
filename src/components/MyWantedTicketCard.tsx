@@ -17,9 +17,9 @@ interface MyWantedTicketCardProps {
 
 export const MyWantedTicketCard = ({ ticket, onEdit, onDelete }: MyWantedTicketCardProps) => {
   return (
-    <div className="bg-card rounded-xl border border-dashed border-primary/30 p-5 hover-lift">
+    <div className="bg-card rounded-2xl border border-dashed border-accent/30 p-5 hover-glow transition-all duration-300">
       <div className="space-y-3">
-        <Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">
+        <Badge variant="outline" className="text-xs border-accent/30 text-accent bg-accent/10">
           <Search className="w-3 h-3 mr-1" />
           BUSCO
         </Badge>
@@ -46,7 +46,7 @@ export const MyWantedTicketCard = ({ ticket, onEdit, onDelete }: MyWantedTicketC
             variant="outline"
             size="sm"
             onClick={onDelete}
-            className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/5"
+            className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="w-3 h-3 mr-1" />
             Borrar

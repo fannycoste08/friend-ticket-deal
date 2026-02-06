@@ -48,10 +48,10 @@ export const TicketCard = ({
   const networkLabel = getNetworkLabel();
 
   return (
-    <div className="bg-card rounded-xl border border-border/60 p-6 hover-lift group">
+    <div className="bg-card rounded-2xl border border-border/40 p-6 hover-glow group transition-all duration-300">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
-          <h3 className="text-xl font-bold text-foreground tracking-tight mb-1 group-hover:text-primary transition-colors">
+          <h3 className="text-xl font-bold text-foreground tracking-tight mb-1 group-hover:gradient-text transition-colors">
             {ticket.artist}
           </h3>
           <div className="space-y-1.5 text-sm">
@@ -68,7 +68,7 @@ export const TicketCard = ({
           </div>
         </div>
         <div className="text-right shrink-0">
-          <span className="text-2xl font-bold text-foreground">{ticket.price}€</span>
+          <span className="text-2xl font-bold gradient-text">{ticket.price}€</span>
         </div>
       </div>
 
@@ -87,8 +87,8 @@ export const TicketCard = ({
             variant="outline"
             className={
               networkLabel.isDirectFriend
-                ? "text-xs border-primary/20 text-primary bg-primary/5"
-                : "text-xs border-border text-muted-foreground"
+                ? "text-xs border-primary/30 text-primary bg-primary/10"
+                : "text-xs border-border/40 text-muted-foreground"
             }
           >
             {networkLabel.text}
@@ -108,7 +108,7 @@ export const TicketCard = ({
           Tu entrada
         </Button>
       ) : (
-        <Button className="w-full" onClick={onContact}>
+        <Button className="w-full gradient-primary border-0 hover:opacity-90 transition-opacity" onClick={onContact}>
           Me interesa
         </Button>
       )}

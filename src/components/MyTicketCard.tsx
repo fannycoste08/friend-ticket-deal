@@ -25,7 +25,7 @@ export const MyTicketCard = ({ ticket, onEdit, onDelete, onMarkAsSold }: MyTicke
   const isSold = ticket.status === "sold";
 
   return (
-    <div className="bg-card rounded-xl border border-border/60 p-5 hover-lift">
+    <div className="bg-card rounded-2xl border border-border/40 p-5 hover-glow transition-all duration-300">
       <div className="flex items-start justify-between gap-4 mb-3">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground tracking-tight">{ticket.artist}</h3>
@@ -37,14 +37,14 @@ export const MyTicketCard = ({ ticket, onEdit, onDelete, onMarkAsSold }: MyTicke
           </p>
         </div>
         {isSold && (
-          <Badge variant="secondary" className="text-xs shrink-0">
+          <Badge variant="secondary" className="text-xs shrink-0 bg-accent/10 text-accent border-accent/20">
             Vendida
           </Badge>
         )}
       </div>
 
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg font-bold text-foreground">{ticket.price}€</span>
+        <span className="text-lg font-bold gradient-text">{ticket.price}€</span>
         <Badge variant="secondary" className="text-xs">
           {ticket.ticket_type}
         </Badge>
@@ -73,7 +73,7 @@ export const MyTicketCard = ({ ticket, onEdit, onDelete, onMarkAsSold }: MyTicke
             variant="outline"
             size="sm"
             onClick={onDelete}
-            className="text-destructive hover:text-destructive hover:bg-destructive/5"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="w-3 h-3" />
           </Button>
