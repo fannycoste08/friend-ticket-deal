@@ -90,10 +90,10 @@ const Login = () => {
               <div className="bg-card/95 backdrop-blur-lg rounded-xl p-8 border border-border/50 shadow-lg">
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold text-card-foreground">
-                    Inicia sesión
+                    Iniciar sesión
                   </h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Accede a tu red de confianza
+                    Accede a tu cuenta
                   </p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">

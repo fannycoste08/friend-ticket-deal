@@ -256,10 +256,10 @@ const Feed = () => {
         <Tabs defaultValue="sale" className="w-full fade-in-up-delay-2">
           <TabsList className="grid w-full grid-cols-2 mb-8 h-11 bg-muted/50 rounded-lg p-1">
             <TabsTrigger value="sale" className="rounded-md text-sm font-medium">
-              En venta
+              Entradas en Venta
             </TabsTrigger>
             <TabsTrigger value="wanted" className="rounded-md text-sm font-medium">
-              Buscadas
+              Entradas que Buscan
             </TabsTrigger>
           </TabsList>
 
