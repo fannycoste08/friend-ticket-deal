@@ -60,7 +60,7 @@ const Login = () => {
             {/* Left — Value proposition */}
             <div className="space-y-8 fade-in-up">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight">
-                Entradas entre
+                Compra y vende entradas entre
                 <br />
                 <span className="text-primary">amigos.</span>
               </h1>
