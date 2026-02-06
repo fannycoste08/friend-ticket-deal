@@ -229,7 +229,7 @@ const Feed = () => {
       <div className="max-w-4xl mx-auto px-6 py-10">
         {/* Header */}
         <div className="mb-10 fade-in-up">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">Feed</h1>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">Feed</h1>
           <p className="text-muted-foreground mt-1">Entradas de tu red de confianza</p>
         </div>
 
@@ -241,7 +241,7 @@ const Feed = () => {
             placeholder="Buscar por artista..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-11 pr-10 h-11 rounded-lg bg-card border-border/60"
+            className="pl-11 pr-10 h-11 rounded-2xl bg-secondary/50 border-border/40"
           />
           {searchQuery && (
             <button
@@ -254,11 +254,11 @@ const Feed = () => {
         </div>
 
         <Tabs defaultValue="sale" className="w-full fade-in-up-delay-2">
-          <TabsList className="grid w-full grid-cols-2 mb-8 h-11 bg-muted/50 rounded-lg p-1">
-            <TabsTrigger value="sale" className="rounded-md text-sm font-medium">
+          <TabsList className="grid w-full grid-cols-2 mb-8 h-11 bg-secondary/50 rounded-xl p-1 border border-border/30">
+            <TabsTrigger value="sale" className="rounded-lg text-sm font-medium data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:border-0">
               Entradas en Venta
             </TabsTrigger>
-            <TabsTrigger value="wanted" className="rounded-md text-sm font-medium">
+            <TabsTrigger value="wanted" className="rounded-lg text-sm font-medium data-[state=active]:gradient-accent data-[state=active]:text-accent-foreground data-[state=active]:border-0">
               Entradas que Buscan
             </TabsTrigger>
           </TabsList>

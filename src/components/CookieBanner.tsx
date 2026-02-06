@@ -23,10 +23,10 @@ export const CookieBanner = () => {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-900 border-t border-zinc-800 shadow-lg animate-slide-in-bottom">
+    <div className="fixed bottom-0 left-0 right-0 z-50 glass-strong border-t border-border/30 shadow-lg animate-slide-in-bottom">
       <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-zinc-300 text-center sm:text-left">
+          <p className="text-sm text-muted-foreground text-center sm:text-left">
             Usamos cookies esenciales para el funcionamiento de la plataforma
           </p>
           <div className="flex items-center gap-3 flex-shrink-0">
@@ -34,7 +34,7 @@ export const CookieBanner = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="text-blue-400 hover:text-blue-300 hover:bg-zinc-800"
+                className="text-primary hover:text-primary/80 hover:bg-secondary"
               >
                 Más información
               </Button>
@@ -42,7 +42,7 @@ export const CookieBanner = () => {
             <Button 
               onClick={handleAccept}
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="gradient-primary border-0 hover:opacity-90 text-primary-foreground"
             >
               Aceptar
             </Button>

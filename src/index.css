@@ -2,89 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Trusticket Design System — Minimal, premium, music-inspired
-   Inspired by Coveo Music: warm off-whites, lots of whitespace, 
-   bold typography, terracotta accent. All colors are HSL.
+/* Trusticket Design System — Dark, bold, event-inspired
+   Inspired by Evntr.ee: deep blacks, vibrant gradients,
+   glass morphism, modern typography. All colors are HSL.
 */
 
 @layer base {
   :root {
-    --background: 48 20% 97%;
-    --foreground: 0 0% 9%;
+    --background: 240 10% 4%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
+    --card: 240 6% 8%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover: 240 6% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 12 76% 52%;
+    --primary: 280 80% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 15% 94%;
-    --secondary-foreground: 0 0% 15%;
+    --secondary: 240 5% 14%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 40 12% 94%;
-    --muted-foreground: 0 0% 45%;
-
-    --accent: 12 76% 52%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 40 10% 90%;
-    --input: 40 10% 90%;
-    --ring: 12 76% 52%;
-
-    --radius: 0.5rem;
-
-    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.04), 0 1px 2px -1px hsl(0 0% 0% / 0.04);
-    --shadow-hover: 0 4px 12px -2px hsl(0 0% 0% / 0.08), 0 2px 6px -2px hsl(0 0% 0% / 0.04);
-    --shadow-elevated: 0 8px 24px -4px hsl(0 0% 0% / 0.08), 0 4px 8px -4px hsl(0 0% 0% / 0.04);
-
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 0 0% 9%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 40 12% 94%;
-    --sidebar-accent-foreground: 0 0% 9%;
-    --sidebar-border: 40 10% 92%;
-    --sidebar-ring: 12 76% 52%;
-  }
-
-  .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 95%;
-
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 95%;
-
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 95%;
-
-    --primary: 12 76% 55%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 95%;
-
-    --muted: 0 0% 12%;
+    --muted: 240 5% 14%;
     --muted-foreground: 0 0% 55%;
 
-    --accent: 12 76% 55%;
+    --accent: 190 90% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 12 76% 55%;
+    --border: 240 5% 16%;
+    --input: 240 5% 16%;
+    --ring: 280 80% 60%;
 
-    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.2);
-    --shadow-hover: 0 4px 12px -2px hsl(0 0% 0% / 0.3);
-    --shadow-elevated: 0 8px 24px -4px hsl(0 0% 0% / 0.4);
+    --radius: 0.75rem;
+
+    /* Gradient tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(280 80% 60%), hsl(320 80% 55%));
+    --gradient-accent: linear-gradient(135deg, hsl(190 90% 50%), hsl(220 80% 60%));
+    --gradient-vibrant: linear-gradient(135deg, hsl(280 80% 60%), hsl(190 90% 50%));
+    --gradient-warm: linear-gradient(135deg, hsl(320 80% 55%), hsl(350 80% 55%));
+
+    /* Shadow tokens */
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.3), 0 1px 2px -1px hsl(0 0% 0% / 0.2);
+    --shadow-hover: 0 8px 24px -4px hsl(280 80% 60% / 0.15), 0 4px 8px -4px hsl(0 0% 0% / 0.3);
+    --shadow-elevated: 0 12px 32px -4px hsl(280 80% 60% / 0.2), 0 8px 16px -8px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 20px hsl(280 80% 60% / 0.15);
+
+    --sidebar-background: 240 6% 6%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 280 80% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 5% 14%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 5% 16%;
+    --sidebar-ring: 280 80% 60%;
   }
 }
 
@@ -95,11 +69,11 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.02em;
   }
 }
@@ -114,7 +88,7 @@
     @apply transition-all duration-300 ease-out;
   }
   .hover-lift:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     box-shadow: var(--shadow-hover);
   }
 
@@ -122,9 +96,53 @@
     @apply transition-all duration-300 ease-out;
   }
   .hover-glow:hover {
-    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.15), var(--shadow-hover);
+    box-shadow: var(--shadow-glow), var(--shadow-hover);
   }
 
+  /* Glass morphism */
+  .glass {
+    background: hsl(240 6% 8% / 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(0 0% 100% / 0.06);
+  }
+
+  .glass-strong {
+    background: hsl(240 6% 8% / 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: var(--gradient-vibrant);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-warm {
+    background: var(--gradient-warm);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Gradient backgrounds */
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+
+  .gradient-vibrant {
+    background: var(--gradient-vibrant);
+  }
+
+  /* Animations */
   .fade-in-up {
     animation: fadeInUp 0.5s ease-out both;
   }

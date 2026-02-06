@@ -45,26 +45,27 @@ const Login = () => {
     <div className="min-h-screen flex flex-col">
       {/* Hero section */}
       <section className="relative flex-1 flex items-center justify-center overflow-hidden">
-        {/* Background image with overlay */}
+        {/* Background image with dark overlay */}
         <div className="absolute inset-0">
           <img
             src={concertHero}
             alt=""
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-foreground/70" />
+          <div className="absolute inset-0 bg-background/85" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background" />
         </div>
 
         <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-20 lg:py-28">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             {/* Left — Value proposition */}
             <div className="space-y-8 fade-in-up">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.1] tracking-tight">
                 Compra y vende entradas entre
                 <br />
-                <span className="text-primary">amigos.</span>
+                <span className="gradient-text">amigos.</span>
               </h1>
-              <p className="text-lg font-semibold text-primary max-w-md">
+              <p className="text-lg font-semibold gradient-text max-w-md">
                 ¿Por qué existe Trusticket?
               </p>
               <div className="space-y-4">
@@ -77,8 +78,8 @@ const Login = () => {
                     key={i}
                     className={`flex items-start gap-3 fade-in-up-delay-${i + 1}`}
                   >
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0" />
-                    <p className="text-sm text-white/80">{text}</p>
+                    <div className="w-1.5 h-1.5 rounded-full gradient-vibrant mt-2.5 shrink-0" />
+                    <p className="text-sm text-muted-foreground">{text}</p>
                   </div>
                 ))}
               </div>
@@ -86,9 +87,9 @@ const Login = () => {
 
             {/* Right — Login form */}
             <div className="w-full max-w-md mx-auto lg:mx-0 lg:ml-auto fade-in-up-delay-1">
-              <div className="bg-card/95 backdrop-blur-lg rounded-xl p-8 border border-border/50 shadow-lg">
+              <div className="glass-strong rounded-2xl p-8 shadow-lg" style={{ boxShadow: 'var(--shadow-elevated)' }}>
                 <div className="mb-6">
-                  <h2 className="text-base font-semibold text-card-foreground leading-snug">
+                  <h2 className="text-base font-semibold text-foreground leading-snug">
                     Entra y descubre qué ofrecen o buscan tus amigos (y los amigos de tus amigos)
                   </h2>
                 </div>
@@ -102,7 +103,7 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-11"
+                      className="h-11 bg-secondary/50 border-border/50"
                     />
                   </div>
                   <div className="space-y-2">
@@ -114,7 +115,7 @@ const Login = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="h-11 pr-10"
+                        className="h-11 pr-10 bg-secondary/50 border-border/50"
                       />
                       <button
                         type="button"
@@ -139,7 +140,7 @@ const Login = () => {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full h-11 font-medium"
+                    className="w-full h-11 font-semibold gradient-primary border-0 hover:opacity-90 transition-opacity"
                     disabled={loading}
                   >
                     {loading ? "Iniciando sesión..." : "Iniciar sesión"}
@@ -162,7 +163,7 @@ const Login = () => {
       </section>
 
       {/* Bottom section — Value blocks */}
-      <section className="bg-background py-20 px-6">
+      <section className="bg-card/50 py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-center mb-16 tracking-tight leading-tight max-w-3xl mx-auto">
             Somos fans de la música en directo, no participamos en el mercadeo de entradas
@@ -184,8 +185,8 @@ const Login = () => {
               },
             ].map((block, i) => (
               <div key={i} className={`space-y-4 fade-in-up-delay-${i + 1}`}>
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-primary font-bold text-sm">
+                <div className="w-10 h-10 rounded-xl gradient-vibrant flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">
                     0{i + 1}
                   </span>
                 </div>

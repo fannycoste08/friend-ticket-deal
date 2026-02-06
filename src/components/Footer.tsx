@@ -2,12 +2,12 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border/60 bg-background mt-auto">
+    <footer className="border-t border-border/40 bg-card/50 mt-auto">
       <div className="max-w-6xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <span className="text-lg font-bold tracking-tight text-foreground">
+            <span className="text-lg font-bold tracking-tight gradient-text">
               TrusTicket
             </span>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
@@ -67,7 +67,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-border/60 text-center">
+        <div className="mt-12 pt-6 border-t border-border/40 text-center">
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} TrusTicket. Todos los derechos reservados.
           </p>

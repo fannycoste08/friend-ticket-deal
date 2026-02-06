@@ -52,14 +52,14 @@ export const WantedTicketCard = ({
   const networkLabel = getNetworkLabel();
 
   return (
-    <div className="bg-card rounded-xl border border-dashed border-primary/30 p-6 hover-lift group">
+    <div className="bg-card rounded-2xl border border-dashed border-accent/30 p-6 hover-glow group transition-all duration-300">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
-          <Badge variant="outline" className="text-xs mb-3 border-primary/30 text-primary bg-primary/5">
+          <Badge variant="outline" className="text-xs mb-3 border-accent/30 text-accent bg-accent/10">
             <Search className="w-3 h-3 mr-1" />
             BUSCO
           </Badge>
-          <h3 className="text-xl font-bold text-foreground tracking-tight mb-1 group-hover:text-primary transition-colors">
+          <h3 className="text-xl font-bold text-foreground tracking-tight mb-1 group-hover:text-accent transition-colors">
             {ticket.artist}
           </h3>
           <div className="space-y-1.5 text-sm">
@@ -81,7 +81,7 @@ export const WantedTicketCard = ({
             e.stopPropagation();
             navigate(`/user/${ticket.user_id}`);
           }}
-          className="hover:text-primary transition-colors font-medium"
+          className="hover:text-accent transition-colors font-medium"
         >
           {ticket.seeker_name}
         </button>
@@ -90,8 +90,8 @@ export const WantedTicketCard = ({
             variant="outline"
             className={
               networkLabel.isDirectFriend
-                ? "text-xs border-primary/20 text-primary bg-primary/5"
-                : "text-xs border-border text-muted-foreground"
+                ? "text-xs border-accent/20 text-accent bg-accent/10"
+                : "text-xs border-border/40 text-muted-foreground"
             }
           >
             {networkLabel.text}
@@ -109,14 +109,14 @@ export const WantedTicketCard = ({
             variant="outline"
             size="sm"
             onClick={onDelete}
-            className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/5"
+            className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="w-3 h-3 mr-1" />
             Borrar
           </Button>
         </div>
       ) : (
-        <Button className="w-full" onClick={onContact}>
+        <Button className="w-full gradient-accent border-0 hover:opacity-90 transition-opacity text-accent-foreground" onClick={onContact}>
           Ofrecerle entrada
         </Button>
       )}

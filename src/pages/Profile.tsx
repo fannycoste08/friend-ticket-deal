@@ -208,9 +208,9 @@ const Profile = () => {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Mi Perfil</h2>
         <p className="text-sm text-muted-foreground mt-1">Información de tu cuenta</p>
       </div>
-      <div className="bg-card rounded-xl border border-border/60 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+      <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+          <div className="w-14 h-14 rounded-full gradient-vibrant flex items-center justify-center">
             <span className="text-xl font-bold text-primary">
               {profileData.name.charAt(0).toUpperCase()}
             </span>
@@ -220,7 +220,7 @@ const Profile = () => {
             <p className="text-sm text-muted-foreground">{profileData.email}</p>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-4 pt-5 border-t border-border/60">
+        <div className="grid grid-cols-3 gap-4 pt-5 border-t border-border/40">
           <div className="text-center">
             <p className="text-2xl font-bold text-foreground">{friends.length}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Amigos</p>
@@ -255,10 +255,10 @@ const Profile = () => {
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {friends.map((friend) => (
-            <div key={friend.id} className="bg-card rounded-xl border border-border/60 p-4 hover-lift">
+            <div key={friend.id} className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
                     <span className="text-sm font-medium text-primary">
                       {friend.name.charAt(0).toUpperCase()}
                     </span>
@@ -372,7 +372,7 @@ const Profile = () => {
       </div>
 
       {/* Notifications */}
-      <div className="bg-card rounded-xl border border-border/60 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+      <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h3 className="font-semibold text-foreground mb-1">Notificaciones por email</h3>
@@ -389,7 +389,7 @@ const Profile = () => {
       </div>
 
       {/* Delete account */}
-      <div className="bg-card rounded-xl border border-destructive/20 p-6">
+      <div className="bg-card rounded-2xl border border-destructive/20 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h3 className="font-semibold text-foreground mb-1">Eliminar mi cuenta</h3>
@@ -433,8 +433,8 @@ const Profile = () => {
             className={cn(
               'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
               isActive
-                ? 'bg-foreground text-background'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
             )}
           >
             <Icon className="w-4 h-4 shrink-0" />
@@ -482,7 +482,7 @@ const Profile = () => {
 
         {/* Mobile menu */}
         {isMobile && mobileMenuOpen && (
-          <div className="mb-4 bg-card rounded-xl border border-border/60 p-3 fade-in-up">
+          <div className="mb-4 bg-card rounded-2xl border border-border/40 p-3 fade-in-up">
             {sidebarContent}
           </div>
         )}
@@ -494,8 +494,8 @@ const Profile = () => {
               <div className="sticky top-24">
                 <div className="mb-6">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-sm font-bold text-primary">
+                    <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center">
+                      <span className="text-sm font-bold text-primary-foreground">
                         {profileData.name.charAt(0).toUpperCase()}
                       </span>
                     </div>

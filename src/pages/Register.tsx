@@ -104,10 +104,10 @@ const Register = () => {
           if (!open) navigate("/login");
         }}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md glass-strong border-border/40">
           <DialogHeader>
-            <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-primary" />
+            <div className="mx-auto mb-4 w-14 h-14 rounded-full gradient-vibrant flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-primary-foreground" />
             </div>
             <DialogTitle className="text-center text-xl">¡Gracias por registrarte!</DialogTitle>
             <DialogDescription className="text-center space-y-3 pt-4">
@@ -127,7 +127,7 @@ const Register = () => {
               setShowSuccessModal(false);
               navigate("/login");
             }}
-            className="w-full mt-4"
+            className="w-full mt-4 gradient-primary border-0 hover:opacity-90"
           >
             Entendido
           </Button>
@@ -145,7 +145,7 @@ const Register = () => {
             </p>
           </div>
 
-          <div className="bg-card rounded-xl p-8 border border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="glass-strong rounded-2xl p-8" style={{ boxShadow: "var(--shadow-elevated)" }}>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nombre completo</Label>
@@ -156,7 +156,7 @@ const Register = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="h-11"
+                  className="h-11 bg-secondary/50 border-border/50"
                 />
               </div>
               <div className="space-y-2">
@@ -168,7 +168,7 @@ const Register = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-11"
+                  className="h-11 bg-secondary/50 border-border/50"
                 />
               </div>
               <div className="space-y-2">
@@ -180,11 +180,11 @@ const Register = () => {
                   value={inviterEmail}
                   onChange={(e) => setInviterEmail(e.target.value)}
                   required
-                  className="h-11"
+                  className="h-11 bg-secondary/50 border-border/50"
                 />
               </div>
 
-              <div className="flex items-start gap-3 rounded-lg bg-muted p-4">
+              <div className="flex items-start gap-3 rounded-xl bg-secondary/50 p-4 border border-border/30">
                 <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground">
                   Tu registro debe ser aprobado por la persona que te invita
@@ -211,7 +211,7 @@ const Register = () => {
                 </label>
               </div>
 
-              <Button type="submit" className="w-full h-11" disabled={loading || !acceptedManifesto}>
+              <Button type="submit" className="w-full h-11 gradient-primary border-0 hover:opacity-90" disabled={loading || !acceptedManifesto}>
                 {loading ? "Solicitando registro..." : "Solicitar registro"}
               </Button>
             </form>
