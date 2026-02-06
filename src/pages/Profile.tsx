@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, ChevronRight, Menu, X } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { InvitationManager } from '@/components/InvitationManager';
@@ -51,10 +50,10 @@ type Section = 'profile' | 'friends' | 'invitations' | 'tickets' | 'wanted' | 's
 
 const menuItems: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: 'profile', label: 'Mi Perfil', icon: User },
-  { id: 'friends', label: 'Mis Amigos', icon: Users },
+  { id: 'friends', label: 'Amigos', icon: Users },
   { id: 'invitations', label: 'Invitaciones', icon: Mail },
   { id: 'tickets', label: 'Mis Entradas', icon: Ticket },
-  { id: 'wanted', label: 'Entradas que Busco', icon: Search },
+  { id: 'wanted', label: 'Lo que Busco', icon: Search },
   { id: 'settings', label: 'Ajustes', icon: Settings },
 ];
 
@@ -80,22 +79,14 @@ const Profile = () => {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
-    }
+    if (!loading && !user) navigate('/login');
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user) {
-      loadProfile();
-      loadTickets();
-      loadWantedTickets();
-      loadFriends();
-    }
+    if (user) { loadProfile(); loadTickets(); loadWantedTickets(); loadFriends(); }
   }, [user]);
 
   useEffect(() => {
-    // Check if URL has #invitations hash
     if (window.location.hash === '#invitations') {
       setActiveSection('invitations');
       window.history.replaceState(null, '', window.location.pathname);
@@ -113,35 +104,22 @@ const Profile = () => {
   const loadTickets = async () => {
     if (!user) return;
     setLoadingTickets(true);
-    const { data, error } = await supabase
-      .from('tickets')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-    if (error) {
-      console.error('Error loading tickets:', error);
-      toast.error('Error al cargar tus entradas');
-    }
+    const { data, error } = await supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+    if (error) { console.error('Error loading tickets:', error); toast.error('Error al cargar tus entradas'); }
     setTickets(data || []);
     setLoadingTickets(false);
   };
 
   const handleDeleteTicket = async (id: string) => {
     const { error } = await supabase.from('tickets').delete().eq('id', id);
-    if (error) {
-      toast.error('Error al eliminar la entrada');
-      return;
-    }
+    if (error) { toast.error('Error al eliminar la entrada'); return; }
     toast.success('Entrada eliminada');
     loadTickets();
   };
 
   const handleMarkAsSold = async (id: string) => {
     const { error } = await supabase.from('tickets').update({ status: 'sold' }).eq('id', id);
-    if (error) {
-      toast.error('Error al marcar como vendida');
-      return;
-    }
+    if (error) { toast.error('Error al marcar como vendida'); return; }
     toast.success('Entrada marcada como vendida');
     loadTickets();
   };
@@ -149,25 +127,15 @@ const Profile = () => {
   const loadWantedTickets = async () => {
     if (!user) return;
     setLoadingWanted(true);
-    const { data, error } = await supabase
-      .from('wanted_tickets')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-    if (error) {
-      console.error('Error loading wanted tickets:', error);
-      toast.error('Error al cargar tus búsquedas');
-    }
+    const { data, error } = await supabase.from('wanted_tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
+    if (error) { console.error('Error loading wanted tickets:', error); toast.error('Error al cargar tus búsquedas'); }
     setWantedTickets(data || []);
     setLoadingWanted(false);
   };
 
   const handleDeleteWantedTicket = async (id: string) => {
     const { error } = await supabase.from('wanted_tickets').delete().eq('id', id);
-    if (error) {
-      toast.error('Error al eliminar la búsqueda');
-      return;
-    }
+    if (error) { toast.error('Error al eliminar la búsqueda'); return; }
     toast.success('Búsqueda eliminada');
     loadWantedTickets();
   };
@@ -176,43 +144,22 @@ const Profile = () => {
     if (!user) return;
     setLoadingFriends(true);
     const { data: friendshipsData, error: friendshipsError } = await supabase
-      .from('friendships')
-      .select('user_id, friend_id')
-      .eq('status', 'accepted')
+      .from('friendships').select('user_id, friend_id').eq('status', 'accepted')
       .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
-    if (friendshipsError) {
-      console.error('Error loading friendships:', friendshipsError);
-      setLoadingFriends(false);
-      return;
-    }
-    if (!friendshipsData || friendshipsData.length === 0) {
-      setFriends([]);
-      setLoadingFriends(false);
-      return;
-    }
-    const friendIds = friendshipsData.map((f) =>
-      f.user_id === user.id ? f.friend_id : f.user_id
-    );
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('id, name')
-      .in('id', friendIds);
+    if (friendshipsError) { console.error('Error loading friendships:', friendshipsError); setLoadingFriends(false); return; }
+    if (!friendshipsData || friendshipsData.length === 0) { setFriends([]); setLoadingFriends(false); return; }
+    const friendIds = friendshipsData.map((f) => f.user_id === user.id ? f.friend_id : f.user_id);
+    const { data: profilesData } = await supabase.from('profiles').select('id, name').in('id', friendIds);
     setFriends(profilesData || []);
     setLoadingFriends(false);
   };
 
   const handleDeleteFriend = async () => {
     if (!user || !friendToDelete) return;
-    const { error } = await supabase
-      .from('friendships')
-      .delete()
+    const { error } = await supabase.from('friendships').delete()
       .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`)
       .or(`user_id.eq.${friendToDelete.id},friend_id.eq.${friendToDelete.id}`);
-    if (error) {
-      toast.error('Error al eliminar amigo');
-      setFriendToDelete(null);
-      return;
-    }
+    if (error) { toast.error('Error al eliminar amigo'); setFriendToDelete(null); return; }
     setFriends((prev) => prev.filter((f) => f.id !== friendToDelete.id));
     toast.success('Amigo eliminado');
     setFriendToDelete(null);
@@ -222,9 +169,7 @@ const Profile = () => {
     if (!user || deleteConfirmText !== 'ELIMINAR') return;
     setIsDeletingAccount(true);
     try {
-      const { error } = await supabase.functions.invoke('delete-user', {
-        body: { userId: user.id },
-      });
+      const { error } = await supabase.functions.invoke('delete-user', { body: { userId: user.id } });
       if (error) throw error;
       toast.success('Tu cuenta ha sido eliminada');
       await supabase.auth.signOut();
@@ -246,7 +191,7 @@ const Profile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Cargando...</p>
+        <p className="text-sm text-muted-foreground">Cargando...</p>
       </div>
     );
   }
@@ -258,64 +203,59 @@ const Profile = () => {
   // --- Section renderers ---
 
   const renderProfile = () => (
-    <div className="space-y-6">
+    <div className="space-y-8 fade-in-up">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Mi Perfil</h2>
-        <p className="text-muted-foreground text-sm">Información de tu cuenta</p>
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Mi Perfil</h2>
+        <p className="text-sm text-muted-foreground mt-1">Información de tu cuenta</p>
       </div>
-      <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <span className="text-2xl font-bold text-primary">
-                {profileData.name.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-foreground">{profileData.name}</h3>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Mail className="w-4 h-4" />
-                <span className="text-sm">{profileData.email}</span>
-              </div>
-            </div>
+      <div className="bg-card rounded-xl border border-border/60 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-xl font-bold text-primary">
+              {profileData.name.charAt(0).toUpperCase()}
+            </span>
           </div>
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary">{friends.length}</p>
-              <p className="text-xs text-muted-foreground">Amigos</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary">{availableTicketsCount}</p>
-              <p className="text-xs text-muted-foreground">En venta</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary">{wantedTickets.length}</p>
-              <p className="text-xs text-muted-foreground">Buscando</p>
-            </div>
+          <div>
+            <h3 className="text-lg font-bold text-foreground">{profileData.name}</h3>
+            <p className="text-sm text-muted-foreground">{profileData.email}</p>
           </div>
         </div>
-      </Card>
+        <div className="grid grid-cols-3 gap-4 pt-5 border-t border-border/60">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-foreground">{friends.length}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Amigos</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-foreground">{availableTicketsCount}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">En venta</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-foreground">{wantedTickets.length}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Buscando</p>
+          </div>
+        </div>
+      </div>
       <FriendshipRequests />
     </div>
   );
 
   const renderFriends = () => (
-    <div className="space-y-4">
+    <div className="space-y-6 fade-in-up">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Mis Amigos</h2>
-        <p className="text-muted-foreground text-sm">{friends.length} amigos conectados</p>
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Amigos</h2>
+        <p className="text-sm text-muted-foreground mt-1">{friends.length} amigos conectados</p>
       </div>
       {loadingFriends ? (
-        <p className="text-muted-foreground text-center py-12">Cargando tus amigos...</p>
+        <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
       ) : friends.length === 0 ? (
-        <div className="text-center py-12 bg-secondary/30 rounded-lg">
-          <Users className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-          <p className="text-muted-foreground">No tienes amigos conectados aún</p>
+        <div className="text-center py-16 bg-muted/30 rounded-xl">
+          <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No tienes amigos conectados aún</p>
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
           {friends.map((friend) => (
-            <Card key={friend.id} className="p-4">
+            <div key={friend.id} className="bg-card rounded-xl border border-border/60 p-4 hover-lift">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -323,28 +263,28 @@ const Profile = () => {
                       {friend.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
-                  <h3 className="font-semibold text-foreground truncate">{friend.name}</h3>
+                  <h3 className="font-medium text-foreground truncate text-sm">{friend.name}</h3>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <Button
-                    variant="link"
+                    variant="ghost"
                     size="sm"
                     onClick={() => navigate(`/user/${friend.id}`)}
-                    className="text-primary hover:text-primary/80 p-0 h-auto"
+                    className="text-muted-foreground hover:text-foreground text-xs"
                   >
-                    Ver perfil
+                    Ver
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setFriendToDelete(friend)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="text-muted-foreground hover:text-destructive"
                   >
-                    <UserMinus className="w-4 h-4" />
+                    <UserMinus className="w-3.5 h-3.5" />
                   </Button>
                 </div>
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       )}
@@ -352,31 +292,30 @@ const Profile = () => {
   );
 
   const renderInvitations = () => (
-    <div className="space-y-4">
+    <div className="space-y-6 fade-in-up">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Invitaciones</h2>
-        <p className="text-muted-foreground text-sm">Gestiona tus invitaciones</p>
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Invitaciones</h2>
+        <p className="text-sm text-muted-foreground mt-1">Gestiona tus invitaciones</p>
       </div>
       <InvitationManager userId={user.id} />
     </div>
   );
 
   const renderTickets = () => (
-    <div className="space-y-4">
+    <div className="space-y-6 fade-in-up">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground mb-1">Mis Entradas</h2>
-          <p className="text-muted-foreground text-sm">{availableTicketsCount} en venta</p>
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Entradas</h2>
+          <p className="text-sm text-muted-foreground mt-1">{availableTicketsCount} en venta</p>
         </div>
         <TicketForm onSuccess={loadTickets} />
       </div>
       {loadingTickets ? (
-        <p className="text-muted-foreground text-center py-12">Cargando tus entradas...</p>
+        <p className="text-sm text-muted-foreground text-center py-12">Cargando tus entradas...</p>
       ) : tickets.length === 0 ? (
-        <div className="text-center py-12 bg-secondary/30 rounded-lg">
-          <Ticket className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-          <p className="text-muted-foreground">No tienes entradas publicadas</p>
-          <p className="text-sm text-muted-foreground mt-1">¡Publica tu primera entrada!</p>
+        <div className="text-center py-16 bg-muted/30 rounded-xl">
+          <Ticket className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No tienes entradas publicadas</p>
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
@@ -395,21 +334,20 @@ const Profile = () => {
   );
 
   const renderWanted = () => (
-    <div className="space-y-4">
+    <div className="space-y-6 fade-in-up">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground mb-1">Entradas que Busco</h2>
-          <p className="text-muted-foreground text-sm">{wantedTickets.length} búsquedas activas</p>
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Lo que Busco</h2>
+          <p className="text-sm text-muted-foreground mt-1">{wantedTickets.length} búsquedas activas</p>
         </div>
         <WantedTicketForm onSuccess={loadWantedTickets} />
       </div>
       {loadingWanted ? (
-        <p className="text-muted-foreground text-center py-12">Cargando tus búsquedas...</p>
+        <p className="text-sm text-muted-foreground text-center py-12">Cargando tus búsquedas...</p>
       ) : wantedTickets.length === 0 ? (
-        <div className="text-center py-12 bg-accent/5 rounded-lg border border-accent/20">
-          <Search className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-          <p className="text-muted-foreground">No tienes búsquedas activas</p>
-          <p className="text-sm text-muted-foreground mt-1">¡Añade tu primera búsqueda!</p>
+        <div className="text-center py-16 bg-muted/30 rounded-xl">
+          <Search className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No tienes búsquedas activas</p>
         </div>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
@@ -427,59 +365,48 @@ const Profile = () => {
   );
 
   const renderSettings = () => (
-    <div className="space-y-6">
+    <div className="space-y-8 fade-in-up">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-1">Ajustes</h2>
-        <p className="text-muted-foreground text-sm">Preferencias y configuración de cuenta</p>
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Ajustes</h2>
+        <p className="text-sm text-muted-foreground mt-1">Preferencias y configuración</p>
       </div>
 
-      {/* Notificaciones */}
-      <Card className="p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <Bell className="w-5 h-5 text-primary" />
-              <h3 className="text-lg font-bold text-foreground">Notificaciones</h3>
-            </div>
+      {/* Notifications */}
+      <div className="bg-card rounded-xl border border-border/60 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Notificaciones por email</h3>
             <p className="text-sm text-muted-foreground">
               Te avisaremos cuando aparezcan entradas que buscas
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <Label htmlFor="email-notifications" className="text-sm font-medium cursor-pointer">
-              Email
-            </Label>
-            <Switch
-              id="email-notifications"
-              checked={emailNotificationsEnabled}
-              onCheckedChange={toggleEmailNotifications}
-            />
-          </div>
+          <Switch
+            id="email-notifications"
+            checked={emailNotificationsEnabled}
+            onCheckedChange={toggleEmailNotifications}
+          />
         </div>
-      </Card>
+      </div>
 
-      {/* Eliminar cuenta */}
-      <Card className="p-6 border-destructive/20" style={{ boxShadow: 'var(--shadow-card)' }}>
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <Trash2 className="w-5 h-5 text-destructive" />
-              <h3 className="text-lg font-bold text-foreground">Eliminar mi cuenta</h3>
-            </div>
+      {/* Delete account */}
+      <div className="bg-card rounded-xl border border-destructive/20 p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Eliminar mi cuenta</h3>
             <p className="text-sm text-muted-foreground">
-              Una vez eliminada, no hay vuelta atrás. Toda tu información será borrada permanentemente.
+              Una vez eliminada, no hay vuelta atrás.
             </p>
           </div>
           <Button
-            variant="destructive"
+            variant="outline"
             onClick={() => setShowDeleteAccountDialog(true)}
-            className="shrink-0"
+            className="text-destructive border-destructive/30 hover:bg-destructive/5 shrink-0"
           >
             <Trash2 className="w-4 h-4 mr-2" />
             Eliminar
           </Button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 
@@ -495,7 +422,7 @@ const Profile = () => {
   };
 
   const sidebarContent = (
-    <nav className="space-y-1">
+    <nav className="space-y-0.5">
       {menuItems.map((item) => {
         const Icon = item.icon;
         const isActive = activeSection === item.id;
@@ -506,24 +433,24 @@ const Profile = () => {
             className={cn(
               'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
               isActive
-                ? 'bg-primary text-primary-foreground'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                ? 'bg-foreground text-background'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
             )}
           >
             <Icon className="w-4 h-4 shrink-0" />
             <span className="truncate">{item.label}</span>
             {item.id === 'friends' && friends.length > 0 && (
-              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs">
+              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
                 {friends.length}
               </Badge>
             )}
             {item.id === 'tickets' && availableTicketsCount > 0 && (
-              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs">
+              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
                 {availableTicketsCount}
               </Badge>
             )}
             {item.id === 'wanted' && wantedTickets.length > 0 && (
-              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs">
+              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
                 {wantedTickets.length}
               </Badge>
             )}
@@ -535,49 +462,46 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-6 py-8">
         {/* Mobile header */}
         {isMobile && (
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-bold text-foreground">
+            <h1 className="text-lg font-bold text-foreground tracking-tight">
               {menuItems.find((i) => i.id === activeSection)?.label}
             </h1>
             <Button
               variant="outline"
               size="icon"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="h-9 w-9"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </Button>
           </div>
         )}
 
-        {/* Mobile menu dropdown */}
+        {/* Mobile menu */}
         {isMobile && mobileMenuOpen && (
-          <Card className="mb-4 p-3">
+          <div className="mb-4 bg-card rounded-xl border border-border/60 p-3 fade-in-up">
             {sidebarContent}
-          </Card>
+          </div>
         )}
 
-        <div className="flex gap-6">
+        <div className="flex gap-8">
           {/* Desktop sidebar */}
           {!isMobile && (
-            <aside className="w-56 shrink-0">
-              <div className="sticky top-6">
+            <aside className="w-52 shrink-0">
+              <div className="sticky top-24">
                 <div className="mb-6">
-                  <div className="flex items-center gap-3 mb-1">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-lg font-bold text-primary">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="text-sm font-bold text-primary">
                         {profileData.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-foreground text-sm truncate">
-                        {profileData.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {profileData.email}
-                      </p>
+                      <p className="font-semibold text-foreground text-sm truncate">{profileData.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{profileData.email}</p>
                     </div>
                   </div>
                 </div>
@@ -587,31 +511,16 @@ const Profile = () => {
           )}
 
           {/* Main content */}
-          <main className="flex-1 min-w-0">
-            {renderSection()}
-          </main>
+          <main className="flex-1 min-w-0">{renderSection()}</main>
         </div>
       </div>
 
       {/* Edit dialogs */}
       {editingTicket && (
-        <TicketForm
-          editTicket={editingTicket}
-          onSuccess={() => {
-            loadTickets();
-            setEditingTicket(undefined);
-          }}
-        />
+        <TicketForm editTicket={editingTicket} onSuccess={() => { loadTickets(); setEditingTicket(undefined); }} />
       )}
-
       {editingWantedTicket && (
-        <WantedTicketForm
-          editTicket={editingWantedTicket}
-          onSuccess={() => {
-            loadWantedTickets();
-            setEditingWantedTicket(undefined);
-          }}
-        />
+        <WantedTicketForm editTicket={editingWantedTicket} onSuccess={() => { loadWantedTickets(); setEditingWantedTicket(undefined); }} />
       )}
 
       {/* Delete friend dialog */}
@@ -625,10 +534,7 @@ const Profile = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteFriend}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={handleDeleteFriend} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               Aceptar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -639,7 +545,7 @@ const Profile = () => {
       <AlertDialog open={showDeleteAccountDialog} onOpenChange={setShowDeleteAccountDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro de que quieres eliminar tu cuenta?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar tu cuenta?</AlertDialogTitle>
             <AlertDialogDescription className="space-y-4">
               <p>Esta acción eliminará permanentemente:</p>
               <ul className="list-disc list-inside space-y-1 text-sm">
@@ -668,7 +574,7 @@ const Profile = () => {
             <AlertDialogAction
               onClick={handleDeleteAccount}
               disabled={deleteConfirmText !== 'ELIMINAR' || isDeletingAccount}
-              className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
             >
               {isDeletingAccount ? 'Eliminando...' : 'Eliminar definitivamente'}
             </AlertDialogAction>
