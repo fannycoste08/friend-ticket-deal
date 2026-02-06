@@ -1,60 +1,58 @@
 import { Link } from "react-router-dom";
-import { Ticket } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border/40 bg-background/95 backdrop-blur mt-auto">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="border-t border-border/60 bg-background mt-auto">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Ticket className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                TrusTicket
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Tu red social de confianza para vender y comprar entradas de conciertos
+          <div className="md:col-span-1">
+            <span className="text-lg font-bold tracking-tight text-foreground">
+              trusticket
+            </span>
+            <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+              Tu red de confianza para entradas de conciertos.
             </p>
           </div>
 
-          {/* Legal Links */}
+          {/* Legal */}
           <div>
-            <h3 className="font-semibold mb-3">Legal</h3>
-            <ul className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              Legal
+            </h3>
+            <ul className="space-y-2.5">
               <li>
-                <Link 
-                  to="/manifesto" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Manifiesto TrusTicket
+                <Link to="/manifesto" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Manifiesto
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/legal-notice" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <Link to="/legal-notice" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Aviso Legal
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/privacy-policy" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Política de Privacidad
+                <Link to="/privacy-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Privacidad
                 </Link>
               </li>
               <li>
-                <Link 
-                  to="/cookies-policy" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Política de Cookies
+                <Link to="/cookies-policy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Cookies
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* About */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              Proyecto
+            </h3>
+            <ul className="space-y-2.5">
+              <li>
+                <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Quién somos
                 </Link>
               </li>
             </ul>
@@ -62,30 +60,26 @@ const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold mb-3">Contacto</h3>
-            <ul className="space-y-2">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              Contacto
+            </h3>
+            <ul className="space-y-2.5">
               <li>
-                <a 
-                  href="mailto:trusticketinfo@gmail.com" 
+                <a
+                  href="mailto:trusticketinfo@gmail.com"
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
                   trusticketinfo@gmail.com
                 </a>
               </li>
-              <li>
-                <Link 
-                  to="/about" 
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Quién está detrás de Trusticket
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-border/40 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} TrusTicket. Todos los derechos reservados.</p>
+        <div className="mt-12 pt-6 border-t border-border/60 text-center">
+          <p className="text-xs text-muted-foreground">
+            &copy; {new Date().getFullYear()} Trusticket. Todos los derechos reservados.
+          </p>
         </div>
       </div>
     </footer>

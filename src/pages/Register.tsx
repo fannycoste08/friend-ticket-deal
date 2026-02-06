@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Ticket, CheckCircle, Info } from "lucide-react";
+import { CheckCircle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
@@ -22,7 +21,6 @@ const Register = () => {
   const [inviterName, setInviterName] = useState("");
   const [acceptedManifesto, setAcceptedManifesto] = useState(false);
 
-  // Redirect if already logged in
   if (user) {
     navigate("/");
     return null;
@@ -32,10 +30,8 @@ const Register = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Normalize email
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check if email is already registered in profiles
     const { data: existingUser } = await supabase
       .from("profiles")
       .select("email")
@@ -48,10 +44,8 @@ const Register = () => {
       return;
     }
 
-    // Normalize inviter email
     const normalizedInviterEmail = inviterEmail.trim().toLowerCase();
 
-    // Verify if godparent exists using edge function (to bypass RLS)
     const { data: verifyResult, error: verifyError } = await supabase.functions.invoke("verify-inviter-email", {
       body: { email: normalizedInviterEmail },
     });
@@ -62,8 +56,6 @@ const Register = () => {
       return;
     }
 
-    // Create invitation request via edge function (to bypass RLS)
-    // The function will look up the inviter_id server-side based on the email
     const { data: invitationResult, error: invitationError } = await supabase.functions.invoke(
       "create-invitation-request",
       {
@@ -81,12 +73,10 @@ const Register = () => {
       } else {
         toast.error("Error al crear la solicitud de invitación");
       }
-
       setLoading(false);
       return;
     }
 
-    // Send notification email to godparent
     const { error: emailError } = await supabase.functions.invoke("send-invitation-notification", {
       body: {
         inviter_email: normalizedInviterEmail,
@@ -116,18 +106,18 @@ const Register = () => {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <div className="mx-auto mb-4 w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <CheckCircle className="w-10 h-10 text-primary" />
+            <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-primary" />
             </div>
-            <DialogTitle className="text-center text-2xl">¡Gracias por registrarte!</DialogTitle>
+            <DialogTitle className="text-center text-xl">¡Gracias por registrarte!</DialogTitle>
             <DialogDescription className="text-center space-y-3 pt-4">
-              <p className="text-base">
+              <p className="text-sm">
                 Tu solicitud ha sido enviada a <strong>{inviterName}</strong>.
               </p>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Recibirás un correo de confirmación cuando la persona que te apadrina haya aceptado tu solicitud.
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Una vez aprobada, recibirás un correo para crear tu contraseña e iniciar sesión.
               </p>
             </DialogDescription>
@@ -144,18 +134,18 @@ const Register = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md" style={{ boxShadow: "var(--shadow-card)" }}>
-          <CardHeader className="space-y-4 text-center">
-            <div className="mx-auto w-16 h-16 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Ticket className="w-10 h-10 text-white" />
-            </div>
-            <div>
-              <CardTitle className="text-2xl">Registro por Invitación</CardTitle>
-              <CardDescription>Solo puedes registrarte si alguien te apadrina</CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent>
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="w-full max-w-md fade-in-up">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
+              Registro por invitación
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Solo puedes registrarte si alguien te apadrina
+            </p>
+          </div>
+
+          <div className="bg-card rounded-xl p-8 border border-border/60" style={{ boxShadow: "var(--shadow-card)" }}>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Nombre completo</Label>
@@ -166,6 +156,7 @@ const Register = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -177,10 +168,11 @@ const Register = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="inviterEmail">Email de quien te invita *</Label>
+                <Label htmlFor="inviterEmail">Email de quien te invita</Label>
                 <Input
                   id="inviterEmail"
                   type="email"
@@ -188,19 +180,24 @@ const Register = () => {
                   value={inviterEmail}
                   onChange={(e) => setInviterEmail(e.target.value)}
                   required
+                  className="h-11"
                 />
               </div>
-              <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
-                <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-foreground">Tu registro debe ser aprobado por la persona que te invita</p>
+
+              <div className="flex items-start gap-3 rounded-lg bg-muted p-4">
+                <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <p className="text-xs text-muted-foreground">
+                  Tu registro debe ser aprobado por la persona que te invita
+                </p>
               </div>
+
               <div className="flex items-start space-x-3">
                 <Checkbox
                   id="manifesto"
                   checked={acceptedManifesto}
                   onCheckedChange={(checked) => setAcceptedManifesto(checked === true)}
                 />
-                <label htmlFor="manifesto" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                <label htmlFor="manifesto" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
                   Estoy de acuerdo con el{" "}
                   <a
                     href="/manifesto"
@@ -210,21 +207,23 @@ const Register = () => {
                   >
                     manifiesto
                   </a>{" "}
-                  trusticket y me comprometo a seguir las reglas de uso del servicio.
+                  y me comprometo a seguir las reglas de uso.
                 </label>
               </div>
-              <Button type="submit" className="w-full" disabled={loading || !acceptedManifesto}>
+
+              <Button type="submit" className="w-full h-11" disabled={loading || !acceptedManifesto}>
                 {loading ? "Solicitando registro..." : "Solicitar registro"}
               </Button>
             </form>
-            <div className="mt-4 text-center text-sm">
-              <span className="text-muted-foreground">¿Ya tienes cuenta? </span>
-              <Link to="/login" className="text-primary hover:underline font-medium">
+
+            <p className="mt-5 text-center text-sm text-muted-foreground">
+              ¿Ya tienes cuenta?{" "}
+              <Link to="/login" className="text-primary hover:text-primary/80 font-medium transition-colors">
                 Inicia sesión
               </Link>
-            </div>
-          </CardContent>
-        </Card>
+            </p>
+          </div>
+        </div>
       </div>
     </>
   );

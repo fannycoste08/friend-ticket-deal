@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Ticket, DollarSign, Users, Heart, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import concertHero from "@/assets/concert-hero.jpg";
@@ -17,7 +16,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect if already logged in
   if (user) {
     navigate("/");
     return null;
@@ -44,57 +42,63 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-black">
-      {/* Sección Central - 2 Columnas */}
-      <div
-        className="w-full py-16 px-6 lg:px-12 bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: `url(${concertHero})` }}
-      >
-        {/* Overlay oscuro */}
-        <div className="absolute inset-0 bg-black/70"></div>
+    <div className="min-h-screen flex flex-col">
+      {/* Hero section */}
+      <section className="relative flex-1 flex items-center justify-center overflow-hidden">
+        {/* Background image with overlay */}
+        <div className="absolute inset-0">
+          <img
+            src={concertHero}
+            alt=""
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-foreground/70" />
+        </div>
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-          {/* COLUMNA IZQUIERDA */}
-          <div className="space-y-8">
-            <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
-              Compra y vende entradas entre amigos
-            </h1>
-            <div className="space-y-4">
-              <h2 className="text-2xl font-semibold text-blue-400">¿Por qué existe Trusticket?</h2>
-              <ul className="space-y-4 text-zinc-300 text-lg">
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Compramos entradas con meses de antelación sin saber si vamos a poder asistir.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>Las plataformas de reventa no son seguras y fomentan la especulación.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 flex-shrink-0" />
-                  <span>
-                    Vender y comprar una entrada se ha convertido en un dolor real para los fans de la música en
-                    directo.
-                  </span>
-                </li>
-              </ul>
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-6 py-20 lg:py-28">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Left — Value proposition */}
+            <div className="space-y-8 fade-in-up">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] tracking-tight">
+                Entradas entre
+                <br />
+                <span className="text-primary">amigos.</span>
+              </h1>
+              <p className="text-lg text-white/70 max-w-md leading-relaxed">
+                Compra y vende entradas de conciertos dentro de tu red de
+                confianza. Sin especulación, sin comisiones.
+              </p>
+              <div className="space-y-4">
+                {[
+                  "Sin sobreprecio. Precios justos entre personas reales.",
+                  "Sin plataformas de pago. Conecta con amigos y amigos de amigos.",
+                  "Sin riesgo. Solo personas verificadas por la comunidad.",
+                ].map((text, i) => (
+                  <div
+                    key={i}
+                    className={`flex items-start gap-3 fade-in-up-delay-${i + 1}`}
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2.5 shrink-0" />
+                    <p className="text-sm text-white/60">{text}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* COLUMNA DERECHA - Login */}
-          <div className="w-full">
-            <Card className="w-full bg-zinc-900/90 border-zinc-800 backdrop-blur-sm shadow-2xl">
-              <CardHeader className="space-y-2">
-                <CardTitle className="text-2xl text-white text-center">
-                  Entra y descubre qué ofrecen o buscan tus amigos (y los amigos de tus amigos)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            {/* Right — Login form */}
+            <div className="w-full max-w-md mx-auto lg:mx-0 lg:ml-auto fade-in-up-delay-1">
+              <div className="bg-card/95 backdrop-blur-lg rounded-xl p-8 border border-border/50 shadow-lg">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold text-card-foreground">
+                    Inicia sesión
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Accede a tu red de confianza
+                  </p>
+                </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-zinc-300">
-                      Email
-                    </Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       type="email"
@@ -102,13 +106,11 @@ const Login = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500"
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-zinc-300">
-                      Contraseña
-                    </Label>
+                    <Label htmlFor="password">Contraseña</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -116,89 +118,95 @@ const Login = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        className="bg-zinc-800/50 border-zinc-700 text-white pr-10"
+                        className="h-11 pr-10"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-300 transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                   </div>
                   <div className="flex justify-end">
-                    <Link to="/forgot-password" className="text-sm text-blue-400 hover:text-blue-300 hover:underline">
+                    <Link
+                      to="/forgot-password"
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                    >
                       ¿Olvidaste tu contraseña?
                     </Link>
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                    className="w-full h-11 font-medium"
                     disabled={loading}
                   >
-                    {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+                    {loading ? "Entrando..." : "Entrar"}
+                    {!loading && <ArrowRight className="w-4 h-4 ml-1" />}
                   </Button>
                 </form>
-                <div className="mt-4 text-center text-sm text-zinc-400">
-                  ¿No tienes cuenta aún? Si ya te han apadrinado,{" "}
-                  <Link to="/register" className="text-blue-400 hover:text-blue-300 hover:underline font-medium">
-                    regístrate
+                <p className="mt-5 text-center text-sm text-muted-foreground">
+                  ¿No tienes cuenta?{" "}
+                  <Link
+                    to="/register"
+                    className="text-primary hover:text-primary/80 font-medium transition-colors"
+                  >
+                    Regístrate
                   </Link>
-                  .
-                </div>
-              </CardContent>
-            </Card>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Sección Inferior - 3 Columnas */}
-      <div className="w-full bg-black border-t border-zinc-800 py-16 px-6 lg:px-12">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white text-center mb-16">
-            Somos fans de la música en directo, no participamos en el mercadeo de entradas
+      {/* Bottom section — Value blocks */}
+      <section className="bg-background py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground text-center mb-4">
+            Nuestra filosofía
+          </p>
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-center mb-16 tracking-tight leading-tight max-w-2xl mx-auto">
+            Somos fans de la música, no del mercadeo de entradas
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {/* Bloque 1 */}
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/40 flex items-center justify-center">
-                <DollarSign className="w-8 h-8 text-blue-200" />
+            {[
+              {
+                title: "Precios justos",
+                desc: "No sacamos beneficio de la compraventa. Estamos para compartir nuestra pasión por la música en directo.",
+              },
+              {
+                title: "Red de confianza",
+                desc: "Conectamos hasta 2 grados de amistad para compartir entradas como lo que somos: amigos.",
+              },
+              {
+                title: "Comunidad real",
+                desc: "Apoyarnos comprando entradas de amigos que no pueden ir. Sin intermediarios, sin algoritmos.",
+              },
+            ].map((block, i) => (
+              <div key={i} className={`space-y-4 fade-in-up-delay-${i + 1}`}>
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <span className="text-primary font-bold text-sm">
+                    0{i + 1}
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {block.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {block.desc}
+                </p>
               </div>
-              <h3 className="text-white font-semibold text-xl">Respetamos precios</h3>
-              <p className="text-zinc-400 leading-relaxed">
-                No sacamos beneficio de la compraventa de entradas. Estamos para compartir nuestra pasión por la música
-                en directo.
-              </p>
-            </div>
-
-            {/* Bloque 2 */}
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/40 flex items-center justify-center">
-                <Users className="w-8 h-8 text-blue-200" />
-              </div>
-              <h3 className="text-white font-semibold text-xl">Reconectamos fans</h3>
-              <p className="text-zinc-400 leading-relaxed">
-                Sin plataformas de pago. Conectamos hasta 2 grados de amistad para compartir entradas como lo que somos:
-                amigos.
-              </p>
-            </div>
-
-            {/* Bloque 3 */}
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-xl bg-blue-900/40 flex items-center justify-center">
-                <Heart className="w-8 h-8 text-blue-200" />
-              </div>
-              <h3 className="text-white font-semibold text-xl">Restablecemos comunidad</h3>
-              <p className="text-zinc-400 leading-relaxed">
-                Está en nuestra mano apoyarnos comprando entradas de amigos que no pueden ir, aunque el concierto no
-                esté sold out.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
