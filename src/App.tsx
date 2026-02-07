@@ -8,6 +8,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { CookieBanner } from "./components/CookieBanner";
+import { FeedbackButton } from "./components/FeedbackButton";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -80,6 +81,7 @@ const App = () => (
             </Routes>
           </main>
           <Footer />
+          <FeedbackButton />
           <CookieBanner />
         </div>
         </BrowserRouter>
