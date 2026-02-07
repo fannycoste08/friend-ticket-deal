@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 import { getInvitationPendingEmail } from './_templates/invitation-pending.ts';
+import { getEmailTemplate } from '../_shared/email-templates.ts';
 import { checkIPRateLimit, logIPAttempt, getClientIP } from '../_shared/ip-rate-limiter.ts';
 
 const corsHeaders = {
@@ -24,10 +25,8 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
 
-    // Get client IP for rate limiting
     const clientIP = getClientIP(req);
     
-    // Check IP-based rate limit: max 10 attempts per 15 minutes
     const rateLimitCheck = await checkIPRateLimit(
       clientIP,
       'send-invitation-notification',
@@ -46,7 +45,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { inviter_email, inviter_name, invitee_name, invitee_email }: InvitationNotificationRequest = await req.json();
     
-    // Validate required fields
     if (!inviter_email || !invitee_email || !invitee_name) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
@@ -54,11 +52,8 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Create admin client for database queries
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
     
-    // Verify that a pending invitation exists for this invitee_email
-    // This validates the request without requiring authentication
     const { data: invitation, error: invitationError } = await supabaseAdmin
       .from('invitations')
       .select('id, inviter_id, invitee_email, status')
@@ -76,7 +71,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get the inviter's profile to verify email matches
     const { data: inviterProfile, error: inviterError } = await supabaseAdmin
       .from('profiles')
       .select('email, name')
@@ -91,7 +85,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify that the provided inviter_email matches the actual inviter
     if (inviterProfile.email.toLowerCase() !== inviter_email.trim().toLowerCase()) {
       console.error('Inviter email mismatch');
       return new Response(
@@ -100,7 +93,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Log successful rate limit check
     await logIPAttempt(clientIP, 'send-invitation-notification', supabaseUrl, supabaseServiceKey);
     
     console.log('Processing invitation notification:', { inviter_email: inviterProfile.email, invitee_name, invitee_email });
@@ -108,15 +100,22 @@ const handler = async (req: Request): Promise<Response> => {
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     const APP_URL = 'https://www.trusticket.com';
 
-    // Generate HTML email from template - use actual inviter name from profile
-    const html = getInvitationPendingEmail(
+    // Try DB template first, fallback to hardcoded
+    const dbTemplate = await getEmailTemplate('invitation-pending', {
+      inviter_name: inviterProfile.name,
+      invitee_name,
+      invitee_email,
+      app_url: APP_URL,
+    });
+
+    const subject = dbTemplate?.subject ?? 'Nueva solicitud de registro en TrusTicket';
+    const html = dbTemplate?.html ?? getInvitationPendingEmail(
       inviterProfile.name,
       invitee_name,
       invitee_email,
       APP_URL
     );
 
-    // Send email using Resend API
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -126,7 +125,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: 'TrusTicket <info@trusticket.com>',
         to: [inviterProfile.email],
-        subject: 'Nueva solicitud de registro en TrusTicket',
+        subject,
         html,
       }),
     });
@@ -142,19 +141,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({ success: true, emailData }), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+      headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("Error in send-invitation-notification function:", error);
     return new Response(
       JSON.stringify({ error: 'Failed to send notification' }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 };

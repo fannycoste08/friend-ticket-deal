@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.7.1";
+import { getEmailTemplate } from '../_shared/email-templates.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,13 +19,27 @@ function escapeHtml(unsafe: string): string {
     .replace(/'/g, "&#039;");
 }
 
+// Fallback HTML
+function getFallbackHtml(vars: Record<string, string>): string {
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:linear-gradient(135deg,#8B5CF6 0%,#D946EF 100%);color:white;padding:30px 20px;text-align:center;border-radius:8px 8px 0 0}.content{background:#fff;padding:30px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px}.info-box{background:#f9fafb;padding:15px;border-radius:6px;margin:20px 0}.footer{text-align:center;padding:20px;color:#6b7280;font-size:14px}</style></head>
+<body><div class="container">
+<div class="header"><h1 style="margin:0">Nueva opinión de usuario</h1></div>
+<div class="content">
+<div class="info-box"><p style="margin:0"><strong>Usuario:</strong> ${vars.user_name}</p><p style="margin:5px 0 0 0"><strong>Email:</strong> <a href="mailto:${vars.user_email}">${vars.user_email}</a></p></div>
+<div class="info-box"><p style="margin:0"><strong>Opinión:</strong></p><p style="margin:10px 0 0 0;white-space:pre-wrap">${vars.feedback}</p></div>
+</div>
+<div class="footer"><p>© 2025 TrusTicket — Opinión recibida desde la plataforma.</p></div>
+</div></body></html>`;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Authenticate user
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(
@@ -41,10 +56,7 @@ const handler = async (req: Request): Promise<Response> => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseAdmin.auth.getUser(token);
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
 
     if (authError || !user) {
       return new Response(
@@ -53,7 +65,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Parse and validate input
     const { feedback } = await req.json();
 
     if (!feedback || typeof feedback !== "string") {
@@ -79,7 +90,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get user profile for the email
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("name, email")
@@ -93,7 +103,17 @@ const handler = async (req: Request): Promise<Response> => {
     const safeName = escapeHtml(userName);
     const safeEmail = escapeHtml(userEmail);
 
-    // Send email via Resend
+    const templateVars = {
+      user_name: safeName,
+      user_email: safeEmail,
+      feedback: safeFeedback,
+    };
+
+    const dbTemplate = await getEmailTemplate('feedback-email', templateVars);
+
+    const subject = dbTemplate?.subject ?? `Opinión de usuario: ${safeName}`;
+    const html = dbTemplate?.html ?? getFallbackHtml(templateVars);
+
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -105,44 +125,8 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "TrusTicket <info@trusticket.com>",
         to: [ADMIN_EMAIL],
-        subject: `Opinión de usuario: ${safeName}`,
-        html: `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
-                .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
-                .info-box { background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0; }
-                .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="header">
-                  <h1 style="margin: 0;">Nueva opinión de usuario</h1>
-                </div>
-                <div class="content">
-                  <div class="info-box">
-                    <p style="margin: 0;"><strong>Usuario:</strong> ${safeName}</p>
-                    <p style="margin: 5px 0 0 0;"><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
-                  </div>
-
-                  <div class="info-box">
-                    <p style="margin: 0;"><strong>Opinión:</strong></p>
-                    <p style="margin: 10px 0 0 0; white-space: pre-wrap;">${safeFeedback}</p>
-                  </div>
-                </div>
-                <div class="footer">
-                  <p>© 2025 TrusTicket — Opinión recibida desde la plataforma.</p>
-                </div>
-              </div>
-            </body>
-          </html>
-        `,
+        subject,
+        html,
       }),
     });
 
@@ -159,8 +143,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Feedback email sent successfully:", emailData);
 
     return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
+      status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("Error in send-feedback-email function:", error);

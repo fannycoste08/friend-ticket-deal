@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { getEmailTemplate } from '../_shared/email-templates.ts';
 import { checkRateLimit, logEmail } from '../_shared/rate-limiter.ts';
 
 const corsHeaders = {
@@ -18,7 +19,6 @@ interface ContactEmailRequest {
   ticket_id: string;
 }
 
-// HTML escape function to prevent XSS
 function escapeHtml(unsafe: string): string {
   return unsafe
     .replace(/&/g, "&amp;")
@@ -28,16 +28,32 @@ function escapeHtml(unsafe: string): string {
     .replace(/'/g, "&#039;");
 }
 
-// Validate email format
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email) && email.length <= 255;
 }
 
-// Validate phone format (international format)
 function isValidPhone(phone: string): boolean {
   const phoneRegex = /^[\d\s\+\-\(\)]+$/;
   return phoneRegex.test(phone) && phone.length >= 6 && phone.length <= 20;
+}
+
+// Fallback HTML
+function getFallbackHtml(vars: Record<string, string>): string {
+  return `<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:linear-gradient(135deg,#8B5CF6 0%,#D946EF 100%);color:white;padding:30px 20px;text-align:center;border-radius:8px 8px 0 0}.content{background:#fff;padding:30px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px}.info-box{background:#f9fafb;padding:15px;border-radius:6px;margin:20px 0}.footer{text-align:center;padding:20px;color:#6b7280;font-size:14px}</style></head>
+<body><div class="container">
+<div class="header"><h1 style="margin:0">¡Alguien está interesado en tu entrada!</h1></div>
+<div class="content">
+<p>Hola <strong>${vars.seller_name}</strong>,</p>
+<p><strong>${vars.buyer_name}</strong> está interesado en tu entrada para <strong>${vars.artist}</strong> y te ha enviado el siguiente mensaje:</p>
+<div class="info-box"><p style="margin:0"><strong>Mensaje:</strong></p><p style="margin:10px 0 0 0">${vars.message}</p></div>
+<div class="info-box"><p style="margin:0"><strong>Datos de contacto:</strong></p><p style="margin:10px 0 0 0"><strong>Nombre:</strong> ${vars.buyer_name}<br><strong>Email:</strong> <a href="mailto:${vars.buyer_email}">${vars.buyer_email}</a><br><strong>Teléfono:</strong> <a href="tel:${vars.buyer_phone}">${vars.buyer_phone}</a></p></div>
+<p>Puedes ponerte en contacto directamente con ${vars.buyer_name} usando los datos de contacto proporcionados.</p>
+</div>
+<div class="footer"><p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p></div>
+</div></body></html>`;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -46,7 +62,6 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Get JWT token from Authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(
@@ -57,19 +72,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const token = authHeader.replace('Bearer ', '');
     
-    // Use service role key for robust token verification (handles expired sessions better)
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
+      { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Verify the user is authenticated
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
     
     if (authError || !user) {
@@ -79,55 +87,36 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { 
-      seller_id, 
-      seller_name, 
-      buyer_name, 
-      buyer_email, 
-      buyer_phone, 
-      message, 
-      artist,
-      ticket_id
-    }: ContactEmailRequest = await req.json();
+    const { seller_id, seller_name, buyer_name, buyer_email, buyer_phone, message, artist, ticket_id }: ContactEmailRequest = await req.json();
 
-    // Validate required fields
     if (!seller_id || !buyer_name || !buyer_email || !buyer_phone || !message || !artist || !ticket_id) {
-      console.error('Missing required fields');
       return new Response(
         JSON.stringify({ error: 'Request could not be processed' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Validate email formats and lengths
     if (!isValidEmail(buyer_email) || buyer_email.length > 255) {
-      console.error('Invalid email format or length');
       return new Response(
         JSON.stringify({ error: 'Invalid input provided' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Validate phone format and length
     if (!isValidPhone(buyer_phone) || buyer_phone.length > 20) {
-      console.error('Invalid phone format or length');
       return new Response(
         JSON.stringify({ error: 'Invalid input provided' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Validate message and name lengths
-    if (message.length > 1000 || buyer_name.length > 100 || 
-        seller_name.length > 100 || artist.length > 200) {
-      console.error('Input exceeds maximum length');
+    if (message.length > 1000 || buyer_name.length > 100 || seller_name.length > 100 || artist.length > 200) {
       return new Response(
         JSON.stringify({ error: 'Invalid input provided' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Get the seller's email securely from the database
     const { data: sellerProfile, error: sellerError } = await supabaseAdmin
       .from('profiles')
       .select('email')
@@ -135,7 +124,6 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (sellerError || !sellerProfile?.email) {
-      console.error('Seller profile not found:', sellerError);
       return new Response(
         JSON.stringify({ error: 'Seller not found' }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -144,13 +132,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     const seller_email = sellerProfile.email;
 
-    // Check rate limit before proceeding
     const rateLimitCheck = await checkRateLimit(
-      user.id,
-      seller_email,
-      'send-contact-email',
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      user.id, seller_email, 'send-contact-email',
+      Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     if (!rateLimitCheck.allowed) {
@@ -160,7 +144,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verify user has access to this ticket and seller_id matches
     const { data: ticket, error: ticketError } = await supabaseAdmin
       .from('tickets')
       .select('id, user_id')
@@ -168,31 +151,39 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (ticketError || !ticket) {
-      console.error('Ticket verification failed:', ticketError);
       return new Response(
         JSON.stringify({ error: 'Unable to process request' }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Verify seller_id matches the ticket owner
     if (ticket.user_id !== seller_id) {
-      console.error('Seller ID mismatch:', { ticket_user_id: ticket.user_id, seller_id });
       return new Response(
         JSON.stringify({ error: 'Invalid seller' }),
         { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Escape all user inputs to prevent HTML injection
     const safeSeller = escapeHtml(seller_name);
     const safeBuyer = escapeHtml(buyer_name);
     const safeMessage = escapeHtml(message);
     const safeArtist = escapeHtml(artist);
     const safeBuyerEmail = escapeHtml(buyer_email);
     const safeBuyerPhone = escapeHtml(buyer_phone);
-    
-    console.log('Processing contact email:', { seller_email, buyer_name: safeBuyer, artist: safeArtist });
+
+    const templateVars = {
+      seller_name: safeSeller,
+      buyer_name: safeBuyer,
+      buyer_email: safeBuyerEmail,
+      buyer_phone: safeBuyerPhone,
+      message: safeMessage,
+      artist: safeArtist,
+    };
+
+    const dbTemplate = await getEmailTemplate('contact-email', templateVars);
+
+    const subject = dbTemplate?.subject ?? `Interés en tu entrada para ${safeArtist}`;
+    const html = dbTemplate?.html ?? getFallbackHtml(templateVars);
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
@@ -205,53 +196,8 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: 'TrusTicket <info@trusticket.com>',
         to: [seller_email],
-        subject: `Interés en tu entrada para ${safeArtist}`,
-        html: `
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
-                .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
-                .info-box { background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0; }
-                .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <div class="header">
-                  <h1 style="margin: 0;">¡Alguien está interesado en tu entrada!</h1>
-                </div>
-                <div class="content">
-                  <p>Hola <strong>${safeSeller}</strong>,</p>
-                  <p><strong>${safeBuyer}</strong> está interesado en tu entrada para <strong>${safeArtist}</strong> y te ha enviado el siguiente mensaje:</p>
-                  
-                  <div class="info-box">
-                    <p style="margin: 0;"><strong>Mensaje:</strong></p>
-                    <p style="margin: 10px 0 0 0;">${safeMessage}</p>
-                  </div>
-
-                  <div class="info-box">
-                    <p style="margin: 0;"><strong>Datos de contacto:</strong></p>
-                    <p style="margin: 10px 0 0 0;">
-                      <strong>Nombre:</strong> ${safeBuyer}<br>
-                      <strong>Email:</strong> <a href="mailto:${safeBuyerEmail}">${safeBuyerEmail}</a><br>
-                      <strong>Teléfono:</strong> <a href="tel:${safeBuyerPhone}">${safeBuyerPhone}</a>
-                    </p>
-                  </div>
-
-                  <p>Puedes ponerte en contacto directamente con ${safeBuyer} usando los datos de contacto proporcionados.</p>
-                </div>
-                <div class="footer">
-                  <p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p>
-                </div>
-              </div>
-            </body>
-          </html>
-        `,
+        subject,
+        html,
       }),
     });
 
@@ -260,40 +206,26 @@ const handler = async (req: Request): Promise<Response> => {
       console.error('Resend API error:', errorData);
       return new Response(
         JSON.stringify({ error: 'Failed to send notification' }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
     const emailData = await emailResponse.json();
     console.log("Email sent successfully:", emailData);
 
-    // Log the email send
     await logEmail(
-      user.id,
-      seller_email,
-      'send-contact-email',
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      user.id, seller_email, 'send-contact-email',
+      Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
     return new Response(JSON.stringify({ success: true, emailData }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+      status: 200, headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("Error in send-contact-email function:", error);
     return new Response(
       JSON.stringify({ error: 'An unexpected error occurred' }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 };
