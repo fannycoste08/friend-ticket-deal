@@ -3,9 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, UserCheck, FileText, Mail } from 'lucide-react';
+import { Users, UserCheck, FileText, Mail, Send } from 'lucide-react';
 import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
+import AdminOutreach from '@/components/AdminOutreach';
 
 interface UserWithFriends {
   id: string;
@@ -65,7 +66,11 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="docs" className="gap-1.5">
               <FileText className="w-4 h-4" />
-              Documentación
+              Docs
+            </TabsTrigger>
+            <TabsTrigger value="outreach" className="gap-1.5">
+              <Send className="w-4 h-4" />
+              Outreach
             </TabsTrigger>
           </TabsList>
 
@@ -141,6 +146,10 @@ const Admin = () => {
 
           <TabsContent value="docs">
             <AdminDocs />
+          </TabsContent>
+
+          <TabsContent value="outreach">
+            <AdminOutreach />
           </TabsContent>
         </Tabs>
       </div>
