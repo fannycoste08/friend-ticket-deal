@@ -20,10 +20,11 @@ const LegalNotice = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3 text-foreground">2. Objeto</h2>
               <p className="text-muted-foreground">
-                Trusticket es una plataforma social que permite a los usuarios conectar entre sí mediante contactos en
-                común para publicar, solicitar o descubrir entradas de conciertos y eventos. Trusticket no vende
-                entradas, no gestiona pagos, no cobra comisiones y no interviene en las transacciones. La plataforma
-                únicamente facilita el contacto entre usuarios.
+                Trusticket es una plataforma social que permite a los usuarios conectar entre sí a través de contactos
+                en común para publicar, solicitar o descubrir entradas de conciertos y eventos.Trusticket no vende
+                entradas, no gestiona pagos, no cobra comisiones y no interviene en las transacciones que puedan
+                realizarse entre los usuarios. La plataforma se limita a facilitar el contacto entre personas
+                interesadas.
               </p>
             </section>
             <section>
@@ -39,7 +40,8 @@ const LegalNotice = () => {
                 <li>No interferir en el funcionamiento técnico de la web</li>
               </ul>
               <p className="text-muted-foreground mt-2">
-                Trusticket podrá limitar o suspender el acceso a usuarios que incumplan estas normas.
+                Trusticket se reserva el derecho a limitar o suspender el acceso a aquellos usuarios que incumplan estas
+                condiciones.
               </p>
             </section>
             <section>
@@ -48,12 +50,13 @@ const LegalNotice = () => {
                 TrusTicket actúa como intermediario entre compradores y vendedores. No nos hacemos responsables de:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
-                <li>La autenticidad de las entradas publicadas</li>
+                <li>La autenticidad o validez de las entradas publicadas</li>
                 <li>Las transacciones realizadas entre usuarios</li>
                 <li>Los eventos cancelados o modificados por los organizadores</li>
               </ul>
               <p className="text-muted-foreground mt-2">
-                Recomendamos verificar siempre la información antes de realizar cualquier transacción.
+                Recomendamos verificar siempre la información antes de realizar cualquier transacción.Trusticket no
+                garantiza la disponibilidad continua de la plataforma ni la ausencia de errores técnicos.
               </p>
             </section>
             <section>
