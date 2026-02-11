@@ -49,21 +49,23 @@ const PrivacyPolicy = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3 text-foreground">5. Conservación de Datos</h2>
               <p className="text-muted-foreground">
-                Conservaremos tus datos mientras mantengas tu cuenta activa o durante el tiempo necesario para cumplir
-                con las obligaciones legales.
+                Los datos personales se conservarán mientras el usuario mantenga su cuenta activa. Una vez solicitada la
+                eliminación de la cuenta, los datos serán suprimidos, salvo aquellos que deban conservarse durante más
+                tiempo para el cumplimiento de obligaciones legales.
               </p>
             </section>
             <section>
               <h2 className="text-xl font-semibold mb-3 text-foreground">6. Compartición de Datos</h2>
               <p className="text-muted-foreground">
-                No vendemos ni compartimos tus datos personales con terceros, excepto:
+                Trusticket no vende ni cede datos personales a terceros.No obstante, los datos podrán ser:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
-                <li>Información de perfil visible para otros usuarios de la plataforma</li>
-                <li>Cuando sea requerido por ley</li>
+                <li>Visibles para otros usuarios de la plataforma según la configuración del perfil</li>
+                <li>Comunicados cuando exista una obligación legal</li>
                 <li>
-                  Con proveedores de servicios que nos ayudan a operar la plataforma (siempre bajo acuerdos de
-                  confidencialidad)
+                  CTratados por proveedores de servicios tecnológicos necesarios para el funcionamiento de la plataforma
+                  (por ejemplo, servicios de alojamiento, autenticación o base de datos), siempre bajo acuerdos de
+                  confidencialidad y cumpliendo la normativa de protección de datos
                 </li>
               </ul>
             </section>
@@ -91,7 +93,9 @@ const PrivacyPolicy = () => {
                 </li>
               </ul>
               <p className="text-muted-foreground mt-2">
-                Para ejercer estos derechos, contacta con nosotros en: trusticketinfo@gmail.com
+                Para ejercer estos derechos, contacta con nosotros en: trusticketinfo@gmail.com. Asimismo, tienes
+                derecho a presentar una reclamación ante la Agencia Española de Protección de Datos (AEPD) si consideras
+                que el tratamiento de tus datos no se ajusta a la normativa vigente.
               </p>
             </section>
             <section>
