@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { CookieBanner } from "./components/CookieBanner";
 import { FeedbackButton } from "./components/FeedbackButton";
+import { ScrollToTop } from "./components/ScrollToTop";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
@@ -36,6 +37,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+        <ScrollToTop />
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-1">
