@@ -77,6 +77,7 @@ const Profile = () => {
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) navigate('/login');
