@@ -14,6 +14,7 @@ interface OutreachRow {
   email: string;
   written: boolean;
   replied: boolean;
+  mvp: boolean;
   comments: string;
   created_at: string;
 }
@@ -95,6 +96,7 @@ const AdminOutreach = () => {
                 <TableHead className="min-w-[200px]">Email</TableHead>
                 <TableHead className="text-center w-[90px]">Escrito</TableHead>
                 <TableHead className="text-center w-[100px]">Contestado</TableHead>
+                <TableHead className="text-center w-[70px]">MVP</TableHead>
                 <TableHead className="min-w-[200px]">Comentarios</TableHead>
                 <TableHead className="w-[50px]" />
               </TableRow>
@@ -102,13 +104,13 @@ const AdminOutreach = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     Cargando...
                   </TableCell>
                 </TableRow>
               ) : rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No hay contactos todavía. Pulsa "Añadir" para empezar.
                   </TableCell>
                 </TableRow>
@@ -144,6 +146,12 @@ const AdminOutreach = () => {
                       <Checkbox
                         checked={row.replied}
                         onCheckedChange={(checked) => updateField(row.id, 'replied', !!checked)}
+                      />
+                    </TableCell>
+                    <TableCell className="p-2 text-center">
+                      <Checkbox
+                        checked={row.mvp}
+                        onCheckedChange={(checked) => updateField(row.id, 'mvp', !!checked)}
                       />
                     </TableCell>
                     <TableCell className="p-2">
