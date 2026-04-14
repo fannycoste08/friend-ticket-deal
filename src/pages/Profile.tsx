@@ -84,7 +84,7 @@ const Profile = () => {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user) { loadProfile(); loadTickets(); loadWantedTickets(); loadFriends(); }
+    if (user) { loadProfile(); loadTickets(); loadWantedTickets(); loadFriends(); loadPendingInvitations(); }
   }, [user]);
 
   useEffect(() => {
