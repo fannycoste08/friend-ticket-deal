@@ -212,6 +212,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       const { data, error: approveError } = await supabase.functions.invoke('approve-invitation', {
         body: {
           invitation_id: invitation.id,
+          is_direct_invite: true,
         },
       });
 

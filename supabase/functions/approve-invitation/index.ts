@@ -8,6 +8,7 @@ const corsHeaders = {
 
 interface ApproveInvitationRequest {
   invitation_id: string;
+  is_direct_invite?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -55,7 +56,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { invitation_id }: ApproveInvitationRequest = await req.json();
+    const { invitation_id, is_direct_invite }: ApproveInvitationRequest = await req.json();
 
     if (!invitation_id || typeof invitation_id !== 'string') {
       return new Response(
@@ -204,7 +205,8 @@ const handler = async (req: Request): Promise<Response> => {
     const { error: emailError } = await supabaseAdmin.functions.invoke('send-invitation-accepted', {
       body: {
         invitation_id: invitation_id,
-        password_reset_link: passwordResetLink
+        password_reset_link: passwordResetLink,
+        is_direct_invite: is_direct_invite || false,
       },
       headers: {
         Authorization: authHeader

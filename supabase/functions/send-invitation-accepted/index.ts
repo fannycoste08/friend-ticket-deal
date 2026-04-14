@@ -10,6 +10,46 @@ const corsHeaders = {
 interface InvitationAcceptedRequest {
   invitation_id: string;
   password_reset_link: string;
+  is_direct_invite?: boolean;
+}
+
+// Direct invitation HTML template
+function getDirectInviteHtml(inviteeName: string, inviterName: string, inviterEmail: string, passwordResetLink: string): string {
+  return `<!DOCTYPE html>
+<html>
+  <head><meta charset="utf-8">
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+      .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
+      .highlight-box { background: #f0fdf4; padding: 15px; border-left: 4px solid #22c55e; margin: 20px 0; }
+      .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header"><h1 style="margin: 0;">🎟️ ¡Te han invitado a TrusTicket!</h1></div>
+      <div class="content">
+        <p>Hola <strong>${inviteeName}</strong>,</p>
+        <p><strong>${inviterName}</strong> (${inviterEmail}) te quiere invitar a <strong>TrusTicket</strong>, la plataforma para comprar y vender entradas entre amigos de forma segura.</p>
+        <div class="highlight-box">
+          <p style="margin: 0; font-weight: bold; color: #16a34a;">🎉 Tu cuenta ha sido creada</p>
+          <p style="margin: 5px 0 0 0; font-size: 14px;">Pulsa el botón de abajo para crear tu contraseña y empezar a usar TrusTicket.</p>
+        </div>
+        <table cellpadding="0" cellspacing="0" border="0" style="margin: 20px auto;">
+          <tr>
+            <td align="center" bgcolor="#8B5CF6" style="border-radius: 8px;">
+              <a href="${passwordResetLink}" target="_blank" style="display: inline-block; padding: 16px 32px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; background-color: #8B5CF6; border-radius: 8px;">Crear mi cuenta</a>
+            </td>
+          </tr>
+        </table>
+        <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no conoces a esta persona o no esperabas esta invitación, puedes ignorar este email.</p>
+      </div>
+      <div class="footer"><p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p></div>
+    </div>
+  </body>
+</html>`;
 }
 
 // Fallback HTML template
@@ -90,7 +130,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const { invitation_id, password_reset_link }: InvitationAcceptedRequest = await req.json();
+    const { invitation_id, password_reset_link, is_direct_invite }: InvitationAcceptedRequest = await req.json();
     
     if (!invitation_id || !password_reset_link) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -126,35 +166,58 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { data: inviterProfile } = await supabaseAdmin
       .from('profiles')
-      .select('name')
+      .select('name, email')
       .eq('id', user.id)
       .single();
 
     const inviterName = inviterProfile?.name || 'Tu padrino';
+    const inviterEmail = inviterProfile?.email || user.email || '';
 
-    console.log('Sending invitation accepted email:', { 
+    console.log('Sending invitation email:', { 
       invitee_email: invitation.invitee_email, 
       invitee_name: invitation.invitee_name, 
-      inviter_name: inviterName 
+      inviter_name: inviterName,
+      is_direct_invite,
     });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
-    // Try DB template first, fallback to hardcoded
-    const dbTemplate = await getEmailTemplate('invitation-accepted', {
-      invitee_name: invitation.invitee_name,
-      inviter_name: inviterName,
-      password_reset_link,
-      invitee_email: invitation.invitee_email,
-    });
+    let subject: string;
+    let html: string;
 
-    const subject = dbTemplate?.subject ?? '¡Tu solicitud de registro ha sido aprobada!';
-    const html = dbTemplate?.html ?? getFallbackHtml(
-      invitation.invitee_name,
-      inviterName,
-      password_reset_link,
-      invitation.invitee_email
-    );
+    if (is_direct_invite) {
+      // Direct invitation from account - different email
+      const dbTemplate = await getEmailTemplate('direct-invitation', {
+        invitee_name: invitation.invitee_name,
+        inviter_name: inviterName,
+        inviter_email: inviterEmail,
+        password_reset_link,
+      });
+
+      subject = dbTemplate?.subject ?? `${inviterName} te quiere invitar a TrusTicket`;
+      html = dbTemplate?.html ?? getDirectInviteHtml(
+        invitation.invitee_name,
+        inviterName,
+        inviterEmail,
+        password_reset_link
+      );
+    } else {
+      // Approval of registration request - existing email
+      const dbTemplate = await getEmailTemplate('invitation-accepted', {
+        invitee_name: invitation.invitee_name,
+        inviter_name: inviterName,
+        password_reset_link,
+        invitee_email: invitation.invitee_email,
+      });
+
+      subject = dbTemplate?.subject ?? '¡Tu solicitud de registro ha sido aprobada!';
+      html = dbTemplate?.html ?? getFallbackHtml(
+        invitation.invitee_name,
+        inviterName,
+        password_reset_link,
+        invitation.invitee_email
+      );
+    }
 
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
