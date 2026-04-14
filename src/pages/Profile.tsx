@@ -111,6 +111,16 @@ const Profile = () => {
     setLoadingTickets(false);
   };
 
+  const loadPendingInvitations = async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from('invitations')
+      .select('id', { count: 'exact', head: true })
+      .eq('inviter_id', user.id)
+      .eq('status', 'pending');
+    setPendingInvitationsCount(count || 0);
+  };
+
   const handleDeleteTicket = async (id: string) => {
     const { error } = await supabase.from('tickets').delete().eq('id', id);
     if (error) { toast.error('Error al eliminar la entrada'); return; }
