@@ -189,14 +189,14 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       // Extract name from email if no custom name provided
       const inviteeName = inviteEmail.split('@')[0];
       
-      // Create invitation in database - APPROVED automatically when inviter sends it
+      // Create invitation in database as pending first
       const { data: invitation, error: invitationError } = await supabase
         .from('invitations')
         .insert({
           inviter_id: userId,
           invitee_email: inviteEmail,
           invitee_name: inviteeName,
-          status: 'approved' // Pre-approved when inviter sends directly
+          status: 'pending'
         })
         .select()
         .single();
@@ -208,19 +208,16 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
         return;
       }
 
-      // Send invitation email to the invitee
-      const { error: emailError } = await supabase.functions.invoke('send-invitation-accepted', {
+      // Call approve-invitation which creates the user and sends the email
+      const { data, error: approveError } = await supabase.functions.invoke('approve-invitation', {
         body: {
-          invitee_email: inviteEmail,
-          invitee_name: inviteeName,
-          inviter_name: profile.name,
-          inviter_email: profile.email,
+          invitation_id: invitation.id,
         },
       });
 
-      if (emailError) {
-        console.error('Error sending email:', emailError);
-        toast.error('Invitación creada pero hubo un error al enviar el email');
+      if (approveError) {
+        console.error('Error approving invitation:', approveError);
+        toast.error('Invitación creada pero hubo un error al procesarla');
       } else {
         toast.success(`Invitación enviada a ${inviteEmail}`);
       }
