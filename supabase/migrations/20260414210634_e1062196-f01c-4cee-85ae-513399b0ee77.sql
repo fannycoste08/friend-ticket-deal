@@ -1,0 +1,1 @@
+ALTER TABLE public.admin_outreach ADD COLUMN mvp boolean NOT NULL DEFAULT false;

@@ -44,6 +44,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          mvp: boolean
           name: string
           replied: boolean
           updated_at: string
@@ -54,6 +55,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          mvp?: boolean
           name?: string
           replied?: boolean
           updated_at?: string
@@ -64,6 +66,7 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          mvp?: boolean
           name?: string
           replied?: boolean
           updated_at?: string
