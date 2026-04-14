@@ -166,7 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { data: inviterProfile } = await supabaseAdmin
       .from('profiles')
-      .select('name')
+      .select('name, email')
       .eq('id', user.id)
       .single();
 
