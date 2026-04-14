@@ -91,6 +91,16 @@ const Admin = () => {
           </TabsList>
 
           <TabsContent value="users">
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nombre o email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+
             <Card className="overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -99,7 +109,15 @@ const Admin = () => {
                       <th className="text-left px-4 py-3 font-medium text-sm">Usuario</th>
                       <th className="text-left px-4 py-3 font-medium text-sm">Email</th>
                       <th className="text-center px-4 py-3 font-medium text-sm">Amigos</th>
-                      <th className="text-left px-4 py-3 font-medium text-sm">Registro</th>
+                      <th
+                        className="text-left px-4 py-3 font-medium text-sm cursor-pointer select-none hover:text-foreground transition-colors"
+                        onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+                      >
+                        <span className="inline-flex items-center gap-1">
+                          Registro
+                          {sortOrder === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
+                        </span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -109,14 +127,14 @@ const Admin = () => {
                           Cargando usuarios...
                         </td>
                       </tr>
-                    ) : users.length === 0 ? (
+                    ) : filteredUsers.length === 0 ? (
                       <tr>
                         <td colSpan={4} className="text-center py-8 text-muted-foreground">
-                          No hay usuarios registrados
+                          {searchQuery ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
                     ) : (
-                      users.map((user) => (
+                      filteredUsers.map((user) => (
                         <tr key={user.id} className="hover:bg-muted/30 transition-colors">
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-3">
@@ -152,7 +170,7 @@ const Admin = () => {
             </Card>
 
             <div className="mt-4 text-sm text-muted-foreground text-center">
-              Total: {users.length} usuarios
+              Total: {filteredUsers.length}{searchQuery ? ` de ${users.length}` : ''} usuarios
             </div>
           </TabsContent>
 
