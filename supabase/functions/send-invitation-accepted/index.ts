@@ -130,7 +130,7 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const { invitation_id, password_reset_link }: InvitationAcceptedRequest = await req.json();
+    const { invitation_id, password_reset_link, is_direct_invite }: InvitationAcceptedRequest = await req.json();
     
     if (!invitation_id || !password_reset_link) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
