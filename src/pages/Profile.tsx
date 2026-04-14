@@ -459,6 +459,11 @@ const Profile = () => {
                 {friends.length}
               </Badge>
             )}
+            {item.id === 'invitations' && pendingInvitationsCount > 0 && (
+              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
+                {pendingInvitationsCount}
+              </Badge>
+            )}
             {item.id === 'tickets' && availableTicketsCount > 0 && (
               <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
                 {availableTicketsCount}
