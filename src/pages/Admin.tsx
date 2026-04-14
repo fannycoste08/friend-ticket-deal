@@ -20,6 +20,21 @@ interface UserWithFriends {
 const Admin = () => {
   const [users, setUsers] = useState<UserWithFriends[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const filteredUsers = useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    let result = users.filter(u =>
+      u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+    );
+    result.sort((a, b) => {
+      const da = new Date(a.created_at).getTime();
+      const db = new Date(b.created_at).getTime();
+      return sortOrder === 'desc' ? db - da : da - db;
+    });
+    return result;
+  }, [users, searchQuery, sortOrder]);
 
   useEffect(() => {
     loadUsers();
