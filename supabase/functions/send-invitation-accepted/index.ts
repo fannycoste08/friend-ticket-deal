@@ -171,30 +171,53 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     const inviterName = inviterProfile?.name || 'Tu padrino';
+    const inviterEmail = inviterProfile?.email || user.email || '';
 
-    console.log('Sending invitation accepted email:', { 
+    console.log('Sending invitation email:', { 
       invitee_email: invitation.invitee_email, 
       invitee_name: invitation.invitee_name, 
-      inviter_name: inviterName 
+      inviter_name: inviterName,
+      is_direct_invite,
     });
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
-    // Try DB template first, fallback to hardcoded
-    const dbTemplate = await getEmailTemplate('invitation-accepted', {
-      invitee_name: invitation.invitee_name,
-      inviter_name: inviterName,
-      password_reset_link,
-      invitee_email: invitation.invitee_email,
-    });
+    let subject: string;
+    let html: string;
 
-    const subject = dbTemplate?.subject ?? '¡Tu solicitud de registro ha sido aprobada!';
-    const html = dbTemplate?.html ?? getFallbackHtml(
-      invitation.invitee_name,
-      inviterName,
-      password_reset_link,
-      invitation.invitee_email
-    );
+    if (is_direct_invite) {
+      // Direct invitation from account - different email
+      const dbTemplate = await getEmailTemplate('direct-invitation', {
+        invitee_name: invitation.invitee_name,
+        inviter_name: inviterName,
+        inviter_email: inviterEmail,
+        password_reset_link,
+      });
+
+      subject = dbTemplate?.subject ?? `${inviterName} te quiere invitar a TrusTicket`;
+      html = dbTemplate?.html ?? getDirectInviteHtml(
+        invitation.invitee_name,
+        inviterName,
+        inviterEmail,
+        password_reset_link
+      );
+    } else {
+      // Approval of registration request - existing email
+      const dbTemplate = await getEmailTemplate('invitation-accepted', {
+        invitee_name: invitation.invitee_name,
+        inviter_name: inviterName,
+        password_reset_link,
+        invitee_email: invitation.invitee_email,
+      });
+
+      subject = dbTemplate?.subject ?? '¡Tu solicitud de registro ha sido aprobada!';
+      html = dbTemplate?.html ?? getFallbackHtml(
+        invitation.invitee_name,
+        inviterName,
+        password_reset_link,
+        invitation.invitee_email
+      );
+    }
 
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
