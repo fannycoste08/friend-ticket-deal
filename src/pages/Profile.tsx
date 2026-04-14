@@ -77,13 +77,14 @@ const Profile = () => {
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) navigate('/login');
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user) { loadProfile(); loadTickets(); loadWantedTickets(); loadFriends(); }
+    if (user) { loadProfile(); loadTickets(); loadWantedTickets(); loadFriends(); loadPendingInvitations(); }
   }, [user]);
 
   useEffect(() => {
@@ -108,6 +109,16 @@ const Profile = () => {
     if (error) { console.error('Error loading tickets:', error); toast.error('Error al cargar tus entradas'); }
     setTickets(data || []);
     setLoadingTickets(false);
+  };
+
+  const loadPendingInvitations = async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from('invitations')
+      .select('id', { count: 'exact', head: true })
+      .eq('inviter_id', user.id)
+      .eq('status', 'pending');
+    setPendingInvitationsCount(count || 0);
   };
 
   const handleDeleteTicket = async (id: string) => {
@@ -446,6 +457,11 @@ const Profile = () => {
             {item.id === 'friends' && friends.length > 0 && (
               <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
                 {friends.length}
+              </Badge>
+            )}
+            {item.id === 'invitations' && pendingInvitationsCount > 0 && (
+              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
+                {pendingInvitationsCount}
               </Badge>
             )}
             {item.id === 'tickets' && availableTicketsCount > 0 && (
