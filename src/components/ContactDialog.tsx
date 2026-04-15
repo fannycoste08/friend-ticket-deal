@@ -75,8 +75,14 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('send-contact-email', {
-        body: {
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-contact-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+        body: JSON.stringify({
           seller_id: ticket.seller_id,
           seller_name: ticket.seller,
           buyer_name: values.name,
@@ -86,11 +92,13 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
           artist: ticket.artist,
           ticket_id: ticket.id,
           is_wanted_ticket: isWantedTicket,
-        },
+        }),
       });
 
-      if (error) {
-        throw error;
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        throw new Error(result?.error || "Por favor, inténtalo de nuevo más tarde");
       }
 
       toast.success("Mensaje enviado", {
@@ -100,7 +108,6 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
       form.reset();
       onOpenChange(false);
     } catch (error: any) {
-      
       toast.error("Error al enviar el mensaje", {
         description: error?.message || "Por favor, inténtalo de nuevo más tarde",
       });
