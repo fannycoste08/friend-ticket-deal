@@ -17,6 +17,7 @@ interface ContactEmailRequest {
   message: string;
   artist: string;
   ticket_id: string;
+  is_wanted_ticket?: boolean;
 }
 
 function escapeHtml(unsafe: string): string {
@@ -38,7 +39,6 @@ function isValidPhone(phone: string): boolean {
   return phoneRegex.test(phone) && phone.length >= 6 && phone.length <= 20;
 }
 
-// Fallback HTML
 function getFallbackHtml(vars: Record<string, string>): string {
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
@@ -71,7 +71,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -79,7 +79,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    
+
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: 'No autorizado: token inválido' }),
@@ -87,7 +87,17 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { seller_id, seller_name, buyer_name, buyer_email, buyer_phone, message, artist, ticket_id }: ContactEmailRequest = await req.json();
+    const {
+      seller_id,
+      seller_name,
+      buyer_name,
+      buyer_email,
+      buyer_phone,
+      message,
+      artist,
+      ticket_id,
+      is_wanted_ticket = false,
+    }: ContactEmailRequest = await req.json();
 
     if (!seller_id || !buyer_name || !buyer_email || !buyer_phone || !message || !artist || !ticket_id) {
       return new Response(
@@ -117,6 +127,27 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
+    const listingTable = is_wanted_ticket ? 'wanted_tickets' : 'tickets';
+    const { data: listing, error: listingError } = await supabaseAdmin
+      .from(listingTable)
+      .select('id, user_id')
+      .eq('id', ticket_id)
+      .single();
+
+    if (listingError || !listing) {
+      return new Response(
+        JSON.stringify({ error: 'Unable to process request' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (listing.user_id !== seller_id) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid seller' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const { data: sellerProfile, error: sellerError } = await supabaseAdmin
       .from('profiles')
       .select('email')
@@ -141,26 +172,6 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ error: rateLimitCheck.error }),
         { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    const { data: ticket, error: ticketError } = await supabaseAdmin
-      .from('tickets')
-      .select('id, user_id')
-      .eq('id', ticket_id)
-      .single();
-
-    if (ticketError || !ticket) {
-      return new Response(
-        JSON.stringify({ error: 'Unable to process request' }),
-        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    if (ticket.user_id !== seller_id) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid seller' }),
-        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 

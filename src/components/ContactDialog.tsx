@@ -85,6 +85,7 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
           message: values.message,
           artist: ticket.artist,
           ticket_id: ticket.id,
+          is_wanted_ticket: isWantedTicket,
         },
       });
 
