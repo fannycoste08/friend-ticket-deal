@@ -26,7 +26,11 @@ import { supabase } from "@/integrations/supabase/client";
 const formSchema = z.object({
   name: z.string().trim().min(1, "El nombre es requerido").max(100),
   email: z.string().trim().email("Email inválido").max(255),
-  phone: z.string().trim().min(1, "El teléfono es requerido").max(20),
+  phone: z.string()
+    .trim()
+    .min(6, "El teléfono debe tener al menos 6 caracteres")
+    .max(20, "El teléfono debe tener máximo 20 caracteres")
+    .regex(/^[\d\s\+\-\(\)]+$/, "Teléfono inválido"),
   message: z.string().trim().min(1, "El mensaje es requerido").max(1000),
 });
 
