@@ -39,6 +39,22 @@ function isValidPhone(phone: string): boolean {
   return phoneRegex.test(phone) && phone.length >= 6 && phone.length <= 20;
 }
 
+function normalizeDeliveryEmail(email: string): string {
+  const trimmedEmail = email.trim().toLowerCase();
+  const [localPart, domain] = trimmedEmail.split('@');
+
+  if (!localPart || !domain) return trimmedEmail;
+
+  if (domain === 'gmail.com' || domain === 'googlemail.com') {
+    const plusIndex = localPart.indexOf('+');
+    if (plusIndex !== -1) {
+      return `${localPart.slice(0, plusIndex)}@gmail.com`;
+    }
+  }
+
+  return trimmedEmail;
+}
+
 function getFallbackHtml(vars: Record<string, string>): string {
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
@@ -162,9 +178,10 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const seller_email = sellerProfile.email;
+    const deliveryEmail = normalizeDeliveryEmail(seller_email);
 
     const rateLimitCheck = await checkRateLimit(
-      user.id, seller_email, 'send-contact-email',
+      user.id, deliveryEmail, 'send-contact-email',
       Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
@@ -206,7 +223,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: 'TrusTicket <info@trusticket.com>',
-        to: [seller_email],
+        to: [deliveryEmail],
         subject,
         html,
       }),
@@ -225,7 +242,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Email sent successfully:", emailData);
 
     await logEmail(
-      user.id, seller_email, 'send-contact-email',
+      user.id, deliveryEmail, 'send-contact-email',
       Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
