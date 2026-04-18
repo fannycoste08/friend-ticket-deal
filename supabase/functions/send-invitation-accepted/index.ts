@@ -201,7 +201,7 @@ const handler = async (req: Request): Promise<Response> => {
         invitee_email: invitation.invitee_email,
       });
 
-      subject = dbTemplate?.subject ?? '¡Tu solicitud de registro ha sido aprobada!';
+      subject = dbTemplate?.subject ?? 'Tu cuenta en TrusTicket está lista';
       html = dbTemplate?.html ?? getFallbackHtml(
         invitation.invitee_name,
         inviterName,
