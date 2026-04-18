@@ -38,6 +38,39 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_launch_tasks: {
+        Row: {
+          created_at: string
+          done: boolean
+          id: string
+          note: string
+          section: string
+          sort_order: number
+          task: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          done?: boolean
+          id?: string
+          note?: string
+          section: string
+          sort_order?: number
+          task: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          done?: boolean
+          id?: string
+          note?: string
+          section?: string
+          sort_order?: number
+          task?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_outreach: {
         Row: {
           comments: string
