@@ -170,7 +170,7 @@ const handler = async (req: Request): Promise<Response> => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from: 'TrusTicket <info@trusticket.com>',
+          from: 'TrusTicket <noreply@trusticket.com>',
           to: [match.profiles.email],
           subject,
           html,
