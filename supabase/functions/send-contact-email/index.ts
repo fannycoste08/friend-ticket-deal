@@ -222,7 +222,7 @@ const handler = async (req: Request): Promise<Response> => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'TrusTicket <noreply@trusticket.com>',
+        from: 'Trusticket <noreply@trusticket.com>',
         to: [deliveryEmail],
         reply_to: buyer_email.trim(),
         subject,
