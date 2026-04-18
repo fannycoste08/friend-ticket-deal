@@ -62,24 +62,19 @@ function getFallbackHtml(inviteeName: string, inviterName: string, passwordReset
       .container { max-width: 600px; margin: 0 auto; padding: 20px; }
       .header { background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
       .content { background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px; }
-      .highlight-box { background: #f0fdf4; padding: 15px; border-left: 4px solid #22c55e; margin: 20px 0; }
       .info-box { background: #eff6ff; padding: 15px; border-left: 4px solid #3b82f6; margin: 20px 0; }
       .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
     </style>
   </head>
   <body>
     <div class="container">
-      <div class="header"><h1 style="margin: 0;">🎉 ¡Tu cuenta ha sido aprobada!</h1></div>
+      <div class="header"><h1 style="margin: 0;">Tu cuenta en TrusTicket está lista</h1></div>
       <div class="content">
         <p>Hola <strong>${inviteeName}</strong>,</p>
-        <p>¡Buenas noticias! <strong>${inviterName}</strong> ha aprobado tu solicitud de registro en <strong>TrusTicket</strong>.</p>
-        <div class="highlight-box">
-          <p style="margin: 0; font-weight: bold; color: #16a34a;">✅ Tu cuenta ha sido creada</p>
-          <p style="margin: 5px 0 0 0; font-size: 14px;">Ahora solo necesitas establecer tu contraseña para acceder.</p>
-        </div>
+        <p><strong>${inviterName}</strong> ha aprobado tu solicitud. Ya puedes acceder a TrusTicket.</p>
         <div class="info-box">
-          <p style="margin: 0; font-weight: bold; color: #1e40af;">🔐 Crear tu contraseña:</p>
-          <p style="margin: 10px 0 20px 0; font-size: 14px;">Haz clic en el botón de abajo para crear tu contraseña de acceso:</p>
+          <p style="margin: 0; font-weight: bold; color: #1e40af;">🔑 Crea tu contraseña</p>
+          <p style="margin: 10px 0 20px 0; font-size: 14px;">Haz clic en el botón para activar tu cuenta:</p>
           <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
             <tr>
               <td align="center" bgcolor="#3b82f6" style="border-radius: 8px;">
@@ -87,14 +82,10 @@ function getFallbackHtml(inviteeName: string, inviterName: string, passwordReset
               </td>
             </tr>
           </table>
-          <p style="margin: 15px 0 0 0; font-size: 13px; color: #6b7280;"><strong>Importante:</strong> Necesitarás el email de tu padrino para verificar tu identidad.</p>
+          <p style="margin: 15px 0 0 0; font-size: 13px; color: #6b7280;">Necesitarás el email de tu padrino para verificar tu identidad.</p>
         </div>
-        <p style="color: #374151; font-size: 14px; margin-top: 20px;">Una vez que hayas creado tu contraseña, podrás iniciar sesión con:</p>
-        <ul style="color: #6b7280; font-size: 14px; margin: 10px 0 0 20px;">
-          <li>Email: <strong style="color: #374151;">${inviteeEmail}</strong></li>
-          <li>La contraseña que crees</li>
-        </ul>
-        <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta cuenta, puedes ignorar este email.</p>
+        <p style="color: #374151; font-size: 14px; margin-top: 20px;">Iniciarás sesión con <strong>${inviteeEmail}</strong> y la contraseña que elijas.</p>
+        <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta cuenta, ignora este email.</p>
       </div>
       <div class="footer"><p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p></div>
     </div>
