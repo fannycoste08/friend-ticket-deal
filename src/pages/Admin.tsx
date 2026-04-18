@@ -4,10 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, Search } from 'lucide-react';
+import { Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, Search, ListChecks } from 'lucide-react';
 import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
 import AdminOutreach from '@/components/AdminOutreach';
+import AdminLaunchTasks from '@/components/AdminLaunchTasks';
 
 interface UserWithFriends {
   id: string;
@@ -87,6 +88,10 @@ const Admin = () => {
             <TabsTrigger value="outreach" className="gap-1.5">
               <Send className="w-4 h-4" />
               Outreach
+            </TabsTrigger>
+            <TabsTrigger value="tasks" className="gap-1.5">
+              <ListChecks className="w-4 h-4" />
+              Tareas
             </TabsTrigger>
           </TabsList>
 
@@ -184,6 +189,10 @@ const Admin = () => {
 
           <TabsContent value="outreach">
             <AdminOutreach />
+          </TabsContent>
+
+          <TabsContent value="tasks">
+            <AdminLaunchTasks />
           </TabsContent>
         </Tabs>
       </div>
