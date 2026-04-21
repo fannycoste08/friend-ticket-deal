@@ -46,10 +46,9 @@ interface Friend {
   name: string;
 }
 
-type Section = 'profile' | 'friends' | 'invitations' | 'tickets' | 'wanted' | 'settings';
+type Section = 'friends' | 'invitations' | 'tickets' | 'wanted' | 'settings';
 
 const menuItems: { id: Section; label: string; icon: React.ElementType }[] = [
-  { id: 'profile', label: 'Mi Perfil', icon: User },
   { id: 'friends', label: 'Mis Amigos', icon: Users },
   { id: 'invitations', label: 'Invitaciones', icon: Mail },
   { id: 'tickets', label: 'Mis Entradas', icon: Ticket },
@@ -61,7 +60,7 @@ const Profile = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [activeSection, setActiveSection] = useState<Section>('profile');
+  const [activeSection, setActiveSection] = useState<Section>('friends');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tickets, setTickets] = useState<MyTicket[]>([]);
   const [wantedTickets, setWantedTickets] = useState<MyWantedTicket[]>([]);
