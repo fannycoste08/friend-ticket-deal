@@ -271,7 +271,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); loadInvitations(); }} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="pending">
             Pendientes ({pendingInvitations.length})
