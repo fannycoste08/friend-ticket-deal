@@ -34,8 +34,25 @@ const About = () => {
               concierto a la semana desde hace años.
             </p>
             <p>
-              Llevo más de 10 años con un Excel donde apunto conciertos a los que quiero ir (sí, un Excel) y hago
-              playlists mensuales en Spotify para no perderme nada de lo que voy descubriendo por el camino.
+              Llevo más de 10 años con un{" "}
+              <a
+                href="https://docs.google.com/spreadsheets/d/1bCX2DCK8dBlxhxWHG6ST7QxaYp5kHjj_qoNwE_rTh8g/edit?gid=1912233662#gid=1912233662"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity"
+              >
+                Excel
+              </a>{" "}
+              donde apunto conciertos a los que quiero ir (sí, un{" "}
+              <a
+                href="https://docs.google.com/spreadsheets/d/1bCX2DCK8dBlxhxWHG6ST7QxaYp5kHjj_qoNwE_rTh8g/edit?gid=1912233662#gid=1912233662"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline underline-offset-2 hover:opacity-80 transition-opacity"
+              >
+                Excel
+              </a>
+              ) y hago playlists mensuales en Spotify para no perderme nada de lo que voy descubriendo por el camino.
             </p>
             <p>
               <strong className="text-foreground">La música me ha regalado algo muy importante: gente.</strong>
