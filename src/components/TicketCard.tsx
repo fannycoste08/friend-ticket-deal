@@ -72,7 +72,7 @@ export const TicketCard = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 flex-wrap">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 flex-wrap">
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -88,15 +88,16 @@ export const TicketCard = ({
             className={
               networkLabel.isDirectFriend
                 ? "text-xs border-primary/30 text-primary bg-primary/10"
-                : "text-xs border-border/40 text-muted-foreground"
+                : "text-xs border-border/40 text-muted-foreground bg-muted/40"
             }
           >
             {networkLabel.text}
           </Badge>
         )}
-        <Badge variant="secondary" className="text-xs">
-          {ticket.ticket_type}
-        </Badge>
+      </div>
+
+      <div className="text-xs text-muted-foreground/70 mb-4">
+        {ticket.ticket_type}
       </div>
 
       {ticket.description && (
