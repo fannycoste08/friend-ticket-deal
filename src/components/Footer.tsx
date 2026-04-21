@@ -8,7 +8,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <span className="text-lg font-bold tracking-tight gradient-text">
-              TrusTicket
+              Trusticket
             </span>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
               Tu red social de confianza para vender y comprar entradas de conciertos
@@ -23,7 +23,7 @@ const Footer = () => {
             <ul className="space-y-2.5">
               <li>
                 <Link to="/manifesto" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Manifiesto TrusTicket
+                  Manifiesto Trusticket
                 </Link>
               </li>
               <li>
@@ -69,7 +69,7 @@ const Footer = () => {
 
         <div className="mt-12 pt-6 border-t border-border/40 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} TrusTicket. Todos los derechos reservados.
+            &copy; {new Date().getFullYear()} Trusticket. Todos los derechos reservados.
           </p>
         </div>
       </div>

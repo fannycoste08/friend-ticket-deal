@@ -33,8 +33,8 @@ function getFallbackHtml(recipientName: string, senderName: string, ticketArtist
 <h1>Tienes un nuevo mensaje</h1>
 <p>Hola ${recipientName},</p>
 <p><strong>${senderName}</strong> te ha enviado un mensaje sobre tu entrada de <strong>${ticketArtist}</strong>.</p>
-<p>Entra a TrusTicket para ver el mensaje y responder.</p>
-<p>Saludos,<br>El equipo de TrusTicket</p>
+<p>Entra a Trusticket para ver el mensaje y responder.</p>
+<p>Saludos,<br>El equipo de Trusticket</p>
 </body></html>`;
 }
 
@@ -125,7 +125,7 @@ const handler = async (req: Request): Promise<Response> => {
       ticket_artist: safeTicketArtist,
     });
 
-    const subject = dbTemplate?.subject ?? 'Nuevo mensaje sobre tu entrada - TrusTicket';
+    const subject = dbTemplate?.subject ?? 'Nuevo mensaje sobre tu entrada - Trusticket';
     const html = dbTemplate?.html ?? getFallbackHtml(safeRecipientName, safeSenderName, safeTicketArtist);
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');

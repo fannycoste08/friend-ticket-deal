@@ -29,13 +29,13 @@ function getDirectInviteHtml(inviteeName: string, inviterName: string, inviterEm
   </head>
   <body>
     <div class="container">
-      <div class="header"><h1 style="margin: 0;">🎟️ ¡Te han invitado a TrusTicket!</h1></div>
+      <div class="header"><h1 style="margin: 0;">🎟️ ¡Te han invitado a Trusticket!</h1></div>
       <div class="content">
         <p>Hola <strong>${inviteeName}</strong>,</p>
-        <p><strong>${inviterName}</strong> (${inviterEmail}) te quiere invitar a <strong>TrusTicket</strong>, la plataforma para comprar y vender entradas entre amigos de forma segura.</p>
+        <p><strong>${inviterName}</strong> (${inviterEmail}) te quiere invitar a <strong>Trusticket</strong>, la plataforma para comprar y vender entradas entre amigos de forma segura.</p>
         <div class="highlight-box">
           <p style="margin: 0; font-weight: bold; color: #16a34a;">🎉 Tu cuenta ha sido creada</p>
-          <p style="margin: 5px 0 0 0; font-size: 14px;">Pulsa el botón de abajo para crear tu contraseña y empezar a usar TrusTicket.</p>
+          <p style="margin: 5px 0 0 0; font-size: 14px;">Pulsa el botón de abajo para crear tu contraseña y empezar a usar Trusticket.</p>
         </div>
         <table cellpadding="0" cellspacing="0" border="0" style="margin: 20px auto;">
           <tr>
@@ -46,7 +46,7 @@ function getDirectInviteHtml(inviteeName: string, inviterName: string, inviterEm
         </table>
         <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no conoces a esta persona o no esperabas esta invitación, puedes ignorar este email.</p>
       </div>
-      <div class="footer"><p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p></div>
+      <div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
     </div>
   </body>
 </html>`;
@@ -68,10 +68,10 @@ function getFallbackHtml(inviteeName: string, inviterName: string, passwordReset
   </head>
   <body>
     <div class="container">
-      <div class="header"><h1 style="margin: 0;">Tu cuenta en TrusTicket está lista</h1></div>
+      <div class="header"><h1 style="margin: 0;">Tu cuenta en Trusticket está lista</h1></div>
       <div class="content">
         <p>Hola <strong>${inviteeName}</strong>,</p>
-        <p><strong>${inviterName}</strong> ha aprobado tu solicitud. Ya puedes acceder a TrusTicket.</p>
+        <p><strong>${inviterName}</strong> ha aprobado tu solicitud. Ya puedes acceder a Trusticket.</p>
         <div class="info-box">
           <p style="margin: 0; font-weight: bold; color: #1e40af;">🔑 Crea tu contraseña</p>
           <p style="margin: 10px 0 20px 0; font-size: 14px;">Haz clic en el botón para activar tu cuenta:</p>
@@ -87,7 +87,7 @@ function getFallbackHtml(inviteeName: string, inviterName: string, passwordReset
         <p style="color: #374151; font-size: 14px; margin-top: 20px;">Iniciarás sesión con <strong>${inviteeEmail}</strong> y la contraseña que elijas.</p>
         <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta cuenta, ignora este email.</p>
       </div>
-      <div class="footer"><p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p></div>
+      <div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
     </div>
   </body>
 </html>`;
@@ -185,7 +185,7 @@ const handler = async (req: Request): Promise<Response> => {
         password_reset_link,
       });
 
-      subject = dbTemplate?.subject ?? `${inviterName} te quiere invitar a TrusTicket`;
+      subject = dbTemplate?.subject ?? `${inviterName} te quiere invitar a Trusticket`;
       html = dbTemplate?.html ?? getDirectInviteHtml(
         invitation.invitee_name,
         inviterName,
@@ -201,7 +201,7 @@ const handler = async (req: Request): Promise<Response> => {
         invitee_email: invitation.invitee_email,
       });
 
-      subject = dbTemplate?.subject ?? 'Tu cuenta en TrusTicket está lista';
+      subject = dbTemplate?.subject ?? 'Tu cuenta en Trusticket está lista';
       html = dbTemplate?.html ?? getFallbackHtml(
         invitation.invitee_name,
         inviterName,

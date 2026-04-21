@@ -108,7 +108,7 @@ const handler = async (req: Request): Promise<Response> => {
       app_url: APP_URL,
     });
 
-    const subject = dbTemplate?.subject ?? 'Nueva solicitud de registro en TrusTicket';
+    const subject = dbTemplate?.subject ?? 'Nueva solicitud de registro en Trusticket';
     const html = dbTemplate?.html ?? getInvitationPendingEmail(
       inviterProfile.name,
       invitee_name,

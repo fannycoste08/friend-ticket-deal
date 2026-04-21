@@ -202,7 +202,7 @@ const CreatePassword = () => {
           </div>
           
           <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
-            ¡Bienvenido a TrusTicket!
+            ¡Bienvenido a Trusticket!
           </h1>
           
           <p className="text-muted-foreground text-sm lg:text-base max-w-md">
