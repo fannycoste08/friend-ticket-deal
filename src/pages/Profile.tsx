@@ -146,6 +146,16 @@ const Profile = () => {
     setPendingInvitationsCount(count || 0);
   };
 
+  const loadPendingFriendRequests = async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from("friendships")
+      .select("id", { count: "exact", head: true })
+      .eq("friend_id", user.id)
+      .eq("status", "pending");
+    setPendingFriendRequestsCount(count || 0);
+  };
+
   const handleDeleteTicket = async (id: string) => {
     const { error } = await supabase.from("tickets").delete().eq("id", id);
     if (error) {
