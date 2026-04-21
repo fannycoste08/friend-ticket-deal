@@ -18,6 +18,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 interface MyTicket {
@@ -46,13 +47,13 @@ interface Friend {
   name: string;
 }
 
-type Section = 'friends' | 'invitations' | 'tickets' | 'wanted' | 'settings';
+type Section = 'friends' | 'invitations' | 'tickets' | 'settings';
+type TicketsTab = 'selling' | 'wanted';
 
 const menuItems: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: 'friends', label: 'Mis Amigos', icon: Users },
   { id: 'invitations', label: 'Invitaciones', icon: Mail },
   { id: 'tickets', label: 'Mis Entradas', icon: Ticket },
-  { id: 'wanted', label: 'Entradas que Busco', icon: Search },
   { id: 'settings', label: 'Ajustes', icon: Settings },
 ];
 
