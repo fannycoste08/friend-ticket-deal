@@ -48,7 +48,7 @@ const InviteDialog = () => {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Invitar nueva persona</DialogTitle>
+          <DialogTitle>Invitar a un amigo a TrusTicket</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleInvite} className="space-y-4">
           <div className="space-y-2">
