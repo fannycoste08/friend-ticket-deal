@@ -137,12 +137,8 @@ const Register = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="w-full max-w-md fade-in-up">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">
-              Registro por invitación
-            </h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Solo puedes registrarte si alguien te apadrina
-            </p>
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">Regístrate a Trusticket</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Solo puedes registrarte si alguien te apadrina</p>
           </div>
 
           <div className="glass-strong rounded-2xl p-8" style={{ boxShadow: "var(--shadow-elevated)" }}>
@@ -211,7 +207,11 @@ const Register = () => {
                 </label>
               </div>
 
-              <Button type="submit" className="w-full h-11 gradient-primary border-0 hover:opacity-90" disabled={loading || !acceptedManifesto}>
+              <Button
+                type="submit"
+                className="w-full h-11 gradient-primary border-0 hover:opacity-90"
+                disabled={loading || !acceptedManifesto}
+              >
                 {loading ? "Solicitando registro..." : "Solicitar registro"}
               </Button>
             </form>
