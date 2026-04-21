@@ -14,7 +14,7 @@ interface ValidateInvitationRequest {
  * Validates whether an invitation can be created for the given email.
  *
  * Decision tree:
- *  1) Email already a TrusTicket user → create friendship request (no invitation)
+ *  1) Email already a Trusticket user → create friendship request (no invitation)
  *  2) Email has a pending invitation from the SAME inviter → block
  *  3) Email has a pending invitation from ANOTHER inviter → block
  *  4) Email has a rejected invitation → allow new invitation flow
@@ -106,7 +106,7 @@ const handler = async (req: Request): Promise<Response> => {
             JSON.stringify({
               action: 'blocked',
               reason: 'already_friends',
-              message: 'Ya sois amigos en TrusTicket.',
+              message: 'Ya sois amigos en Trusticket.',
             }),
             { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
@@ -165,7 +165,7 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({
           action: 'friend_request_created',
-          message: 'Este usuario ya está en TrusTicket. Le hemos enviado una solicitud de amistad.',
+          message: 'Este usuario ya está en Trusticket. Le hemos enviado una solicitud de amistad.',
         }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
