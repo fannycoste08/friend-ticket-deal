@@ -191,7 +191,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       }
 
       if (validation?.action === 'blocked') {
-        toast.error(validation.message || 'No se puede enviar la invitación.');
+        setBlockedDialog({ open: true, message: validation.message || 'No se puede enviar la invitación.' });
         setLoading(false);
         return;
       }
