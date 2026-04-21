@@ -173,6 +173,36 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
     setLoading(true);
 
     try {
+      // Step 1: Validate the invitee email server-side.
+      // This handles existing users (creates friendship request),
+      // duplicate pending invitations, and rejected invitations.
+      const { data: validation, error: validationError } = await supabase.functions.invoke(
+        'validate-invitation',
+        { body: { invitee_email: inviteEmail } }
+      );
+
+      if (validationError) {
+        console.error('Validation error:', validationError);
+        toast.error('Error al validar el email. Inténtalo de nuevo.');
+        setLoading(false);
+        return;
+      }
+
+      if (validation?.action === 'blocked') {
+        toast.error(validation.message || 'No se puede enviar la invitación.');
+        setLoading(false);
+        return;
+      }
+
+      if (validation?.action === 'friend_request_created') {
+        toast.success(validation.message);
+        setInviteEmail('');
+        setDialogOpen(false);
+        setLoading(false);
+        return;
+      }
+
+      // action === 'allow_invitation' → proceed with normal invitation flow
       // Get inviter profile
       const { data: profile } = await supabase
         .from('profiles')
