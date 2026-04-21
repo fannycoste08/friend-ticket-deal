@@ -441,7 +441,6 @@ const Profile = () => {
       case 'friends': return renderFriends();
       case 'invitations': return renderInvitations();
       case 'tickets': return renderTickets();
-      case 'wanted': return renderWanted();
       case 'settings': return renderSettings();
     }
   };
