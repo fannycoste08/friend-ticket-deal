@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { InvitationManager } from '@/components/InvitationManager';
+import { InvitationManager, InviteFriendButton } from '@/components/InvitationManager';
 import { FriendshipRequests } from '@/components/FriendshipRequests';
 import { MyTicketCard } from '@/components/MyTicketCard';
 import { MyWantedTicketCard } from '@/components/MyWantedTicketCard';
@@ -250,10 +250,14 @@ const Profile = () => {
   );
 
   const renderFriends = () => (
+    <InvitationManager userId={user.id}>
     <div className="space-y-6 fade-in-up">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Amigos</h2>
-        <p className="text-sm text-muted-foreground mt-1">{friends.length} amigos conectados</p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Amigos</h2>
+          <p className="text-sm text-muted-foreground mt-1">{friends.length} amigos conectados</p>
+        </div>
+        <InviteFriendButton />
       </div>
       {loadingFriends ? (
         <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
@@ -300,6 +304,7 @@ const Profile = () => {
         </div>
       )}
     </div>
+    </InvitationManager>
   );
 
   const renderInvitations = () => (
