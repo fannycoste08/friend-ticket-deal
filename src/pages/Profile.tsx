@@ -62,6 +62,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [activeSection, setActiveSection] = useState<Section>('friends');
+  const [ticketsTab, setTicketsTab] = useState<TicketsTab>('selling');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tickets, setTickets] = useState<MyTicket[]>([]);
   const [wantedTickets, setWantedTickets] = useState<MyWantedTicket[]>([]);
