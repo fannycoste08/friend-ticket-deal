@@ -236,24 +236,8 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
 
   return (
     <Card className="p-4 sm:p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
-      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="flex-1">
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground">Gestionar Invitaciones</h2>
-          <p className="text-sm text-muted-foreground">
-            {pendingInvitations.length} solicitudes pendientes
-          </p>
-        </div>
+      <div className="mb-4 flex justify-end">
         <div className="flex gap-2 flex-shrink-0">
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={() => loadInvitations()}
-            disabled={loading}
-            title="Refrescar invitaciones"
-            className="flex-shrink-0"
-          >
-            <RefreshCw className="w-4 h-4" />
-          </Button>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button className="gap-2 flex-shrink-0">
