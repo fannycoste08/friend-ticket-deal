@@ -42,7 +42,7 @@ const InviteDialog = () => {
       <DialogTrigger asChild>
         <Button className="gap-2 flex-shrink-0">
           <UserPlus className="w-4 h-4" />
-          <span className="hidden sm:inline">Invitar persona</span>
+          <span className="hidden sm:inline">Invitar a un amigo</span>
           <span className="sm:hidden">Invitar</span>
         </Button>
       </DialogTrigger>
