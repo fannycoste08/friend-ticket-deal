@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -32,7 +26,9 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
     setIsSubmitting(true);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
       if (!session) {
         toast.error("Debes iniciar sesión para enviar tu opinión");
@@ -66,15 +62,13 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Dar mi opinión sobre Trusticket</DialogTitle>
-          <DialogDescription>
-            Tu opinión nos ayuda a mejorar. Cuéntanos qué piensas.
-          </DialogDescription>
+          <DialogDescription>Tu opinión nos ayuda a mejorar. Cuéntanos lo que quieras!</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
           <div className="relative">
             <Textarea
-              placeholder="Escribe tu opinión aquí..."
+              placeholder="Escribe aquí..."
               className="min-h-[160px] resize-none"
               value={feedback}
               onChange={(e) => {
@@ -90,21 +84,12 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
           </div>
 
           <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1"
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Cancelar
             </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={!isValid || isSubmitting}
-              className="flex-1 gap-2"
-            >
+            <Button onClick={handleSubmit} disabled={!isValid || isSubmitting} className="flex-1 gap-2">
               <Send className="w-4 h-4" />
-              {isSubmitting ? "Enviando..." : "Enviar opinión"}
+              {isSubmitting ? "Enviando..." : "Enviar"}
             </Button>
           </div>
         </div>
