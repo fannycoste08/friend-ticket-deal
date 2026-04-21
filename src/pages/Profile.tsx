@@ -426,7 +426,6 @@ const Profile = () => {
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'profile': return renderProfile();
       case 'friends': return renderFriends();
       case 'invitations': return renderInvitations();
       case 'tickets': return renderTickets();
