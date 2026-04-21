@@ -102,6 +102,7 @@ const Profile = () => {
       loadWantedTickets();
       loadFriends();
       loadPendingInvitations();
+      loadPendingFriendRequests();
     }
   }, [user]);
 
