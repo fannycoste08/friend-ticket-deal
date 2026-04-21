@@ -221,7 +221,7 @@ const ResetPassword = () => {
           </h1>
           
           <p className="text-muted-foreground text-sm lg:text-base max-w-md">
-            Introduce tu nueva contraseña para acceder a TrusTicket
+            Introduce tu nueva contraseña para acceder a Trusticket
           </p>
         </div>
       </div>

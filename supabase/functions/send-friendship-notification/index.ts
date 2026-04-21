@@ -22,12 +22,12 @@ function getFallbackHtml(recipientName: string, requesterName: string, appUrl: s
 <div class="header"><h1 style="margin:0">¡Nueva solicitud de amistad!</h1></div>
 <div class="content">
 <p>Hola <strong>${recipientName}</strong>,</p>
-<p><strong>${requesterName}</strong> te ha enviado una solicitud de amistad en TrusTicket.</p>
+<p><strong>${requesterName}</strong> te ha enviado una solicitud de amistad en Trusticket.</p>
 <p>Puedes aceptar o rechazar esta solicitud desde tu perfil:</p>
 <div style="text-align:center"><a href="${appUrl}/profile" class="button">Ver solicitud</a></div>
 <p style="color:#6b7280;font-size:14px">Al aceptar la solicitud, podrás ver las entradas que publica ${requesterName} y ampliar tu red de confianza.</p>
 </div>
-<div class="footer"><p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p></div>
+<div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
 </div></body></html>`;
 }
 
@@ -100,7 +100,7 @@ const handler = async (req: Request): Promise<Response> => {
       app_url: APP_URL,
     });
 
-    const subject = dbTemplate?.subject ?? 'Nueva solicitud de amistad en TrusTicket';
+    const subject = dbTemplate?.subject ?? 'Nueva solicitud de amistad en Trusticket';
     const html = dbTemplate?.html ?? getFallbackHtml(recipient_name, requester_name, APP_URL);
 
     const emailResponse = await fetch('https://api.resend.com/emails', {

@@ -68,7 +68,7 @@ function getFallbackHtml(vars: Record<string, string>): string {
 <div class="info-box"><p style="margin:0"><strong>Datos de contacto:</strong></p><p style="margin:10px 0 0 0"><strong>Nombre:</strong> ${vars.buyer_name}<br><strong>Email:</strong> <a href="mailto:${vars.buyer_email}">${vars.buyer_email}</a><br><strong>Teléfono:</strong> <a href="tel:${vars.buyer_phone}">${vars.buyer_phone}</a></p></div>
 <p>Puedes ponerte en contacto directamente con ${vars.buyer_name} usando los datos de contacto proporcionados.</p>
 </div>
-<div class="footer"><p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p></div>
+<div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
 </div></body></html>`;
 }
 

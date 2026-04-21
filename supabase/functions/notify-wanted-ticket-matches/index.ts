@@ -36,9 +36,9 @@ function getFallbackHtml(vars: Record<string, string>): string {
 <div class="detail-row"><span class="icon">👤</span>Vendedor: ${vars.seller_name} (${vars.relation_text})</div>
 </div>
 <div style="text-align:center"><a href="${vars.app_url}/feed" class="button">Ver entrada</a></div>
-<p style="color:#6b7280;font-size:14px;margin-top:20px">Entra a TrusTicket para contactar con el vendedor y conseguir tu entrada.</p>
+<p style="color:#6b7280;font-size:14px;margin-top:20px">Entra a Trusticket para contactar con el vendedor y conseguir tu entrada.</p>
 </div>
-<div class="footer"><p>© 2025 TrusTicket. Compra y vende entradas de forma segura.</p></div>
+<div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
 </div></body></html>`;
 }
 

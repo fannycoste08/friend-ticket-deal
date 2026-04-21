@@ -47,7 +47,7 @@ const LegalNotice = () => {
             <section>
               <h2 className="text-xl font-semibold mb-3 text-foreground">4. Responsabilidad</h2>
               <p className="text-muted-foreground">
-                TrusTicket actúa como intermediario entre compradores y vendedores. No nos hacemos responsables de:
+                Trusticket actúa como intermediario entre compradores y vendedores. No nos hacemos responsables de:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
                 <li>La autenticidad o validez de las entradas publicadas</li>

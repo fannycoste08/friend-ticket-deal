@@ -30,7 +30,7 @@ function getFallbackHtml(vars: Record<string, string>): string {
 <div class="info-box"><p style="margin:0"><strong>Usuario:</strong> ${vars.user_name}</p><p style="margin:5px 0 0 0"><strong>Email:</strong> <a href="mailto:${vars.user_email}">${vars.user_email}</a></p></div>
 <div class="info-box"><p style="margin:0"><strong>Opinión:</strong></p><p style="margin:10px 0 0 0;white-space:pre-wrap">${vars.feedback}</p></div>
 </div>
-<div class="footer"><p>© 2025 TrusTicket — Opinión recibida desde la plataforma.</p></div>
+<div class="footer"><p>© 2025 Trusticket — Opinión recibida desde la plataforma.</p></div>
 </div></body></html>`;
 }
 
