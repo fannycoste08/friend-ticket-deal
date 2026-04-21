@@ -116,7 +116,7 @@ const handler = async (req: Request): Promise<Response> => {
             JSON.stringify({
               action: 'blocked',
               reason: 'friend_request_pending',
-              message: 'Ya existe una solicitud de amistad pendiente con este usuario.',
+              message: 'Ya tienes una solicitud pendiente con este usuario.',
             }),
             { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
