@@ -254,8 +254,7 @@ const Profile = () => {
     <div className="space-y-6 fade-in-up">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Amigos</h2>
-          <p className="text-sm text-muted-foreground mt-1">{friends.length} amigos conectados</p>
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
         </div>
         <InviteFriendButton />
       </div>
