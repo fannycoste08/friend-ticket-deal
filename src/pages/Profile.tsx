@@ -1,25 +1,34 @@
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { InvitationManager, InviteFriendButton } from '@/components/InvitationManager';
-import { FriendshipRequests } from '@/components/FriendshipRequests';
-import { MyTicketCard } from '@/components/MyTicketCard';
-import { MyWantedTicketCard } from '@/components/MyWantedTicketCard';
-import TicketForm from '@/components/TicketForm';
-import WantedTicketForm from '@/components/WantedTicketForm';
-import { useAuth } from '@/hooks/useAuth';
-import { useEmailNotifications } from '@/hooks/useEmailNotifications';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { InvitationManager, InviteFriendButton } from "@/components/InvitationManager";
+import { FriendshipRequests } from "@/components/FriendshipRequests";
+import { MyTicketCard } from "@/components/MyTicketCard";
+import { MyWantedTicketCard } from "@/components/MyWantedTicketCard";
+import TicketForm from "@/components/TicketForm";
+import WantedTicketForm from "@/components/WantedTicketForm";
+import { useAuth } from "@/hooks/useAuth";
+import { useEmailNotifications } from "@/hooks/useEmailNotifications";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 interface MyTicket {
   id: string;
@@ -47,22 +56,22 @@ interface Friend {
   name: string;
 }
 
-type Section = 'friends' | 'invitations' | 'tickets' | 'settings';
-type TicketsTab = 'selling' | 'wanted';
+type Section = "friends" | "invitations" | "tickets" | "settings";
+type TicketsTab = "selling" | "wanted";
 
 const menuItems: { id: Section; label: string; icon: React.ElementType }[] = [
-  { id: 'friends', label: 'Mis Amigos', icon: Users },
-  { id: 'invitations', label: 'Invitaciones', icon: Mail },
-  { id: 'tickets', label: 'Mis Entradas', icon: Ticket },
-  { id: 'settings', label: 'Ajustes', icon: Settings },
+  { id: "friends", label: "Mis Amigos", icon: Users },
+  { id: "invitations", label: "Invitaciones", icon: Mail },
+  { id: "tickets", label: "Mis Entradas", icon: Ticket },
+  { id: "settings", label: "Ajustes", icon: Settings },
 ];
 
 const Profile = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [activeSection, setActiveSection] = useState<Section>('friends');
-  const [ticketsTab, setTicketsTab] = useState<TicketsTab>('selling');
+  const [activeSection, setActiveSection] = useState<Section>("friends");
+  const [ticketsTab, setTicketsTab] = useState<TicketsTab>("selling");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tickets, setTickets] = useState<MyTicket[]>([]);
   const [wantedTickets, setWantedTickets] = useState<MyWantedTicket[]>([]);
@@ -76,38 +85,51 @@ const Profile = () => {
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
   const { emailNotificationsEnabled, toggleEmailNotifications } = useEmailNotifications(user?.id);
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
 
   useEffect(() => {
-    if (!loading && !user) navigate('/login');
+    if (!loading && !user) navigate("/login");
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (user) { loadProfile(); loadTickets(); loadWantedTickets(); loadFriends(); loadPendingInvitations(); }
+    if (user) {
+      loadProfile();
+      loadTickets();
+      loadWantedTickets();
+      loadFriends();
+      loadPendingInvitations();
+    }
   }, [user]);
 
   useEffect(() => {
-    if (window.location.hash === '#invitations') {
-      setActiveSection('invitations');
-      window.history.replaceState(null, '', window.location.pathname);
+    if (window.location.hash === "#invitations") {
+      setActiveSection("invitations");
+      window.history.replaceState(null, "", window.location.pathname);
     }
   }, []);
 
   const loadProfile = async () => {
     if (!user) return;
     setProfileData({
-      name: user.user_metadata?.name || user.email?.split('@')[0] || 'Usuario',
-      email: user.email || '',
+      name: user.user_metadata?.name || user.email?.split("@")[0] || "Usuario",
+      email: user.email || "",
     });
   };
 
   const loadTickets = async () => {
     if (!user) return;
     setLoadingTickets(true);
-    const { data, error } = await supabase.from('tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-    if (error) { console.error('Error loading tickets:', error); toast.error('Error al cargar tus entradas'); }
+    const { data, error } = await supabase
+      .from("tickets")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Error loading tickets:", error);
+      toast.error("Error al cargar tus entradas");
+    }
     setTickets(data || []);
     setLoadingTickets(false);
   };
@@ -115,40 +137,56 @@ const Profile = () => {
   const loadPendingInvitations = async () => {
     if (!user) return;
     const { count } = await supabase
-      .from('invitations')
-      .select('id', { count: 'exact', head: true })
-      .eq('inviter_id', user.id)
-      .eq('status', 'pending');
+      .from("invitations")
+      .select("id", { count: "exact", head: true })
+      .eq("inviter_id", user.id)
+      .eq("status", "pending");
     setPendingInvitationsCount(count || 0);
   };
 
   const handleDeleteTicket = async (id: string) => {
-    const { error } = await supabase.from('tickets').delete().eq('id', id);
-    if (error) { toast.error('Error al eliminar la entrada'); return; }
-    toast.success('Entrada eliminada');
+    const { error } = await supabase.from("tickets").delete().eq("id", id);
+    if (error) {
+      toast.error("Error al eliminar la entrada");
+      return;
+    }
+    toast.success("Entrada eliminada");
     loadTickets();
   };
 
   const handleMarkAsSold = async (id: string) => {
-    const { error } = await supabase.from('tickets').update({ status: 'sold' }).eq('id', id);
-    if (error) { toast.error('Error al marcar como vendida'); return; }
-    toast.success('Entrada marcada como vendida');
+    const { error } = await supabase.from("tickets").update({ status: "sold" }).eq("id", id);
+    if (error) {
+      toast.error("Error al marcar como vendida");
+      return;
+    }
+    toast.success("Entrada marcada como vendida");
     loadTickets();
   };
 
   const loadWantedTickets = async () => {
     if (!user) return;
     setLoadingWanted(true);
-    const { data, error } = await supabase.from('wanted_tickets').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-    if (error) { console.error('Error loading wanted tickets:', error); toast.error('Error al cargar tus búsquedas'); }
+    const { data, error } = await supabase
+      .from("wanted_tickets")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Error loading wanted tickets:", error);
+      toast.error("Error al cargar tus búsquedas");
+    }
     setWantedTickets(data || []);
     setLoadingWanted(false);
   };
 
   const handleDeleteWantedTicket = async (id: string) => {
-    const { error } = await supabase.from('wanted_tickets').delete().eq('id', id);
-    if (error) { toast.error('Error al eliminar la búsqueda'); return; }
-    toast.success('Búsqueda eliminada');
+    const { error } = await supabase.from("wanted_tickets").delete().eq("id", id);
+    if (error) {
+      toast.error("Error al eliminar la búsqueda");
+      return;
+    }
+    toast.success("Búsqueda eliminada");
     loadWantedTickets();
   };
 
@@ -156,42 +194,58 @@ const Profile = () => {
     if (!user) return;
     setLoadingFriends(true);
     const { data: friendshipsData, error: friendshipsError } = await supabase
-      .from('friendships').select('user_id, friend_id').eq('status', 'accepted')
+      .from("friendships")
+      .select("user_id, friend_id")
+      .eq("status", "accepted")
       .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
-    if (friendshipsError) { console.error('Error loading friendships:', friendshipsError); setLoadingFriends(false); return; }
-    if (!friendshipsData || friendshipsData.length === 0) { setFriends([]); setLoadingFriends(false); return; }
-    const friendIds = friendshipsData.map((f) => f.user_id === user.id ? f.friend_id : f.user_id);
-    const { data: profilesData } = await supabase.from('profiles').select('id, name').in('id', friendIds);
+    if (friendshipsError) {
+      console.error("Error loading friendships:", friendshipsError);
+      setLoadingFriends(false);
+      return;
+    }
+    if (!friendshipsData || friendshipsData.length === 0) {
+      setFriends([]);
+      setLoadingFriends(false);
+      return;
+    }
+    const friendIds = friendshipsData.map((f) => (f.user_id === user.id ? f.friend_id : f.user_id));
+    const { data: profilesData } = await supabase.from("profiles").select("id, name").in("id", friendIds);
     setFriends(profilesData || []);
     setLoadingFriends(false);
   };
 
   const handleDeleteFriend = async () => {
     if (!user || !friendToDelete) return;
-    const { error } = await supabase.from('friendships').delete()
+    const { error } = await supabase
+      .from("friendships")
+      .delete()
       .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`)
       .or(`user_id.eq.${friendToDelete.id},friend_id.eq.${friendToDelete.id}`);
-    if (error) { toast.error('Error al eliminar amigo'); setFriendToDelete(null); return; }
+    if (error) {
+      toast.error("Error al eliminar amigo");
+      setFriendToDelete(null);
+      return;
+    }
     setFriends((prev) => prev.filter((f) => f.id !== friendToDelete.id));
-    toast.success('Amigo eliminado');
+    toast.success("Amigo eliminado");
     setFriendToDelete(null);
   };
 
   const handleDeleteAccount = async () => {
-    if (!user || deleteConfirmText !== 'ELIMINAR') return;
+    if (!user || deleteConfirmText !== "ELIMINAR") return;
     setIsDeletingAccount(true);
     try {
-      const { error } = await supabase.functions.invoke('delete-user', { body: { userId: user.id } });
+      const { error } = await supabase.functions.invoke("delete-user", { body: { userId: user.id } });
       if (error) throw error;
-      toast.success('Tu cuenta ha sido eliminada');
+      toast.success("Tu cuenta ha sido eliminada");
       await supabase.auth.signOut();
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
-      console.error('Error deleting account:', error);
-      toast.error('Error al eliminar la cuenta');
+      console.error("Error deleting account:", error);
+      toast.error("Error al eliminar la cuenta");
       setIsDeletingAccount(false);
       setShowDeleteAccountDialog(false);
-      setDeleteConfirmText('');
+      setDeleteConfirmText("");
     }
   };
 
@@ -210,7 +264,7 @@ const Profile = () => {
 
   if (!user || !profileData) return null;
 
-  const availableTicketsCount = tickets.filter((t) => t.status === 'available').length;
+  const availableTicketsCount = tickets.filter((t) => t.status === "available").length;
 
   // --- Section renderers ---
 
@@ -220,12 +274,10 @@ const Profile = () => {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Mi Perfil</h2>
         <p className="text-sm text-muted-foreground mt-1">Información de tu cuenta</p>
       </div>
-      <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+      <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: "var(--shadow-card)" }}>
         <div className="flex items-center gap-4 mb-6">
           <div className="w-14 h-14 rounded-full gradient-vibrant flex items-center justify-center">
-            <span className="text-xl font-bold text-primary">
-              {profileData.name.charAt(0).toUpperCase()}
-            </span>
+            <span className="text-xl font-bold text-primary">{profileData.name.charAt(0).toUpperCase()}</span>
           </div>
           <div>
             <h3 className="text-lg font-bold text-foreground">{profileData.name}</h3>
@@ -253,58 +305,59 @@ const Profile = () => {
 
   const renderFriends = () => (
     <InvitationManager userId={user.id}>
-    <div className="space-y-6 fade-in-up">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
+      <div className="space-y-6 fade-in-up">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
+          </div>
+          <InviteFriendButton />
         </div>
-        <InviteFriendButton />
-      </div>
-      {loadingFriends ? (
-        <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
-      ) : friends.length === 0 ? (
-        <div className="text-center py-16 bg-muted/30 rounded-xl">
-          <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No tienes amigos conectados aún</p>
-        </div>
-      ) : (
-        <div className="grid gap-3 md:grid-cols-2">
-          {friends.map((friend) => (
-            <div key={friend.id} className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
-                    <span className="text-sm font-medium text-primary">
-                      {friend.name.charAt(0).toUpperCase()}
-                    </span>
+        {loadingFriends ? (
+          <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
+        ) : friends.length === 0 ? (
+          <div className="text-center py-16 bg-muted/30 rounded-xl">
+            <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">No tienes amigos conectados aún</p>
+          </div>
+        ) : (
+          <div className="grid gap-3 md:grid-cols-2">
+            {friends.map((friend) => (
+              <div
+                key={friend.id}
+                className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
+                      <span className="text-sm font-medium text-primary">{friend.name.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <h3 className="font-medium text-foreground truncate text-sm">{friend.name}</h3>
                   </div>
-                  <h3 className="font-medium text-foreground truncate text-sm">{friend.name}</h3>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate(`/user/${friend.id}`)}
-                    className="text-muted-foreground hover:text-foreground text-xs"
-                  >
-                    Ver perfil
-                   </Button>
-                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setFriendToDelete(friend)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <UserMinus className="w-3.5 h-3.5 mr-1" />
-                    Eliminar
-                  </Button>
+                  <div className="flex gap-2 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => navigate(`/user/${friend.id}`)}
+                      className="text-muted-foreground hover:text-foreground text-xs"
+                    >
+                      Ver perfil
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setFriendToDelete(friend)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <UserMinus className="w-3.5 h-3.5 mr-1" />
+                      Eliminar
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        )}
+      </div>
     </InvitationManager>
   );
 
@@ -322,14 +375,14 @@ const Profile = () => {
     <div className="space-y-6 fade-in-up">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Entradas</h2>
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis entradas</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {ticketsTab === 'selling'
+            {ticketsTab === "selling"
               ? `${availableTicketsCount} en venta`
               : `${wantedTickets.length} búsquedas activas`}
           </p>
         </div>
-        {ticketsTab === 'selling' ? (
+        {ticketsTab === "selling" ? (
           <TicketForm onSuccess={loadTickets} />
         ) : (
           <WantedTicketForm onSuccess={loadWantedTickets} />
@@ -395,16 +448,16 @@ const Profile = () => {
       </div>
 
       {/* Notifications */}
-      <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
+      <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: "var(--shadow-card)" }}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 className="font-semibold text-foreground mb-1">Preferencias de Notificaciones</h3>
-            <p className="text-sm text-muted-foreground">
-              Te avisaremos cuando aparezcan entradas que buscas
-            </p>
+            <h3 className="font-semibold text-foreground mb-1">Preferencias de notificaciones</h3>
+            <p className="text-sm text-muted-foreground">Te avisaremos cuando aparezcan entradas que buscas</p>
           </div>
           <div className="flex items-center gap-2">
-            <Label htmlFor="email-notifications" className="text-sm text-foreground">Recibir notificaciones por email</Label>
+            <Label htmlFor="email-notifications" className="text-sm text-foreground">
+              Recibir notificaciones por email
+            </Label>
             <Switch
               id="email-notifications"
               checked={emailNotificationsEnabled}
@@ -438,10 +491,14 @@ const Profile = () => {
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'friends': return renderFriends();
-      case 'invitations': return renderInvitations();
-      case 'tickets': return renderTickets();
-      case 'settings': return renderSettings();
+      case "friends":
+        return renderFriends();
+      case "invitations":
+        return renderInvitations();
+      case "tickets":
+        return renderTickets();
+      case "settings":
+        return renderSettings();
     }
   };
 
@@ -455,26 +512,35 @@ const Profile = () => {
             key={item.id}
             onClick={() => handleSectionChange(item.id)}
             className={cn(
-              'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
+              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left",
               isActive
-                ? 'bg-primary/10 text-primary'
-                : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
             )}
           >
             <Icon className="w-4 h-4 shrink-0" />
             <span className="truncate">{item.label}</span>
-            {item.id === 'friends' && friends.length > 0 && (
-              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
+            {item.id === "friends" && friends.length > 0 && (
+              <Badge
+                variant={isActive ? "secondary" : "outline"}
+                className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
+              >
                 {friends.length}
               </Badge>
             )}
-            {item.id === 'invitations' && pendingInvitationsCount > 0 && (
-              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
+            {item.id === "invitations" && pendingInvitationsCount > 0 && (
+              <Badge
+                variant={isActive ? "secondary" : "outline"}
+                className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
+              >
                 {pendingInvitationsCount}
               </Badge>
             )}
-            {item.id === 'tickets' && (availableTicketsCount + wantedTickets.length) > 0 && (
-              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
+            {item.id === "tickets" && availableTicketsCount + wantedTickets.length > 0 && (
+              <Badge
+                variant={isActive ? "secondary" : "outline"}
+                className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
+              >
                 {availableTicketsCount + wantedTickets.length}
               </Badge>
             )}
@@ -506,9 +572,7 @@ const Profile = () => {
 
         {/* Mobile menu */}
         {isMobile && mobileMenuOpen && (
-          <div className="mb-4 bg-card rounded-2xl border border-border/40 p-3 fade-in-up">
-            {sidebarContent}
-          </div>
+          <div className="mb-4 bg-card rounded-2xl border border-border/40 p-3 fade-in-up">{sidebarContent}</div>
         )}
 
         <div className="flex gap-8">
@@ -541,10 +605,22 @@ const Profile = () => {
 
       {/* Edit dialogs */}
       {editingTicket && (
-        <TicketForm editTicket={editingTicket} onSuccess={() => { loadTickets(); setEditingTicket(undefined); }} />
+        <TicketForm
+          editTicket={editingTicket}
+          onSuccess={() => {
+            loadTickets();
+            setEditingTicket(undefined);
+          }}
+        />
       )}
       {editingWantedTicket && (
-        <WantedTicketForm editTicket={editingWantedTicket} onSuccess={() => { loadWantedTickets(); setEditingWantedTicket(undefined); }} />
+        <WantedTicketForm
+          editTicket={editingWantedTicket}
+          onSuccess={() => {
+            loadWantedTickets();
+            setEditingWantedTicket(undefined);
+          }}
+        />
       )}
 
       {/* Delete friend dialog */}
@@ -558,7 +634,10 @@ const Profile = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteFriend} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleDeleteFriend}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Aceptar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -597,10 +676,10 @@ const Profile = () => {
             <AlertDialogCancel disabled={isDeletingAccount}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
-              disabled={deleteConfirmText !== 'ELIMINAR' || isDeletingAccount}
+              disabled={deleteConfirmText !== "ELIMINAR" || isDeletingAccount}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
             >
-              {isDeletingAccount ? 'Eliminando...' : 'Eliminar definitivamente'}
+              {isDeletingAccount ? "Eliminando..." : "Eliminar definitivamente"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
