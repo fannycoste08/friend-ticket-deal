@@ -473,14 +473,9 @@ const Profile = () => {
                 {pendingInvitationsCount}
               </Badge>
             )}
-            {item.id === 'tickets' && availableTicketsCount > 0 && (
+            {item.id === 'tickets' && (availableTicketsCount + wantedTickets.length) > 0 && (
               <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
-                {availableTicketsCount}
-              </Badge>
-            )}
-            {item.id === 'wanted' && wantedTickets.length > 0 && (
-              <Badge variant={isActive ? 'secondary' : 'outline'} className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center">
-                {wantedTickets.length}
+                {availableTicketsCount + wantedTickets.length}
               </Badge>
             )}
           </button>
