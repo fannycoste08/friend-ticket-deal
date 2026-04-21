@@ -106,7 +106,7 @@ const handler = async (req: Request): Promise<Response> => {
             JSON.stringify({
               action: 'blocked',
               reason: 'already_friends',
-              message: 'Este usuario ya forma parte de tu red de amigos.',
+              message: 'Ya sois amigos en TrusTicket.',
             }),
             { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
           );
