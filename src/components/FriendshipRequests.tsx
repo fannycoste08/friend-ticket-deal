@@ -16,7 +16,14 @@ interface FriendRequest {
   };
 }
 
-export const FriendshipRequests = () => {
+interface FriendshipRequestsProps {
+  /** When true, renders inline (no Card wrapper, no header) and always shows the list area, even when empty. */
+  embedded?: boolean;
+  /** Optional callback fired whenever the pending requests count changes. */
+  onCountChange?: (count: number) => void;
+}
+
+export const FriendshipRequests = ({ embedded = false, onCountChange }: FriendshipRequestsProps = {}) => {
   const { user } = useAuth();
   const [requests, setRequests] = useState<FriendRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +76,10 @@ export const FriendshipRequests = () => {
     setLoading(false);
   };
 
+  useEffect(() => {
+    onCountChange?.(requests.length);
+  }, [requests.length, onCountChange]);
+
   const subscribeToRequests = () => {
     const channel = supabase
       .channel('friendship-requests')
@@ -120,8 +131,55 @@ export const FriendshipRequests = () => {
     loadRequests();
   };
 
-  if (loading || requests.length === 0) {
+  // Original (non-embedded) behavior: hide entirely when empty / loading.
+  if (!embedded && (loading || requests.length === 0)) {
     return null;
+  }
+
+  if (embedded) {
+    if (loading) {
+      return <p className="text-sm text-muted-foreground text-center py-12">Cargando solicitudes...</p>;
+    }
+    if (requests.length === 0) {
+      return (
+        <div className="text-center py-16 bg-muted/30 rounded-xl">
+          <UserPlus className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">No tienes solicitudes pendientes</p>
+        </div>
+      );
+    }
+    return (
+      <div className="space-y-3">
+        {requests.map((request) => (
+          <div
+            key={request.id}
+            className="flex items-center justify-between p-4 border border-border/50 rounded-lg bg-card"
+          >
+            <div>
+              <p className="font-medium">{request.profiles.name}</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={() => handleAccept(request.id)}
+                className="bg-gradient-to-r from-primary to-accent"
+              >
+                <Check className="w-4 h-4 mr-1" />
+                Aceptar
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleReject(request.id)}
+              >
+                <X className="w-4 h-4 mr-1" />
+                Rechazar
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
