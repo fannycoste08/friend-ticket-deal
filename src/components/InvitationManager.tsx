@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +28,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('pending');
+  const [blockedDialog, setBlockedDialog] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
 
   const loadInvitations = async () => {
     console.log('🔍 [InvitationManager] Starting to load invitations...');
@@ -189,7 +191,7 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
       }
 
       if (validation?.action === 'blocked') {
-        toast.error(validation.message || 'No se puede enviar la invitación.');
+        setBlockedDialog({ open: true, message: validation.message || 'No se puede enviar la invitación.' });
         setLoading(false);
         return;
       }
@@ -300,6 +302,22 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
         </Dialog>
         </div>
       </div>
+
+      <AlertDialog open={blockedDialog.open} onOpenChange={(open) => setBlockedDialog({ ...blockedDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>No se puede enviar la invitación</AlertDialogTitle>
+            <AlertDialogDescription className="text-base pt-2">
+              {blockedDialog.message}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setBlockedDialog({ open: false, message: '' })}>
+              Entendido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); loadInvitations(); }} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
