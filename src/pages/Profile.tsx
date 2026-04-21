@@ -88,6 +88,8 @@ const Profile = () => {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
+  const [friendsTab, setFriendsTab] = useState<"list" | "requests">("list");
+  const [pendingFriendRequestsCount, setPendingFriendRequestsCount] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -100,7 +102,33 @@ const Profile = () => {
       loadWantedTickets();
       loadFriends();
       loadPendingInvitations();
+      loadPendingFriendRequests();
     }
+  }, [user]);
+
+  // Keep pending friend-request count in sync with realtime changes,
+  // so the sidebar badge updates even when the Friends section is not active.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("profile-friendship-requests")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "friendships",
+          filter: `friend_id=eq.${user.id}`,
+        },
+        () => {
+          loadPendingFriendRequests();
+          loadFriends();
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
 
   useEffect(() => {
@@ -142,6 +170,16 @@ const Profile = () => {
       .eq("inviter_id", user.id)
       .eq("status", "pending");
     setPendingInvitationsCount(count || 0);
+  };
+
+  const loadPendingFriendRequests = async () => {
+    if (!user) return;
+    const { count } = await supabase
+      .from("friendships")
+      .select("id", { count: "exact", head: true })
+      .eq("friend_id", user.id)
+      .eq("status", "pending");
+    setPendingFriendRequestsCount(count || 0);
   };
 
   const handleDeleteTicket = async (id: string) => {
@@ -312,51 +350,64 @@ const Profile = () => {
           </div>
           <InviteFriendButton />
         </div>
-        {loadingFriends ? (
-          <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
-        ) : friends.length === 0 ? (
-          <div className="text-center py-16 bg-muted/30 rounded-xl">
-            <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">No tienes amigos conectados aún</p>
-          </div>
-        ) : (
-          <div className="grid gap-3 md:grid-cols-2">
-            {friends.map((friend) => (
-              <div
-                key={friend.id}
-                className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
-                      <span className="text-sm font-medium text-primary">{friend.name.charAt(0).toUpperCase()}</span>
-                    </div>
-                    <h3 className="font-medium text-foreground truncate text-sm">{friend.name}</h3>
-                  </div>
-                  <div className="flex gap-2 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate(`/user/${friend.id}`)}
-                      className="text-muted-foreground hover:text-foreground text-xs"
-                    >
-                      Ver perfil
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setFriendToDelete(friend)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    >
-                      <UserMinus className="w-3.5 h-3.5 mr-1" />
-                      Eliminar
-                    </Button>
-                  </div>
-                </div>
+        <Tabs value={friendsTab} onValueChange={(v) => setFriendsTab(v as "list" | "requests")}>
+          <TabsList className="grid w-full grid-cols-2 max-w-sm">
+            <TabsTrigger value="list">Mis amigos</TabsTrigger>
+            <TabsTrigger value="requests">
+              Solicitudes{pendingFriendRequestsCount > 0 ? ` (${pendingFriendRequestsCount})` : ""}
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="list" className="mt-6">
+            {loadingFriends ? (
+              <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
+            ) : friends.length === 0 ? (
+              <div className="text-center py-16 bg-muted/30 rounded-xl">
+                <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No tienes amigos conectados aún</p>
               </div>
-            ))}
-          </div>
-        )}
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2">
+                {friends.map((friend) => (
+                  <div
+                    key={friend.id}
+                    className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
+                          <span className="text-sm font-medium text-primary">{friend.name.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <h3 className="font-medium text-foreground truncate text-sm">{friend.name}</h3>
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/user/${friend.id}`)}
+                          className="text-muted-foreground hover:text-foreground text-xs"
+                        >
+                          Ver perfil
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setFriendToDelete(friend)}
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <UserMinus className="w-3.5 h-3.5 mr-1" />
+                          Eliminar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="requests" className="mt-6">
+            <FriendshipRequests embedded onCountChange={setPendingFriendRequestsCount} />
+          </TabsContent>
+        </Tabs>
       </div>
     </InvitationManager>
   );
@@ -519,12 +570,12 @@ const Profile = () => {
           >
             <Icon className="w-4 h-4 shrink-0" />
             <span className="truncate">{item.label}</span>
-            {item.id === "friends" && friends.length > 0 && (
+            {item.id === "friends" && friends.length + pendingFriendRequestsCount > 0 && (
               <Badge
                 variant={isActive ? "secondary" : "outline"}
                 className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
               >
-                {friends.length}
+                {friends.length + pendingFriendRequestsCount}
               </Badge>
             )}
             {item.id === "invitations" && pendingInvitationsCount > 0 && (
