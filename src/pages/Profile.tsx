@@ -250,10 +250,14 @@ const Profile = () => {
   );
 
   const renderFriends = () => (
+    <InvitationManager userId={user.id}>
     <div className="space-y-6 fade-in-up">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Amigos</h2>
-        <p className="text-sm text-muted-foreground mt-1">{friends.length} amigos conectados</p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Amigos</h2>
+          <p className="text-sm text-muted-foreground mt-1">{friends.length} amigos conectados</p>
+        </div>
+        <InviteFriendButton />
       </div>
       {loadingFriends ? (
         <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
@@ -300,6 +304,7 @@ const Profile = () => {
         </div>
       )}
     </div>
+    </InvitationManager>
   );
 
   const renderInvitations = () => (
