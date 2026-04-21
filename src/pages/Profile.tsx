@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { InvitationManager } from '@/components/InvitationManager';
+import { InvitationManager, InviteFriendButton } from '@/components/InvitationManager';
 import { FriendshipRequests } from '@/components/FriendshipRequests';
 import { MyTicketCard } from '@/components/MyTicketCard';
 import { MyWantedTicketCard } from '@/components/MyWantedTicketCard';
