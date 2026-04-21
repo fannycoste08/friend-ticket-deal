@@ -320,64 +320,70 @@ const Profile = () => {
 
   const renderTickets = () => (
     <div className="space-y-6 fade-in-up">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis Entradas</h2>
-          <p className="text-sm text-muted-foreground mt-1">{availableTicketsCount} en venta</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {ticketsTab === 'selling'
+              ? `${availableTicketsCount} en venta`
+              : `${wantedTickets.length} búsquedas activas`}
+          </p>
         </div>
-        <TicketForm onSuccess={loadTickets} />
+        {ticketsTab === 'selling' ? (
+          <TicketForm onSuccess={loadTickets} />
+        ) : (
+          <WantedTicketForm onSuccess={loadWantedTickets} />
+        )}
       </div>
-      {loadingTickets ? (
-        <p className="text-sm text-muted-foreground text-center py-12">Cargando tus entradas...</p>
-      ) : tickets.length === 0 ? (
-        <div className="text-center py-16 bg-muted/30 rounded-xl">
-          <Ticket className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No tienes entradas publicadas</p>
-        </div>
-      ) : (
-        <div className="grid gap-3 md:grid-cols-2">
-          {tickets.map((ticket) => (
-            <MyTicketCard
-              key={ticket.id}
-              ticket={ticket}
-              onEdit={() => setEditingTicket(ticket)}
-              onDelete={() => handleDeleteTicket(ticket.id)}
-              onMarkAsSold={() => handleMarkAsSold(ticket.id)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-
-  const renderWanted = () => (
-    <div className="space-y-6 fade-in-up">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Entradas que Busco</h2>
-          <p className="text-sm text-muted-foreground mt-1">{wantedTickets.length} búsquedas activas</p>
-        </div>
-        <WantedTicketForm onSuccess={loadWantedTickets} />
-      </div>
-      {loadingWanted ? (
-        <p className="text-sm text-muted-foreground text-center py-12">Cargando tus búsquedas...</p>
-      ) : wantedTickets.length === 0 ? (
-        <div className="text-center py-16 bg-muted/30 rounded-xl">
-          <Search className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No tienes búsquedas activas</p>
-        </div>
-      ) : (
-        <div className="grid gap-3 md:grid-cols-2">
-          {wantedTickets.map((ticket) => (
-            <MyWantedTicketCard
-              key={ticket.id}
-              ticket={ticket}
-              onEdit={() => setEditingWantedTicket(ticket)}
-              onDelete={() => handleDeleteWantedTicket(ticket.id)}
-            />
-          ))}
-        </div>
-      )}
+      <Tabs value={ticketsTab} onValueChange={(v) => setTicketsTab(v as TicketsTab)}>
+        <TabsList className="grid w-full grid-cols-2 max-w-sm">
+          <TabsTrigger value="selling">En venta</TabsTrigger>
+          <TabsTrigger value="wanted">Buscando</TabsTrigger>
+        </TabsList>
+        <TabsContent value="selling" className="mt-6">
+          {loadingTickets ? (
+            <p className="text-sm text-muted-foreground text-center py-12">Cargando tus entradas...</p>
+          ) : tickets.length === 0 ? (
+            <div className="text-center py-16 bg-muted/30 rounded-xl">
+              <Ticket className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No tienes entradas publicadas</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {tickets.map((ticket) => (
+                <MyTicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  onEdit={() => setEditingTicket(ticket)}
+                  onDelete={() => handleDeleteTicket(ticket.id)}
+                  onMarkAsSold={() => handleMarkAsSold(ticket.id)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+        <TabsContent value="wanted" className="mt-6">
+          {loadingWanted ? (
+            <p className="text-sm text-muted-foreground text-center py-12">Cargando tus búsquedas...</p>
+          ) : wantedTickets.length === 0 ? (
+            <div className="text-center py-16 bg-muted/30 rounded-xl">
+              <Search className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No tienes búsquedas activas</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 md:grid-cols-2">
+              {wantedTickets.map((ticket) => (
+                <MyWantedTicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  onEdit={() => setEditingWantedTicket(ticket)}
+                  onDelete={() => handleDeleteWantedTicket(ticket.id)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 
