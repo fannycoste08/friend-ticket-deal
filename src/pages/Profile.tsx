@@ -570,12 +570,12 @@ const Profile = () => {
           >
             <Icon className="w-4 h-4 shrink-0" />
             <span className="truncate">{item.label}</span>
-            {item.id === "friends" && friends.length > 0 && (
+            {item.id === "friends" && friends.length + pendingFriendRequestsCount > 0 && (
               <Badge
                 variant={isActive ? "secondary" : "outline"}
                 className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
               >
-                {friends.length}
+                {friends.length + pendingFriendRequestsCount}
               </Badge>
             )}
             {item.id === "invitations" && pendingInvitationsCount > 0 && (
