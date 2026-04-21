@@ -106,6 +106,31 @@ const Profile = () => {
     }
   }, [user]);
 
+  // Keep pending friend-request count in sync with realtime changes,
+  // so the sidebar badge updates even when the Friends section is not active.
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("profile-friendship-requests")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "friendships",
+          filter: `friend_id=eq.${user.id}`,
+        },
+        () => {
+          loadPendingFriendRequests();
+          loadFriends();
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   useEffect(() => {
     if (window.location.hash === "#invitations") {
       setActiveSection("invitations");
