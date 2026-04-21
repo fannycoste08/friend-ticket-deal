@@ -365,7 +365,6 @@ const Profile = () => {
     <div className="space-y-6 fade-in-up">
       <div>
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Invitaciones</h2>
-        <p className="text-sm text-muted-foreground mt-1">Gestiona tus invitaciones</p>
       </div>
       <InvitationManager userId={user.id} />
     </div>
