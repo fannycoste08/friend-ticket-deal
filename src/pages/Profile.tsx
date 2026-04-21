@@ -62,7 +62,7 @@ type TicketsTab = "selling" | "wanted";
 const menuItems: { id: Section; label: string; icon: React.ElementType }[] = [
   { id: "friends", label: "Mis Amigos", icon: Users },
   { id: "invitations", label: "Invitaciones", icon: Mail },
-  { id: "tickets", label: "Mis Entradas", icon: Ticket },
+  { id: "tickets", label: "Mis entradas", icon: Ticket },
   { id: "settings", label: "Ajustes", icon: Settings },
 ];
 
