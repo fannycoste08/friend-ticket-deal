@@ -303,6 +303,22 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
         </div>
       </div>
 
+      <AlertDialog open={blockedDialog.open} onOpenChange={(open) => setBlockedDialog({ ...blockedDialog, open })}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>No se puede enviar la invitación</AlertDialogTitle>
+            <AlertDialogDescription className="text-base pt-2">
+              {blockedDialog.message}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setBlockedDialog({ open: false, message: '' })}>
+              Entendido
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); loadInvitations(); }} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="pending">
