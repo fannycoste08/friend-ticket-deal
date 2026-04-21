@@ -88,7 +88,7 @@ export const TicketCard = ({
             className={
               networkLabel.isDirectFriend
                 ? "text-xs border-primary/30 text-primary bg-primary/10"
-                : "text-xs border-border/40 text-muted-foreground bg-muted/40"
+                : "text-xs border-[#06B6D4]/40 text-[#06B6D4] bg-[#06B6D4]/10"
             }
           >
             {networkLabel.text}
