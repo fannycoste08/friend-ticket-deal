@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import { Mail, Check, X, UserPlus, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,64 @@ interface Invitation {
   created_at: string;
 }
 
-export const InvitationManager = ({ userId }: { userId: string }) => {
+// Shared context so the standalone InviteFriendButton can reuse the manager's
+// invite logic and state without duplicating any code.
+interface InviteContextValue {
+  inviteEmail: string;
+  setInviteEmail: (v: string) => void;
+  dialogOpen: boolean;
+  setDialogOpen: (v: boolean) => void;
+  loading: boolean;
+  handleInvite: (e: React.FormEvent) => Promise<void>;
+}
+const InviteContext = createContext<InviteContextValue | null>(null);
+
+const InviteDialog = () => {
+  const ctx = useContext(InviteContext);
+  if (!ctx) return null;
+  const { inviteEmail, setInviteEmail, dialogOpen, setDialogOpen, loading, handleInvite } = ctx;
+  return (
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <DialogTrigger asChild>
+        <Button className="gap-2 flex-shrink-0">
+          <UserPlus className="w-4 h-4" />
+          <span className="hidden sm:inline">Invitar persona</span>
+          <span className="sm:hidden">Invitar</span>
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Invitar nueva persona</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleInvite} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="inviteEmail">Email</Label>
+            <Input
+              id="inviteEmail"
+              type="email"
+              placeholder="persona@email.com"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={loading}>
+            Enviar invitación
+          </Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+/**
+ * Standalone invite button that reuses the InvitationManager's logic.
+ * Must be rendered inside <InvitationManager> (via the shared context).
+ * If used outside, it renders nothing.
+ */
+export const InviteFriendButton = () => <InviteDialog />;
+
+export const InvitationManager = ({ userId, children }: { userId: string; children?: React.ReactNode }) => {
   const [pendingInvitations, setPendingInvitations] = useState<Invitation[]>([]);
   const [approvedInvitations, setApprovedInvitations] = useState<Invitation[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -266,40 +323,26 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
     }
   };
 
+  const ctxValue: InviteContextValue = {
+    inviteEmail,
+    setInviteEmail,
+    dialogOpen,
+    setDialogOpen,
+    loading,
+    handleInvite,
+  };
+
+  // When used as a wrapper (with children), only provide context — no UI.
+  if (children !== undefined) {
+    return <InviteContext.Provider value={ctxValue}>{children}</InviteContext.Provider>;
+  }
+
   return (
+    <InviteContext.Provider value={ctxValue}>
     <Card className="p-4 sm:p-6" style={{ boxShadow: 'var(--shadow-card)' }}>
       <div className="mb-4 flex justify-end">
         <div className="flex gap-2 flex-shrink-0">
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2 flex-shrink-0">
-                <UserPlus className="w-4 h-4" />
-                <span className="hidden sm:inline">Invitar persona</span>
-                <span className="sm:hidden">Invitar</span>
-              </Button>
-            </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Invitar nueva persona</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleInvite} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="inviteEmail">Email</Label>
-                <Input
-                  id="inviteEmail"
-                  type="email"
-                  placeholder="persona@email.com"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                Enviar invitación
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+          <InviteDialog />
         </div>
       </div>
 
@@ -413,5 +456,6 @@ export const InvitationManager = ({ userId }: { userId: string }) => {
         </TabsContent>
       </Tabs>
     </Card>
+    </InviteContext.Provider>
   );
 };
