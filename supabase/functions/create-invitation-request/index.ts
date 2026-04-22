@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 import { validateEmail } from '../_shared/validation.ts';
 import { checkIPRateLimit, logIPAttempt, getClientIP } from '../_shared/ip-rate-limiter.ts';
+import { getEmailTemplate } from '../_shared/email-templates.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -135,6 +136,48 @@ Deno.serve(async (req) => {
 
     // Log successful attempt
     await logIPAttempt(clientIP, 'create-invitation-request', supabaseUrl, supabaseKey);
+
+    // Send notification email to the invitee (best-effort, never blocks the response)
+    try {
+      const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+      const APP_URL = 'https://www.trusticket.com';
+
+      if (RESEND_API_KEY) {
+        const dbTemplate = await getEmailTemplate('invitation-invitee-notification', {
+          inviter_name: inviterProfile.name,
+          invitee_name: invitee_name.trim(),
+          app_url: APP_URL,
+        });
+
+        const subject = dbTemplate?.subject ?? `${inviterProfile.name} te ha invitado a Trusticket`;
+        const html = dbTemplate?.html ?? `<p>Hola ${invitee_name.trim()}, ${inviterProfile.name} te ha invitado a Trusticket. Recibirás un email para registrarte cuando apruebe tu acceso.</p>`;
+
+        const emailResp = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${RESEND_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            from: 'Trusticket <noreply@trusticket.com>',
+            to: [normalizedEmail],
+            subject,
+            html,
+          }),
+        });
+
+        if (!emailResp.ok) {
+          const errBody = await emailResp.text();
+          console.error('Resend invitee email error:', errBody);
+        } else {
+          console.log('Invitee notification email sent to', normalizedEmail);
+        }
+      } else {
+        console.warn('RESEND_API_KEY not set, skipping invitee email');
+      }
+    } catch (emailErr) {
+      console.error('Failed to send invitee notification (non-blocking):', emailErr);
+    }
 
     return new Response(
       JSON.stringify({ 
