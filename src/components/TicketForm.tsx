@@ -135,13 +135,13 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
         <DialogTrigger asChild>
           <Button size="sm" className="gap-2">
             <Plus className="w-4 h-4" />
-            Publicar Entrada
+            Publicar entrada
           </Button>
         </DialogTrigger>
       )}
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editTicket ? 'Editar Entrada' : 'Publicar Entrada'}</DialogTitle>
+          <DialogTitle>{editTicket ? 'Editar Entrada' : 'Publicar entrada'}</DialogTitle>
           <DialogDescription>Completa los detalles de la entrada</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
