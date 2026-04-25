@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Music2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Concierto {
   fecha: string;
@@ -48,6 +49,7 @@ const Musica = () => {
   const [conciertos, setConciertos] = useState<Concierto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mesFiltro, setMesFiltro] = useState<string>("todos");
 
   useEffect(() => {
     const load = async () => {
@@ -84,6 +86,30 @@ const Musica = () => {
     load();
   }, []);
 
+  // Build month options from loaded concerts (key: yyyy-mm, label: "Mes Año")
+  const mesesDisponibles = Array.from(
+    new Map(
+      conciertos
+        .map((c) => parseFecha(c.fecha))
+        .filter((d): d is Date => !!d)
+        .map((d) => {
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          const label = d.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+          return [key, label.charAt(0).toUpperCase() + label.slice(1)];
+        })
+    ).entries()
+  ).sort(([a], [b]) => a.localeCompare(b));
+
+  const conciertosFiltrados =
+    mesFiltro === "todos"
+      ? conciertos
+      : conciertos.filter((c) => {
+          const d = parseFecha(c.fecha);
+          if (!d) return false;
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          return key === mesFiltro;
+        });
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
       <div className="mb-10 text-center">
@@ -98,92 +124,124 @@ const Musica = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
-        {/* Conciertos */}
-        <div className="lg:col-span-2">
-          <div className="rounded-xl border border-border/40 bg-card/50 overflow-hidden max-h-[600px] overflow-y-auto">
-            <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent border-border/40 sticky top-0 bg-card z-10">
-              <TableHead className="w-[140px]">Fecha</TableHead>
-              <TableHead>Artista</TableHead>
-              <TableHead>Sala</TableHead>
-              <TableHead className="text-right w-[100px]">Precio</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading &&
-              Array.from({ length: 6 }).map((_, i) => (
-                <TableRow key={i} className="border-border/40">
-                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                  <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
-                </TableRow>
-              ))}
-
-            {!loading && error && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
-                  No se pudieron cargar los conciertos. Inténtalo más tarde.
-                </TableCell>
-              </TableRow>
-            )}
-
-            {!loading && !error && conciertos.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
-                  No hay conciertos próximos por ahora.
-                </TableCell>
-              </TableRow>
-            )}
-
-            {!loading &&
-              !error &&
-              conciertos.map((c, i) => (
-                <TableRow key={i} className="border-border/40">
-                  <TableCell className="font-medium text-foreground whitespace-nowrap">
-                    {formatFecha(c.fecha)}
-                  </TableCell>
-                  <TableCell className="text-foreground">{c.artista}</TableCell>
-                  <TableCell className="text-muted-foreground">{c.sala}</TableCell>
-                  <TableCell className="text-right text-muted-foreground whitespace-nowrap">
-                    {c.precio || "—"}
-                  </TableCell>
-                </TableRow>
-              ))}
-          </TableBody>
-            </Table>
-          </div>
-          <p className="mt-3 text-xs text-muted-foreground text-center lg:text-left">
-            Lista actualizada automáticamente desde Google Sheets.
-          </p>
-        </div>
-
-        {/* Spotify */}
-        <aside className="lg:sticky lg:top-24">
-          <div className="mb-3">
-            <h2 className="text-lg font-bold tracking-tight">
+      {/* Playlist del mes */}
+      <section className="mb-12 md:mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center rounded-2xl border border-border/40 bg-card/50 p-6 md:p-8">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 gradient-text">
               La playlist del mes
             </h2>
-            <p className="text-muted-foreground text-xs">
-              Lo que está sonando ahora mismo en Trusticket.
+            <p className="text-muted-foreground">
+              Lo que está sonando en Trusticket ahora mismo.
             </p>
           </div>
-          <div className="rounded-xl overflow-hidden border border-border/40 bg-card/50">
+          <div className="rounded-xl overflow-hidden">
             <iframe
               title="Playlist del mes en Spotify"
               src="https://open.spotify.com/embed/playlist/4nNb5PwPtktobE2Hnj7cnN?utm_source=generator&theme=0"
               width="100%"
-              height="600"
+              height="80"
               frameBorder="0"
               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
               loading="lazy"
               className="block"
             />
           </div>
-        </aside>
-      </div>
+        </div>
+      </section>
+
+      {/* Conciertos */}
+      <section>
+        <div className="flex flex-col gap-4 mb-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+              Conciertos
+            </h2>
+            <p className="text-muted-foreground text-sm mt-1">
+              Selección en Madrid y alrededores.
+            </p>
+          </div>
+          {mesesDisponibles.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={mesFiltro === "todos" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setMesFiltro("todos")}
+              >
+                Todos
+              </Button>
+              {mesesDisponibles.map(([key, label]) => (
+                <Button
+                  key={key}
+                  variant={mesFiltro === key ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMesFiltro(key)}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-border/40">
+                <TableHead className="w-[160px]">Fecha</TableHead>
+                <TableHead>Artista</TableHead>
+                <TableHead>Sala</TableHead>
+                <TableHead className="text-right w-[120px]">Precio</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading &&
+                Array.from({ length: 6 }).map((_, i) => (
+                  <TableRow key={i} className="border-border/40">
+                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                    <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
+                  </TableRow>
+                ))}
+
+              {!loading && error && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
+                    No se pudieron cargar los conciertos. Inténtalo más tarde.
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {!loading && !error && conciertosFiltrados.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
+                    No hay conciertos para este mes.
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {!loading &&
+                !error &&
+                conciertosFiltrados.map((c, i) => (
+                  <TableRow key={i} className="border-border/40">
+                    <TableCell className="font-medium text-foreground whitespace-nowrap">
+                      {formatFecha(c.fecha)}
+                    </TableCell>
+                    <TableCell className="text-foreground">{c.artista}</TableCell>
+                    <TableCell className="text-muted-foreground">{c.sala}</TableCell>
+                    <TableCell className="text-right text-muted-foreground whitespace-nowrap">
+                      {c.precio || "—"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground text-center md:text-left">
+          Lista actualizada automáticamente desde Google Sheets.
+        </p>
+      </section>
     </div>
   );
 };
