@@ -117,14 +117,6 @@ const Header = () => {
                   {item.label}
                 </NavLink>
               ))}
-              <div className="w-px h-5 bg-border mx-2" />
-              <Button
-                size="sm"
-                onClick={() => navigate("/login")}
-                className="gradient-vibrant text-white border-0 text-sm font-medium"
-              >
-                Iniciar sesión
-              </Button>
             </nav>
           )}
 
@@ -217,15 +209,6 @@ const Header = () => {
                 {item.label}
               </NavLink>
             ))}
-            <button
-              onClick={() => {
-                setMobileOpen(false);
-                navigate("/login");
-              }}
-              className="block w-full text-left px-3 py-2.5 text-sm font-medium text-foreground rounded-lg gradient-vibrant mt-2"
-            >
-              Iniciar sesión
-            </button>
           </nav>
         )}
       </div>
