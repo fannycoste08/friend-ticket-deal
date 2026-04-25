@@ -85,7 +85,7 @@ const Musica = () => {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-12 md:py-16">
+    <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
       <div className="mb-10 text-center">
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full gradient-vibrant mb-4">
           <Music2 className="w-6 h-6 text-white" />
@@ -98,10 +98,13 @@ const Musica = () => {
         </p>
       </div>
 
-      <div className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
-        <Table>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+        {/* Conciertos */}
+        <div className="lg:col-span-2">
+          <div className="rounded-xl border border-border/40 bg-card/50 overflow-hidden max-h-[600px] overflow-y-auto">
+            <Table>
           <TableHeader>
-            <TableRow className="hover:bg-transparent border-border/40">
+            <TableRow className="hover:bg-transparent border-border/40 sticky top-0 bg-card z-10">
               <TableHead className="w-[140px]">Fecha</TableHead>
               <TableHead>Artista</TableHead>
               <TableHead>Sala</TableHead>
@@ -150,34 +153,36 @@ const Musica = () => {
                 </TableRow>
               ))}
           </TableBody>
-        </Table>
-      </div>
-
-      <p className="mt-6 text-xs text-muted-foreground text-center">
-        Lista actualizada automáticamente desde Google Sheets.
-      </p>
-
-      <div className="mt-16">
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">
-            La playlist del mes
-          </h2>
-          <p className="text-muted-foreground text-sm">
-            Lo que está sonando ahora mismo en Trusticket.
+            </Table>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground text-center lg:text-left">
+            Lista actualizada automáticamente desde Google Sheets.
           </p>
         </div>
-        <div className="rounded-xl overflow-hidden border border-border/40 bg-card/50">
-          <iframe
-            title="Playlist del mes en Spotify"
-            src="https://open.spotify.com/embed/playlist/4nNb5PwPtktobE2Hnj7cnN?utm_source=generator&theme=0"
-            width="100%"
-            height="352"
-            frameBorder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            className="block"
-          />
-        </div>
+
+        {/* Spotify */}
+        <aside className="lg:sticky lg:top-24">
+          <div className="mb-3">
+            <h2 className="text-lg font-bold tracking-tight">
+              La playlist del mes
+            </h2>
+            <p className="text-muted-foreground text-xs">
+              Lo que está sonando ahora mismo en Trusticket.
+            </p>
+          </div>
+          <div className="rounded-xl overflow-hidden border border-border/40 bg-card/50">
+            <iframe
+              title="Playlist del mes en Spotify"
+              src="https://open.spotify.com/embed/playlist/4nNb5PwPtktobE2Hnj7cnN?utm_source=generator&theme=0"
+              width="100%"
+              height="600"
+              frameBorder="0"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="block"
+            />
+          </div>
+        </aside>
       </div>
     </div>
   );
