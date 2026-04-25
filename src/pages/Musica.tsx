@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
   TableBody,
@@ -53,8 +52,14 @@ const Musica = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke("get-conciertos");
-        if (error) throw error;
+        const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/get-conciertos`;
+        const res = await fetch(url, {
+          headers: {
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
         const items = (data?.conciertos ?? []) as Concierto[];
         // Sort by date and filter past concerts
         const today = new Date();
