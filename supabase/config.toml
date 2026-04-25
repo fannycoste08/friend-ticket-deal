@@ -41,3 +41,6 @@ verify_jwt = true
 
 [functions.check-email-exists]
 verify_jwt = false
+
+[functions.get-conciertos]
+verify_jwt = false
