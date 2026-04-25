@@ -120,7 +120,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar mode="single" selected={formData.event_date} onSelect={(date) => handleChange('event_date', date)} disabled={(date) => date < new Date()} initialFocus className={cn("p-3 pointer-events-auto")} />
+                <Calendar mode="single" selected={formData.event_date} onSelect={(date) => handleChange('event_date', date)} disabled={(date) => date < new Date()} initialFocus fixedWeeks showOutsideDays className={cn("p-3 pointer-events-auto")} />
               </PopoverContent>
             </Popover>
           </div>
