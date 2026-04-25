@@ -238,9 +238,7 @@ const Musica = () => {
             </TableBody>
           </Table>
         </div>
-        <p className="mt-3 text-xs text-muted-foreground text-center md:text-left">
-          Lista actualizada automáticamente desde Google Sheets.
-        </p>
+        <p className="mt-3 text-xs text-muted-foreground text-center md:text-left">{"\n"}</p>
       </section>
     </div>
   );
