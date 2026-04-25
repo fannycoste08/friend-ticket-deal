@@ -47,11 +47,7 @@ const Login = () => {
       <section className="relative flex-1 flex items-center justify-center overflow-hidden">
         {/* Background image with dark overlay */}
         <div className="absolute inset-0">
-          <img
-            src={concertHero}
-            alt=""
-            className="w-full h-full object-cover"
-          />
+          <img src={concertHero} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-background/85" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-transparent to-background" />
         </div>
@@ -65,19 +61,14 @@ const Login = () => {
                 <br />
                 <span className="gradient-text">amigos.</span>
               </h1>
-              <p className="text-lg font-semibold gradient-text max-w-md">
-                ¿Por qué existe Trusticket?
-              </p>
+              <p className="text-lg font-semibold gradient-text max-w-md">¿Por qué existe Trusticket?</p>
               <div className="space-y-4">
                 {[
                   "Compramos entradas con meses de antelación sin saber si vamos a poder asistir.",
-                  "Las plataformas de reventa no son seguras y fomentan la especulación.",
+                  "Las plataformas de reventa no son siempre seguras y fomentan la especulación.",
                   "Vender y comprar una entrada se ha convertido en un dolor real para los fans de la música en directo.",
                 ].map((text, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-start gap-3 fade-in-up-delay-${i + 1}`}
-                  >
+                  <div key={i} className={`flex items-start gap-3 fade-in-up-delay-${i + 1}`}>
                     <div className="w-1.5 h-1.5 rounded-full gradient-vibrant mt-2.5 shrink-0" />
                     <p className="text-sm text-muted-foreground">{text}</p>
                   </div>
@@ -87,7 +78,7 @@ const Login = () => {
 
             {/* Right — Login form */}
             <div className="w-full max-w-md mx-auto lg:mx-0 lg:ml-auto fade-in-up-delay-1">
-              <div className="glass-strong rounded-2xl p-8 shadow-lg" style={{ boxShadow: 'var(--shadow-elevated)' }}>
+              <div className="glass-strong rounded-2xl p-8 shadow-lg" style={{ boxShadow: "var(--shadow-elevated)" }}>
                 <div className="mb-6">
                   <h2 className="text-base font-semibold text-foreground leading-snug">
                     Entra y descubre qué ofrecen o buscan tus amigos (y los amigos de tus amigos)
@@ -122,11 +113,7 @@ const Login = () => {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {showPassword ? (
-                          <EyeOff className="w-4 h-4" />
-                        ) : (
-                          <Eye className="w-4 h-4" />
-                        )}
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -186,16 +173,10 @@ const Login = () => {
             ].map((block, i) => (
               <div key={i} className={`space-y-4 fade-in-up-delay-${i + 1}`}>
                 <div className="w-10 h-10 rounded-xl gradient-vibrant flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">
-                    0{i + 1}
-                  </span>
+                  <span className="text-primary-foreground font-bold text-sm">0{i + 1}</span>
                 </div>
-                <h3 className="text-lg font-semibold text-foreground">
-                  {block.title}
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {block.desc}
-                </p>
+                <h3 className="text-lg font-semibold text-foreground">{block.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{block.desc}</p>
               </div>
             ))}
           </div>
