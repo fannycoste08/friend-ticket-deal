@@ -230,7 +230,7 @@ const Feed = () => {
         {/* Header */}
         <div className="mb-10 fade-in-up">
           <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">Feed de Entradas</h1>
-          <p className="text-muted-foreground mt-1">Encuentra las mejores entradas</p>
+          <p className="text-muted-foreground mt-1">Echa un ojo a las entradas que venden y buscan en tu red de amigos</p>
         </div>
 
         {/* Search */}
@@ -256,7 +256,7 @@ const Feed = () => {
         <Tabs defaultValue="sale" className="w-full fade-in-up-delay-2">
           <TabsList className="grid w-full grid-cols-2 mb-8 h-11 bg-secondary/50 rounded-xl p-1 border border-border/30">
             <TabsTrigger value="sale" className="rounded-lg text-sm font-medium data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:border-0">
-              Entradas a la Venta
+              Entradas a la venta
             </TabsTrigger>
             <TabsTrigger value="wanted" className="rounded-lg text-sm font-medium data-[state=active]:gradient-accent data-[state=active]:text-accent-foreground data-[state=active]:border-0">
               Entradas buscadas
