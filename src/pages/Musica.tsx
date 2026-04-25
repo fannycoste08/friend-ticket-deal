@@ -156,6 +156,29 @@ const Musica = () => {
       <p className="mt-6 text-xs text-muted-foreground text-center">
         Lista actualizada automáticamente desde Google Sheets.
       </p>
+
+      <div className="mt-16">
+        <div className="mb-6 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2">
+            La playlist del mes
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Lo que está sonando ahora mismo en Trusticket.
+          </p>
+        </div>
+        <div className="rounded-xl overflow-hidden border border-border/40 bg-card/50">
+          <iframe
+            title="Playlist del mes en Spotify"
+            src="https://open.spotify.com/embed/playlist/4nNb5PwPtktobE2Hnj7cnN?utm_source=generator&theme=0"
+            width="100%"
+            height="352"
+            frameBorder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+            className="block"
+          />
+        </div>
+      </div>
     </div>
   );
 };
