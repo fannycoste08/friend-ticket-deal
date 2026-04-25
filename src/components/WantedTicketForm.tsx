@@ -119,7 +119,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
                   {formData.event_date ? format(formData.event_date, "d 'de' MMMM 'de' yyyy", { locale: es }) : <span>Selecciona una fecha</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-[286px] p-0" align="start" avoidCollisions={false}>
                 <Calendar mode="single" selected={formData.event_date} onSelect={(date) => handleChange('event_date', date)} disabled={(date) => date < new Date()} initialFocus fixedWeeks showOutsideDays className={cn("p-3 pointer-events-auto")} />
               </PopoverContent>
             </Popover>
