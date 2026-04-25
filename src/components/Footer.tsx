@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className="border-t border-border/40 bg-card/50 mt-auto">
       <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div>
             <span className="text-lg font-bold tracking-tight gradient-text">
@@ -15,6 +15,25 @@ const Footer = () => {
             </p>
           </div>
 
+          {/* Descubre */}
+          <div>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              Descubre
+            </h3>
+            <ul className="space-y-2.5">
+              <li>
+                <Link to="/musica" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Música
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Sobre Trusticket
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           {/* Legal */}
           <div>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
@@ -23,7 +42,7 @@ const Footer = () => {
             <ul className="space-y-2.5">
               <li>
                 <Link to="/manifesto" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Manifiesto Trusticket
+                  Manifiesto
                 </Link>
               </li>
               <li>
@@ -57,11 +76,6 @@ const Footer = () => {
                 >
                   trusticketinfo@gmail.com
                 </a>
-              </li>
-              <li>
-                <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Quién está detrás de Trusticket
-                </Link>
               </li>
             </ul>
           </div>

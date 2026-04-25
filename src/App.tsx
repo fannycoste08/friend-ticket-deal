@@ -25,6 +25,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiesPolicy from "./pages/CookiesPolicy";
 import Manifesto from "./pages/Manifesto";
 import About from "./pages/About";
+import Musica from "./pages/Musica";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -76,6 +77,7 @@ const App = () => (
               />
               <Route path="/manifesto" element={<Manifesto />} />
               <Route path="/about" element={<About />} />
+              <Route path="/musica" element={<Musica />} />
               <Route path="/legal-notice" element={<LegalNotice />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/cookies-policy" element={<CookiesPolicy />} />

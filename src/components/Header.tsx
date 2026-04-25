@@ -94,6 +94,52 @@ const Header = () => {
             </nav>
           )}
 
+          {/* Public desktop nav */}
+          {!user && !isMobile && (
+            <nav className="flex items-center gap-1">
+              {[
+                { to: "/manifesto", label: "Manifesto" },
+                { to: "/musica", label: "Música" },
+                { to: "/about", label: "Sobre Trusticket" },
+              ].map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) =>
+                    cn(
+                      "px-4 py-2 text-sm font-medium transition-colors rounded-lg",
+                      isActive
+                        ? "text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+              <div className="w-px h-5 bg-border mx-2" />
+              <Button
+                size="sm"
+                onClick={() => navigate("/login")}
+                className="gradient-vibrant text-white border-0 text-sm font-medium"
+              >
+                Iniciar sesión
+              </Button>
+            </nav>
+          )}
+
+          {/* Public mobile menu button */}
+          {!user && isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="text-foreground"
+            >
+              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          )}
+
           {/* Mobile menu button */}
           {user && isMobile && (
             <Button
@@ -143,6 +189,42 @@ const Header = () => {
               className="block w-full text-left px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground rounded-lg hover:bg-secondary/50 transition-colors"
             >
               Salir
+            </button>
+          </nav>
+        )}
+
+        {/* Public mobile dropdown */}
+        {!user && isMobile && mobileOpen && (
+          <nav className="pb-4 border-t border-border/40 pt-3 space-y-1 fade-in-up">
+            {[
+              { to: "/manifesto", label: "Manifesto" },
+              { to: "/musica", label: "Música" },
+              { to: "/about", label: "Sobre Trusticket" },
+            ].map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  cn(
+                    "block px-3 py-2.5 text-sm font-medium rounded-lg transition-colors",
+                    isActive
+                      ? "text-foreground bg-secondary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                  )
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            <button
+              onClick={() => {
+                setMobileOpen(false);
+                navigate("/login");
+              }}
+              className="block w-full text-left px-3 py-2.5 text-sm font-medium text-foreground rounded-lg gradient-vibrant mt-2"
+            >
+              Iniciar sesión
             </button>
           </nav>
         )}
