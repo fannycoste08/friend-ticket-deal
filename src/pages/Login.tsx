@@ -57,7 +57,7 @@ const Login = () => {
             {/* Left — Value proposition */}
             <div className="space-y-8 fade-in-up">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.1] tracking-tight">
-                Compra y vende entradas entre
+                Tu red social de confianza para comprar y vender entradas de conciertos entre
                 <br />
                 <span className="gradient-text">amigos.</span>
               </h1>
@@ -139,7 +139,7 @@ const Login = () => {
                     to="/register"
                     className="text-primary hover:text-primary/80 font-medium underline transition-colors"
                   >
-                    regístrate
+                    regístrate aquí
                   </Link>
                   .
                 </p>
