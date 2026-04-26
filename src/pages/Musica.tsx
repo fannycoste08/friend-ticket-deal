@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Music2 } from "lucide-react";
+import { Music2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Concierto {
@@ -50,40 +50,51 @@ const Musica = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mesFiltro, setMesFiltro] = useState<string>("todos");
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = async (isManualRefresh = false) => {
+    try {
+      if (isManualRefresh) setRefreshing(true);
+      setError(null);
+      const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/get-conciertos?ts=${Date.now()}`;
+      const res = await fetch(url, {
+        cache: "no-store",
+        headers: {
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const items = (data?.conciertos ?? []) as Concierto[];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const sorted = items
+        .filter((c) => {
+          const d = parseFecha(c.fecha);
+          return !d || d >= today;
+        })
+        .sort((a, b) => {
+          const da = parseFecha(a.fecha)?.getTime() ?? 0;
+          const db = parseFecha(b.fecha)?.getTime() ?? 0;
+          return da - db;
+        });
+      setConciertos(sorted);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Error cargando conciertos");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/get-conciertos`;
-        const res = await fetch(url, {
-          headers: {
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          },
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        const items = (data?.conciertos ?? []) as Concierto[];
-        // Sort by date and filter past concerts
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const sorted = items
-          .filter((c) => {
-            const d = parseFecha(c.fecha);
-            return !d || d >= today;
-          })
-          .sort((a, b) => {
-            const da = parseFecha(a.fecha)?.getTime() ?? 0;
-            const db = parseFecha(b.fecha)?.getTime() ?? 0;
-            return da - db;
-          });
-        setConciertos(sorted);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Error cargando conciertos");
-      } finally {
-        setLoading(false);
-      }
-    };
     load();
+    // Auto-refresh when the user returns to the tab
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") load();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
   // Build month options from loaded concerts (key: yyyy-mm, label: "Mes Año")
@@ -180,6 +191,15 @@ const Musica = () => {
                   {label}
                 </Button>
               ))}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => load(true)}
+                disabled={refreshing}
+                aria-label="Actualizar conciertos"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+              </Button>
             </div>
           )}
         </div>
