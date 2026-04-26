@@ -44,6 +44,3 @@ verify_jwt = false
 
 [functions.get-conciertos]
 verify_jwt = false
-
-[functions.admin-delete-user]
-verify_jwt = true
