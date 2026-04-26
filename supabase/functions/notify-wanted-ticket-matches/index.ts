@@ -81,7 +81,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const APP_URL = 'https://trusticket.lovable.app';
+    const APP_URL = 'https://www.trusticket.com';
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 

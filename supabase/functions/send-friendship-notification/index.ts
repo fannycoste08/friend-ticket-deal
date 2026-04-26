@@ -108,7 +108,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const recipient_email = recipientProfile.email;
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-    const APP_URL = 'https://trusticket.lovable.app';
+    const APP_URL = 'https://www.trusticket.com';
 
     const dbTemplate = await getEmailTemplate('friendship-notification', {
       recipient_name,
