@@ -45,11 +45,37 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Extract token and verify with admin client
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    console.log('👤 [approve-invitation] User verified:', user?.id, 'Error:', authError?.message);
-    
-    if (authError || !user) {
-      console.error('❌ [approve-invitation] Auth failed:', authError?.message);
+
+    // Since verify_jwt = true, Supabase already validated the JWT signature.
+    // Decode the payload to extract the user id (more reliable than getUser
+    // in older supabase-js versions, which can return "Auth session missing").
+    let user: { id: string; email?: string } | null = null;
+    try {
+      const payloadPart = token.split('.')[1];
+      if (payloadPart) {
+        const padded = payloadPart.padEnd(payloadPart.length + ((4 - (payloadPart.length % 4)) % 4), '=');
+        const decoded = JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/')));
+        if (decoded?.sub) {
+          user = { id: decoded.sub, email: decoded.email };
+        }
+      }
+    } catch (e) {
+      console.error('❌ [approve-invitation] Failed to decode JWT:', e);
+    }
+
+    // Fallback: try getUser if decoding failed
+    if (!user) {
+      const { data: getUserData, error: authError } = await supabaseAdmin.auth.getUser(token);
+      if (getUserData?.user) {
+        user = { id: getUserData.user.id, email: getUserData.user.email };
+      } else {
+        console.error('❌ [approve-invitation] Auth failed:', authError?.message);
+      }
+    }
+
+    console.log('👤 [approve-invitation] User verified:', user?.id);
+
+    if (!user) {
       return new Response(
         JSON.stringify({ error: 'No autorizado: sesión expirada. Por favor, vuelve a iniciar sesión.' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
