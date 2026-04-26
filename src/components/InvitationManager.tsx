@@ -78,7 +78,15 @@ const InviteDialog = () => {
  */
 export const InviteFriendButton = () => <InviteDialog />;
 
-export const InvitationManager = ({ userId, children }: { userId: string; children?: React.ReactNode }) => {
+export const InvitationManager = ({
+  userId,
+  children,
+  onPendingChange,
+}: {
+  userId: string;
+  children?: React.ReactNode;
+  onPendingChange?: (count: number) => void;
+}) => {
   const [pendingInvitations, setPendingInvitations] = useState<Invitation[]>([]);
   const [approvedInvitations, setApprovedInvitations] = useState<Invitation[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
@@ -126,6 +134,7 @@ export const InvitationManager = ({ userId, children }: { userId: string; childr
 
     setPendingInvitations(pending || []);
     setApprovedInvitations(approved || []);
+    onPendingChange?.(pending?.length || 0);
     
     console.log('🎯 [InvitationManager] State updated - Pending:', pending?.length || 0, 'Approved:', approved?.length || 0);
   };
