@@ -82,10 +82,12 @@ export const InvitationManager = ({
   userId,
   children,
   onPendingChange,
+  pendingHeader,
 }: {
   userId: string;
   children?: React.ReactNode;
   onPendingChange?: (count: number) => void;
+  pendingHeader?: React.ReactNode;
 }) => {
   const [pendingInvitations, setPendingInvitations] = useState<Invitation[]>([]);
   const [approvedInvitations, setApprovedInvitations] = useState<Invitation[]>([]);
@@ -415,6 +417,7 @@ export const InvitationManager = ({
         </TabsList>
 
         <TabsContent value="pending" className="space-y-3 mt-4">
+          {pendingHeader}
           {pendingInvitations.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               No hay solicitudes pendientes

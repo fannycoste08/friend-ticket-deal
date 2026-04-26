@@ -402,8 +402,13 @@ const Profile = () => {
       <div>
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Invitaciones</h2>
       </div>
-      <FriendshipRequests embedded onCountChange={setPendingFriendRequestsCount} />
-      <InvitationManager userId={user.id} onPendingChange={setPendingInvitationsCount} />
+      <InvitationManager
+        userId={user.id}
+        onPendingChange={setPendingInvitationsCount}
+        pendingHeader={
+          <FriendshipRequests embedded onCountChange={setPendingFriendRequestsCount} />
+        }
+      />
     </div>
   );
 
