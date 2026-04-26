@@ -82,10 +82,12 @@ export const InvitationManager = ({
   userId,
   children,
   onPendingChange,
+  pendingHeader,
 }: {
   userId: string;
   children?: React.ReactNode;
   onPendingChange?: (count: number) => void;
+  pendingHeader?: React.ReactNode;
 }) => {
   const [pendingInvitations, setPendingInvitations] = useState<Invitation[]>([]);
   const [approvedInvitations, setApprovedInvitations] = useState<Invitation[]>([]);
