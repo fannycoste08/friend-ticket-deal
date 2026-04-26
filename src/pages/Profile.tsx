@@ -572,7 +572,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden max-w-[100vw]">
       {/* Mobile sticky tab bar */}
       {isMobile && (
         <div className="sticky top-16 z-40 glass-strong border-b border-border/40">
@@ -612,8 +612,8 @@ const Profile = () => {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <div className="flex gap-8 min-w-0">
           {/* Desktop sidebar */}
           {!isMobile && (
             <aside className="w-52 shrink-0">
@@ -637,7 +637,7 @@ const Profile = () => {
           )}
 
           {/* Main content */}
-          <main className="flex-1 min-w-0">{renderSection()}</main>
+          <main className="flex-1 min-w-0 w-full">{renderSection()}</main>
         </div>
       </div>
 
