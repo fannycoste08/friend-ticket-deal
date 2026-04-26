@@ -208,14 +208,9 @@ const handler = async (req: Request): Promise<Response> => {
       artist: safeArtist,
     };
 
-    const templateKey = is_wanted_ticket ? 'wanted-ticket-offer' : 'contact-email';
-    const dbTemplate = await getEmailTemplate(templateKey, templateVars);
+    const dbTemplate = await getEmailTemplate('contact-email', templateVars);
 
-    const fallbackSubject = is_wanted_ticket
-      ? `🎟️ Alguien tiene una entrada para ${safeArtist} - Trusticket`
-      : `Interés en tu entrada para ${safeArtist}`;
-
-    const subject = dbTemplate?.subject ?? fallbackSubject;
+    const subject = dbTemplate?.subject ?? `Interés en tu entrada para ${safeArtist}`;
     const html = dbTemplate?.html ?? getFallbackHtml(templateVars);
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
