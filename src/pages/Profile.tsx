@@ -88,7 +88,6 @@ const Profile = () => {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
-  const [friendsTab, setFriendsTab] = useState<"list" | "requests">("list");
   const [pendingFriendRequestsCount, setPendingFriendRequestsCount] = useState(0);
 
   useEffect(() => {
