@@ -24,7 +24,7 @@ function getFallbackHtml(recipientName: string, requesterName: string, appUrl: s
 <p>Hola <strong>${recipientName}</strong>,</p>
 <p><strong>${requesterName}</strong> te ha enviado una solicitud de amistad en Trusticket.</p>
 <p>Puedes aceptar o rechazar esta solicitud desde tu perfil:</p>
-<div style="text-align:center"><a href="${appUrl}/profile" class="button">Ver solicitud</a></div>
+<div style="text-align:center"><a href="${appUrl}/profile" class="button" style="display:inline-block;background:linear-gradient(135deg,#8B5CF6 0%,#D946EF 100%);color:#ffffff !important;padding:12px 24px;text-decoration:none;border-radius:6px;margin:20px 0;font-weight:600;">Ver solicitud</a></div>
 <p style="color:#6b7280;font-size:14px">Al aceptar la solicitud, podrás ver las entradas que publica ${requesterName} y ampliar tu red de confianza.</p>
 </div>
 <div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
