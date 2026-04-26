@@ -431,10 +431,28 @@ const Admin = () => {
                               <td className="px-4 py-3 text-muted-foreground text-sm">
                                 {formatDate(user.created_at)}
                               </td>
+                              <td className="px-2 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                                {currentUser?.id !== user.id && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => setUserToDelete(user)}
+                                    disabled={deletingUserId === user.id}
+                                    title="Eliminar usuario"
+                                  >
+                                    {deletingUserId === user.id ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Trash2 className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                )}
+                              </td>
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
-                                <td colSpan={7} className="px-6 py-4">
+                                <td colSpan={8} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Loader2 className="w-4 h-4 animate-spin" />
