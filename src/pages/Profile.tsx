@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, Menu, X } from "lucide-react";
+import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -72,7 +72,6 @@ const Profile = () => {
   const isMobile = useIsMobile();
   const [activeSection, setActiveSection] = useState<Section>("friends");
   const [ticketsTab, setTicketsTab] = useState<TicketsTab>("selling");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tickets, setTickets] = useState<MyTicket[]>([]);
   const [wantedTickets, setWantedTickets] = useState<MyWantedTicket[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(true);
@@ -288,7 +287,6 @@ const Profile = () => {
 
   const handleSectionChange = (section: Section) => {
     setActiveSection(section);
-    if (isMobile) setMobileMenuOpen(false);
   };
 
   if (loading) {
@@ -344,7 +342,7 @@ const Profile = () => {
       <div className="space-y-6 fade-in-up">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
+            <h2 className="hidden md:block text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
           </div>
           <InviteFriendButton />
         </div>
@@ -399,7 +397,7 @@ const Profile = () => {
 
   const renderInvitations = () => (
     <div className="space-y-6 fade-in-up">
-      <div>
+      <div className="hidden md:block">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Invitaciones</h2>
       </div>
       <InvitationManager
@@ -416,7 +414,7 @@ const Profile = () => {
     <div className="space-y-6 fade-in-up">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis entradas</h2>
+          <h2 className="hidden md:block text-2xl font-bold text-foreground tracking-tight">Mis entradas</h2>
           <p className="text-sm text-muted-foreground mt-1">
             {ticketsTab === "selling"
               ? `${availableTicketsCount} en venta`
@@ -483,7 +481,7 @@ const Profile = () => {
 
   const renderSettings = () => (
     <div className="space-y-8 fade-in-up">
-      <div>
+      <div className="hidden md:block">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Ajustes</h2>
         <p className="text-sm text-muted-foreground mt-1">Preferencias y configuración</p>
       </div>
@@ -577,29 +575,46 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        {/* Mobile header */}
-        {isMobile && (
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-lg font-bold text-foreground tracking-tight">
-              {menuItems.find((i) => i.id === activeSection)?.label}
-            </h1>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="h-9 w-9"
-            >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            </Button>
+      {/* Mobile sticky tab bar */}
+      {isMobile && (
+        <div className="sticky top-16 z-40 glass-strong border-b border-border/40">
+          <div
+            className="flex items-center gap-1 px-4 py-2 overflow-x-auto"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {menuItems.map((item) => {
+              const isActive = activeSection === item.id;
+              const showBadge =
+                item.id === "invitations" &&
+                pendingInvitationsCount + pendingFriendRequestsCount > 0;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleSectionChange(item.id)}
+                  className={cn(
+                    "relative shrink-0 px-4 h-9 rounded-full text-sm font-medium transition-colors whitespace-nowrap",
+                    isActive
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {item.label}
+                  {showBadge && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 text-[10px] flex items-center justify-center border-0"
+                    >
+                      {pendingInvitationsCount + pendingFriendRequestsCount}
+                    </Badge>
+                  )}
+                </button>
+              );
+            })}
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Mobile menu */}
-        {isMobile && mobileMenuOpen && (
-          <div className="mb-4 bg-card rounded-2xl border border-border/40 p-3 fade-in-up">{sidebarContent}</div>
-        )}
-
+      <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="flex gap-8">
           {/* Desktop sidebar */}
           {!isMobile && (
