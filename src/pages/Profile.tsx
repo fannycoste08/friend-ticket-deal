@@ -341,10 +341,10 @@ const Profile = () => {
     <InvitationManager userId={user.id} onPendingChange={setPendingInvitationsCount}>
       <div className="space-y-6 fade-in-up">
         <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="hidden md:block text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
+          <h2 className="hidden md:block text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
+          <div className="ml-auto">
+            <InviteFriendButton />
           </div>
-          <InviteFriendButton />
         </div>
         {loadingFriends ? (
               <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
@@ -354,38 +354,36 @@ const Profile = () => {
                 <p className="text-sm text-muted-foreground">No tienes amigos conectados aún</p>
               </div>
             ) : (
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-3 md:grid-cols-2 w-full">
                 {friends.map((friend) => (
                   <div
                     key={friend.id}
-                    className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300"
+                    className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300 w-full overflow-hidden"
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
-                          <span className="text-sm font-medium text-primary">{friend.name.charAt(0).toUpperCase()}</span>
-                        </div>
-                        <h3 className="font-medium text-foreground truncate text-sm">{friend.name}</h3>
+                    <div className="flex items-center gap-2 w-full min-w-0">
+                      <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
+                        <span className="text-sm font-medium text-primary">{friend.name.charAt(0).toUpperCase()}</span>
                       </div>
-                      <div className="flex gap-2 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/user/${friend.id}`)}
-                          className="text-muted-foreground hover:text-foreground text-xs"
-                        >
-                          Ver perfil
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setFriendToDelete(friend)}
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <UserMinus className="w-3.5 h-3.5 mr-1" />
-                          Eliminar
-                        </Button>
-                      </div>
+                      <h3 className="flex-1 min-w-0 font-medium text-foreground text-sm truncate">
+                        {friend.name}
+                      </h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => navigate(`/user/${friend.id}`)}
+                        className="shrink-0 px-2 text-muted-foreground hover:text-foreground text-xs"
+                      >
+                        Ver perfil
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFriendToDelete(friend)}
+                        className="shrink-0 px-2 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
+                      >
+                        <UserMinus className="w-3.5 h-3.5 mr-1" />
+                        Eliminar
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -574,7 +572,7 @@ const Profile = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden max-w-[100vw]">
       {/* Mobile sticky tab bar */}
       {isMobile && (
         <div className="sticky top-16 z-40 glass-strong border-b border-border/40">
@@ -614,8 +612,8 @@ const Profile = () => {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex gap-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <div className="flex gap-8 min-w-0">
           {/* Desktop sidebar */}
           {!isMobile && (
             <aside className="w-52 shrink-0">
@@ -639,7 +637,7 @@ const Profile = () => {
           )}
 
           {/* Main content */}
-          <main className="flex-1 min-w-0">{renderSection()}</main>
+          <main className="flex-1 min-w-0 w-full">{renderSection()}</main>
         </div>
       </div>
 
