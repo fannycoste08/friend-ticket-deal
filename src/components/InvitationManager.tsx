@@ -132,8 +132,32 @@ export const InvitationManager = ({
     console.log('✅ [InvitationManager] Approved invitations:', approved);
     console.log('❌ [InvitationManager] Approved error:', approvedError);
 
+    // Filter out approved invitations whose invitee no longer exists in profiles
+    // (account was deleted). We check this client-side via the profiles table.
+    let filteredApproved = approved || [];
+    if (approved && approved.length > 0) {
+      const emails = approved.map((inv) => inv.invitee_email.toLowerCase());
+      const { data: existingProfiles } = await supabase
+        .from('profiles')
+        .select('email')
+        .in('email', emails);
+
+      const existingEmails = new Set(
+        (existingProfiles || []).map((p) => p.email.toLowerCase())
+      );
+      filteredApproved = approved.filter((inv) =>
+        existingEmails.has(inv.invitee_email.toLowerCase())
+      );
+      console.log(
+        '🧹 [InvitationManager] Filtered approved (existing profiles only):',
+        filteredApproved.length,
+        'of',
+        approved.length
+      );
+    }
+
     setPendingInvitations(pending || []);
-    setApprovedInvitations(approved || []);
+    setApprovedInvitations(filteredApproved);
     onPendingChange?.(pending?.length || 0);
     
     console.log('🎯 [InvitationManager] State updated - Pending:', pending?.length || 0, 'Approved:', approved?.length || 0);
