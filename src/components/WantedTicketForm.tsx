@@ -96,7 +96,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{editTicket ? 'Editar Búsqueda' : 'Nueva Búsqueda'}</DialogTitle>
           <DialogDescription>Indica qué entrada estás buscando</DialogDescription>
@@ -119,7 +119,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
                   {formData.event_date ? format(formData.event_date, "d 'de' MMMM 'de' yyyy", { locale: es }) : <span>Selecciona una fecha</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[286px] p-0" align="start" avoidCollisions={false}>
+              <PopoverContent className="w-[286px] p-0" align="start">
                 <Calendar mode="single" selected={formData.event_date} onSelect={(date) => handleChange('event_date', date)} disabled={(date) => date < new Date()} initialFocus fixedWeeks showOutsideDays className={cn("p-3 pointer-events-auto")} />
               </PopoverContent>
             </Popover>
