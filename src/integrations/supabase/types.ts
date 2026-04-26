@@ -511,6 +511,20 @@ export type Database = {
     Functions: {
       cleanup_old_ip_rate_limits: { Args: never; Returns: undefined }
       delete_expired_tickets: { Args: never; Returns: undefined }
+      get_admin_user_stats: {
+        Args: never
+        Returns: {
+          active_tickets: number
+          active_wanted: number
+          created_at: string
+          email: string
+          friend_count: number
+          id: string
+          messages_received: number
+          messages_sent: number
+          name: string
+        }[]
+      }
       get_extended_network: {
         Args: { user_uuid: string }
         Returns: {
@@ -544,12 +558,45 @@ export type Database = {
           friend_name: string
         }[]
       }
+      get_user_invitees_admin: {
+        Args: { _user_id: string }
+        Returns: {
+          created_at: string
+          invitee_email: string
+          invitee_id: string
+          invitee_name: string
+          status: string
+        }[]
+      }
       get_user_inviter_admin: {
         Args: { _user_id: string }
         Returns: {
           inviter_email: string
           inviter_id: string
           inviter_name: string
+        }[]
+      }
+      get_user_tickets_admin: {
+        Args: { _user_id: string }
+        Returns: {
+          artist: string
+          city: string
+          created_at: string
+          event_date: string
+          id: string
+          price: number
+          status: string
+          venue: string
+        }[]
+      }
+      get_user_wanted_tickets_admin: {
+        Args: { _user_id: string }
+        Returns: {
+          artist: string
+          city: string
+          created_at: string
+          event_date: string
+          id: string
         }[]
       }
       has_role: {
