@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Fragment } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, Search, ListChecks } from 'lucide-react';
+import { Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, Search, ListChecks, ChevronDown, ChevronRight, UserPlus, Loader2 } from 'lucide-react';
 import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
 import AdminOutreach from '@/components/AdminOutreach';
@@ -18,11 +18,31 @@ interface UserWithFriends {
   friend_count: number;
 }
 
+interface FriendRow {
+  friend_id: string;
+  friend_name: string;
+  friend_email: string;
+}
+
+interface InviterRow {
+  inviter_id: string;
+  inviter_name: string;
+  inviter_email: string;
+}
+
+interface UserDetails {
+  loading: boolean;
+  friends: FriendRow[];
+  inviter: InviterRow | null;
+}
+
 const Admin = () => {
   const [users, setUsers] = useState<UserWithFriends[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [detailsCache, setDetailsCache] = useState<Record<string, UserDetails>>({});
 
   const filteredUsers = useMemo(() => {
     const q = searchQuery.toLowerCase();
@@ -56,6 +76,35 @@ const Admin = () => {
       month: 'short',
       year: 'numeric'
     });
+  };
+
+  const toggleUser = async (userId: string) => {
+    if (expandedUserId === userId) {
+      setExpandedUserId(null);
+      return;
+    }
+    setExpandedUserId(userId);
+
+    if (detailsCache[userId]) return;
+
+    setDetailsCache(prev => ({
+      ...prev,
+      [userId]: { loading: true, friends: [], inviter: null },
+    }));
+
+    const [friendsRes, inviterRes] = await Promise.all([
+      supabase.rpc('get_user_friends_admin', { _user_id: userId }),
+      supabase.rpc('get_user_inviter_admin', { _user_id: userId }),
+    ]);
+
+    setDetailsCache(prev => ({
+      ...prev,
+      [userId]: {
+        loading: false,
+        friends: (friendsRes.data as FriendRow[]) || [],
+        inviter: ((inviterRes.data as InviterRow[]) || [])[0] || null,
+      },
+    }));
   };
 
   return (
@@ -111,6 +160,7 @@ const Admin = () => {
                 <table className="w-full">
                   <thead className="bg-muted/50">
                     <tr>
+                      <th className="w-8 px-2 py-3"></th>
                       <th className="text-left px-4 py-3 font-medium text-sm">Usuario</th>
                       <th className="text-left px-4 py-3 font-medium text-sm">Email</th>
                       <th className="text-center px-4 py-3 font-medium text-sm">Amigos</th>
@@ -128,46 +178,106 @@ const Admin = () => {
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={4} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={5} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={5} className="text-center py-8 text-muted-foreground">
                           {searchQuery ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
                     ) : (
-                      filteredUsers.map((user) => (
-                        <tr key={user.id} className="hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                <span className="text-sm font-medium text-primary">
-                                  {user.name?.charAt(0).toUpperCase() || '?'}
-                                </span>
-                              </div>
-                              <span className="font-medium">{user.name}</span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3 text-muted-foreground text-sm">
-                            {user.email}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <Badge 
-                              variant={user.friend_count > 0 ? "default" : "secondary"}
-                              className="gap-1"
+                      filteredUsers.map((user) => {
+                        const isExpanded = expandedUserId === user.id;
+                        const details = detailsCache[user.id];
+                        return (
+                          <Fragment key={user.id}>
+                            <tr
+                              className="hover:bg-muted/30 transition-colors cursor-pointer"
+                              onClick={() => toggleUser(user.id)}
                             >
-                              <UserCheck className="w-3 h-3" />
-                              {user.friend_count}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3 text-muted-foreground text-sm">
-                            {formatDate(user.created_at)}
-                          </td>
-                        </tr>
-                      ))
+                              <td className="px-2 py-3 text-muted-foreground">
+                                {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                              </td>
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <span className="text-sm font-medium text-primary">
+                                      {user.name?.charAt(0).toUpperCase() || '?'}
+                                    </span>
+                                  </div>
+                                  <span className="font-medium">{user.name}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-muted-foreground text-sm">
+                                {user.email}
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <Badge
+                                  variant={user.friend_count > 0 ? 'default' : 'secondary'}
+                                  className="gap-1"
+                                >
+                                  <UserCheck className="w-3 h-3" />
+                                  {user.friend_count}
+                                </Badge>
+                              </td>
+                              <td className="px-4 py-3 text-muted-foreground text-sm">
+                                {formatDate(user.created_at)}
+                              </td>
+                            </tr>
+                            {isExpanded && (
+                              <tr className="bg-muted/20">
+                                <td colSpan={5} className="px-6 py-4">
+                                  {!details || details.loading ? (
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                      Cargando detalles...
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-4">
+                                      <div>
+                                        <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                                          <UserPlus className="w-3.5 h-3.5" />
+                                          Invitado por
+                                        </div>
+                                        {details.inviter ? (
+                                          <div className="text-sm">
+                                            <span className="font-medium">{details.inviter.inviter_name}</span>
+                                            <span className="text-muted-foreground"> · {details.inviter.inviter_email}</span>
+                                          </div>
+                                        ) : (
+                                          <div className="text-sm text-muted-foreground italic">Sin invitador registrado</div>
+                                        )}
+                                      </div>
+
+                                      <div>
+                                        <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                                          <UserCheck className="w-3.5 h-3.5" />
+                                          Amigos ({details.friends.length})
+                                        </div>
+                                        {details.friends.length === 0 ? (
+                                          <div className="text-sm text-muted-foreground italic">Sin amigos aún</div>
+                                        ) : (
+                                          <ul className="space-y-1">
+                                            {details.friends.map((f) => (
+                                              <li key={f.friend_id} className="text-sm">
+                                                <span className="font-medium">{f.friend_name}</span>
+                                                <span className="text-muted-foreground"> · {f.friend_email}</span>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                            )}
+                          </Fragment>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>
