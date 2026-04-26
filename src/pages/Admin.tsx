@@ -8,12 +8,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, ArrowUpDown,
   Search, ListChecks, ChevronDown, ChevronRight, UserPlus, Loader2,
-  Ticket, MessageSquare, Heart, Filter,
+  Ticket, MessageSquare, Heart, Filter, Trash2,
 } from 'lucide-react';
 import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
 import AdminOutreach from '@/components/AdminOutreach';
 import AdminLaunchTasks from '@/components/AdminLaunchTasks';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface UserStats {
   id: string;
@@ -85,6 +97,10 @@ const Admin = () => {
   const [filterKey, setFilterKey] = useState<FilterKey>('all');
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [detailsCache, setDetailsCache] = useState<Record<string, UserDetails>>({});
+  const [userToDelete, setUserToDelete] = useState<UserStats | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const { user: currentUser } = useAuth();
 
   const filteredUsers = useMemo(() => {
     const q = searchQuery.toLowerCase();
@@ -189,6 +205,40 @@ const Admin = () => {
         wanted: (wantedRes.data as WantedRow[]) || [],
       },
     }));
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    const target = userToDelete;
+    setDeletingUserId(target.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { userId: target.id },
+      });
+      if (error || (data as any)?.error) {
+        throw new Error((data as any)?.error || error?.message || 'Error al eliminar');
+      }
+      setUsers(prev => prev.filter(u => u.id !== target.id));
+      setDetailsCache(prev => {
+        const next = { ...prev };
+        delete next[target.id];
+        return next;
+      });
+      if (expandedUserId === target.id) setExpandedUserId(null);
+      toast({
+        title: 'Usuario eliminado',
+        description: `${target.name || target.email} ha sido eliminado correctamente.`,
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err?.message || 'No se ha podido eliminar el usuario',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeletingUserId(null);
+      setUserToDelete(null);
+    }
   };
 
   return (
@@ -307,18 +357,19 @@ const Admin = () => {
                       >
                         <span className="inline-flex items-center gap-1">Registro <SortIcon column="created_at" /></span>
                       </th>
+                      <th className="w-12 px-2 py-3"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
                           {searchQuery || filterKey !== 'all' ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
@@ -380,10 +431,28 @@ const Admin = () => {
                               <td className="px-4 py-3 text-muted-foreground text-sm">
                                 {formatDate(user.created_at)}
                               </td>
+                              <td className="px-2 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                                {currentUser?.id !== user.id && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => setUserToDelete(user)}
+                                    disabled={deletingUserId === user.id}
+                                    title="Eliminar usuario"
+                                  >
+                                    {deletingUserId === user.id ? (
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                      <Trash2 className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                )}
+                              </td>
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
-                                <td colSpan={7} className="px-6 py-4">
+                                <td colSpan={8} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -548,6 +617,39 @@ const Admin = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <AlertDialog open={!!userToDelete} onOpenChange={(open) => !open && setUserToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar usuario?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vas a eliminar permanentemente a{' '}
+              <span className="font-medium text-foreground">
+                {userToDelete?.name || userToDelete?.email}
+              </span>
+              . Se borrarán todas sus entradas, búsquedas, amistades, invitaciones y su cuenta.
+              Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!deletingUserId}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteUser}
+              disabled={!!deletingUserId}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingUserId ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Eliminando...
+                </>
+              ) : (
+                'Eliminar'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
