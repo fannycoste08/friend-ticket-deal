@@ -72,7 +72,6 @@ const Profile = () => {
   const isMobile = useIsMobile();
   const [activeSection, setActiveSection] = useState<Section>("friends");
   const [ticketsTab, setTicketsTab] = useState<TicketsTab>("selling");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [tickets, setTickets] = useState<MyTicket[]>([]);
   const [wantedTickets, setWantedTickets] = useState<MyWantedTicket[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(true);
@@ -288,7 +287,6 @@ const Profile = () => {
 
   const handleSectionChange = (section: Section) => {
     setActiveSection(section);
-    if (isMobile) setMobileMenuOpen(false);
   };
 
   if (loading) {
