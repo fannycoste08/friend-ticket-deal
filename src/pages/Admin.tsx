@@ -207,6 +207,40 @@ const Admin = () => {
     }));
   };
 
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    const target = userToDelete;
+    setDeletingUserId(target.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { userId: target.id },
+      });
+      if (error || (data as any)?.error) {
+        throw new Error((data as any)?.error || error?.message || 'Error al eliminar');
+      }
+      setUsers(prev => prev.filter(u => u.id !== target.id));
+      setDetailsCache(prev => {
+        const next = { ...prev };
+        delete next[target.id];
+        return next;
+      });
+      if (expandedUserId === target.id) setExpandedUserId(null);
+      toast({
+        title: 'Usuario eliminado',
+        description: `${target.name || target.email} ha sido eliminado correctamente.`,
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: err?.message || 'No se ha podido eliminar el usuario',
+        variant: 'destructive',
+      });
+    } finally {
+      setDeletingUserId(null);
+      setUserToDelete(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="max-w-6xl mx-auto px-4">
