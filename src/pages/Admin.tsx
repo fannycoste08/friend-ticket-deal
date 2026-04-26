@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Fragment } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -193,9 +193,8 @@ const Admin = () => {
                         const isExpanded = expandedUserId === user.id;
                         const details = detailsCache[user.id];
                         return (
-                          <>
+                          <Fragment key={user.id}>
                             <tr
-                              key={user.id}
                               className="hover:bg-muted/30 transition-colors cursor-pointer"
                               onClick={() => toggleUser(user.id)}
                             >
@@ -229,7 +228,7 @@ const Admin = () => {
                               </td>
                             </tr>
                             {isExpanded && (
-                              <tr key={`${user.id}-details`} className="bg-muted/20">
+                              <tr className="bg-muted/20">
                                 <td colSpan={5} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -276,7 +275,7 @@ const Admin = () => {
                                 </td>
                               </tr>
                             )}
-                          </>
+                          </Fragment>
                         );
                       })
                     )}
