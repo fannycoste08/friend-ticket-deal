@@ -417,6 +417,7 @@ export const InvitationManager = ({
         </TabsList>
 
         <TabsContent value="pending" className="space-y-3 mt-4">
+          {pendingHeader}
           {pendingInvitations.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">
               No hay solicitudes pendientes
