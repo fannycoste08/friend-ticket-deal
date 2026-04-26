@@ -97,6 +97,10 @@ const Admin = () => {
   const [filterKey, setFilterKey] = useState<FilterKey>('all');
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [detailsCache, setDetailsCache] = useState<Record<string, UserDetails>>({});
+  const [userToDelete, setUserToDelete] = useState<UserStats | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const { toast } = useToast();
+  const { user: currentUser } = useAuth();
 
   const filteredUsers = useMemo(() => {
     const q = searchQuery.toLowerCase();
