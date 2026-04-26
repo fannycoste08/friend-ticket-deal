@@ -342,7 +342,7 @@ const Profile = () => {
       <div className="space-y-6 fade-in-up">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
+            <h2 className="hidden md:block text-2xl font-bold text-foreground tracking-tight">Mis amigos</h2>
           </div>
           <InviteFriendButton />
         </div>
@@ -397,7 +397,7 @@ const Profile = () => {
 
   const renderInvitations = () => (
     <div className="space-y-6 fade-in-up">
-      <div>
+      <div className="hidden md:block">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Invitaciones</h2>
       </div>
       <InvitationManager
@@ -414,7 +414,7 @@ const Profile = () => {
     <div className="space-y-6 fade-in-up">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Mis entradas</h2>
+          <h2 className="hidden md:block text-2xl font-bold text-foreground tracking-tight">Mis entradas</h2>
           <p className="text-sm text-muted-foreground mt-1">
             {ticketsTab === "selling"
               ? `${availableTicketsCount} en venta`
@@ -481,7 +481,7 @@ const Profile = () => {
 
   const renderSettings = () => (
     <div className="space-y-8 fade-in-up">
-      <div>
+      <div className="hidden md:block">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Ajustes</h2>
         <p className="text-sm text-muted-foreground mt-1">Preferencias y configuración</p>
       </div>
