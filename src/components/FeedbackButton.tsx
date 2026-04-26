@@ -14,7 +14,7 @@ export const FeedbackButton = () => {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 rounded-full shadow-lg px-5 py-3 gap-2 gradient-primary text-primary-foreground hover:opacity-90 transition-all duration-300 hover:scale-105"
+        className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 rounded-full shadow-lg px-5 py-3 gap-2 gradient-primary text-primary-foreground hover:opacity-90 transition-all duration-300 hover:scale-105"
         size="lg"
       >
         <MessageSquarePlus className="w-5 h-5" />
