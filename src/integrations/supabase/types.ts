@@ -536,6 +536,22 @@ export type Database = {
           name: string
         }[]
       }
+      get_user_friends_admin: {
+        Args: { _user_id: string }
+        Returns: {
+          friend_email: string
+          friend_id: string
+          friend_name: string
+        }[]
+      }
+      get_user_inviter_admin: {
+        Args: { _user_id: string }
+        Returns: {
+          inviter_email: string
+          inviter_id: string
+          inviter_name: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
