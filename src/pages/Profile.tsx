@@ -337,7 +337,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <FriendshipRequests />
     </div>
   );
 
@@ -350,15 +349,7 @@ const Profile = () => {
           </div>
           <InviteFriendButton />
         </div>
-        <Tabs value={friendsTab} onValueChange={(v) => setFriendsTab(v as "list" | "requests")}>
-          <TabsList className="grid w-full grid-cols-2 max-w-sm">
-            <TabsTrigger value="list">Mis amigos</TabsTrigger>
-            <TabsTrigger value="requests">
-              Solicitudes{pendingFriendRequestsCount > 0 ? ` (${pendingFriendRequestsCount})` : ""}
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="list" className="mt-6">
-            {loadingFriends ? (
+        {loadingFriends ? (
               <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
             ) : friends.length === 0 ? (
               <div className="text-center py-16 bg-muted/30 rounded-xl">
@@ -402,12 +393,7 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
-            )}
-          </TabsContent>
-          <TabsContent value="requests" className="mt-6">
-            <FriendshipRequests embedded onCountChange={setPendingFriendRequestsCount} />
-          </TabsContent>
-        </Tabs>
+        )}
       </div>
     </InvitationManager>
   );
@@ -417,6 +403,7 @@ const Profile = () => {
       <div>
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Invitaciones</h2>
       </div>
+      <FriendshipRequests embedded onCountChange={setPendingFriendRequestsCount} />
       <InvitationManager userId={user.id} />
     </div>
   );
