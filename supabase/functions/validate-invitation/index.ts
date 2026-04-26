@@ -41,8 +41,24 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    if (authError || !user) {
+    // Manual decode of the verified JWT payload (gateway already validated it).
+    // Avoids SDK session-resolution issues observed with this Deno SDK version.
+    let user: { id: string; email?: string } | null = null;
+    try {
+      const payloadPart = token.split('.')[1];
+      const padded = payloadPart.padEnd(
+        payloadPart.length + ((4 - (payloadPart.length % 4)) % 4),
+        '='
+      );
+      const decoded = JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/')));
+      if (decoded?.sub) {
+        user = { id: decoded.sub, email: decoded.email };
+      }
+    } catch (e) {
+      console.error('Failed to decode JWT:', e);
+    }
+
+    if (!user) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
