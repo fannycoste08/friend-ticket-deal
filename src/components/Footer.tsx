@@ -85,6 +85,17 @@ const Footer = () => {
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} Trusticket. Todos los derechos reservados.
           </p>
+          <p className="mt-2 text-xs text-muted-foreground/70">
+            Hecho con ❤️ por Fanny · {" "}
+            <a
+              href="https://ko-fi.com/fannycoste"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ¿Te gusta Trusticket? Invítame a un café
+            </a>
+          </p>
         </div>
       </div>
     </footer>
