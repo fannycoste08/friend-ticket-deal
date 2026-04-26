@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { CheckCircle, Info } from "lucide-react";
+import { CheckCircle, Info, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ const Register = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [inviterName, setInviterName] = useState("");
   const [acceptedManifesto, setAcceptedManifesto] = useState(false);
+  const [showAlreadyRegisteredModal, setShowAlreadyRegisteredModal] = useState(false);
 
   if (user) {
     navigate("/");
@@ -39,7 +40,7 @@ const Register = () => {
       .maybeSingle();
 
     if (existingUser) {
-      toast.error("Este email ya está registrado");
+      setShowAlreadyRegisteredModal(true);
       setLoading(false);
       return;
     }
@@ -97,6 +98,49 @@ const Register = () => {
 
   return (
     <>
+      <Dialog
+        open={showAlreadyRegisteredModal}
+        onOpenChange={setShowAlreadyRegisteredModal}
+      >
+        <DialogContent className="sm:max-w-md glass-strong border-border/40">
+          <DialogHeader>
+            <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <AlertCircle className="w-8 h-8 text-primary" />
+            </div>
+            <DialogTitle className="text-center text-xl">Ya tienes cuenta en Trusticket</DialogTitle>
+            <DialogDescription className="text-center space-y-3 pt-4">
+              <p className="text-sm">
+                Este email ya está registrado en Trusticket.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Inicia sesión para acceder a tu cuenta. Si has olvidado tu contraseña, puedes recuperarla desde la página de login.
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 mt-4">
+            <Button
+              onClick={() => {
+                setShowAlreadyRegisteredModal(false);
+                navigate("/login");
+              }}
+              className="w-full gradient-primary border-0 hover:opacity-90"
+            >
+              Ir a iniciar sesión
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShowAlreadyRegisteredModal(false);
+                navigate("/forgot-password");
+              }}
+              className="w-full"
+            >
+              He olvidado mi contraseña
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog
         open={showSuccessModal}
         onOpenChange={(open) => {
