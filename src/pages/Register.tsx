@@ -98,10 +98,7 @@ const Register = () => {
 
   return (
     <>
-      <Dialog
-        open={showAlreadyRegisteredModal}
-        onOpenChange={setShowAlreadyRegisteredModal}
-      >
+      <Dialog open={showAlreadyRegisteredModal} onOpenChange={setShowAlreadyRegisteredModal}>
         <DialogContent className="sm:max-w-md glass-strong border-border/40">
           <DialogHeader>
             <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
@@ -109,11 +106,10 @@ const Register = () => {
             </div>
             <DialogTitle className="text-center text-xl">Ya tienes cuenta en Trusticket</DialogTitle>
             <DialogDescription className="text-center space-y-3 pt-4">
-              <p className="text-sm">
-                Este email ya está registrado en Trusticket.
-              </p>
+              <p className="text-sm">Este email ya está registrado en Trusticket.</p>
               <p className="text-sm text-muted-foreground">
-                Inicia sesión para acceder a tu cuenta. Si has olvidado tu contraseña, puedes recuperarla desde la página de login.
+                Inicia sesión para acceder a tu cuenta. Si has olvidado tu contraseña, puedes recuperarla desde la
+                página de login.
               </p>
             </DialogDescription>
           </DialogHeader>
@@ -159,10 +155,8 @@ const Register = () => {
                 Tu solicitud ha sido enviada a <strong>{inviterName}</strong>.
               </p>
               <p className="text-sm text-muted-foreground">
-                Recibirás un correo de confirmación cuando la persona que te apadrina haya aceptado tu solicitud.
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Una vez aprobada, recibirás un correo para crear tu contraseña e iniciar sesión.
+                Recibirás un correo de confirmación cuando la persona que te apadrina haya aceptado tu solicitud y
+                podrás crear tu contraseña para inciar sesión.
               </p>
             </DialogDescription>
           </DialogHeader>
