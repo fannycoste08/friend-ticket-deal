@@ -340,7 +340,7 @@ const Profile = () => {
   );
 
   const renderFriends = () => (
-    <InvitationManager userId={user.id}>
+    <InvitationManager userId={user.id} onPendingChange={setPendingInvitationsCount}>
       <div className="space-y-6 fade-in-up">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -403,7 +403,7 @@ const Profile = () => {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Invitaciones</h2>
       </div>
       <FriendshipRequests embedded onCountChange={setPendingFriendRequestsCount} />
-      <InvitationManager userId={user.id} />
+      <InvitationManager userId={user.id} onPendingChange={setPendingInvitationsCount} />
     </div>
   );
 
