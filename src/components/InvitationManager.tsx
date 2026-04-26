@@ -341,9 +341,32 @@ export const InvitationManager = ({
     handleInvite,
   };
 
-  // When used as a wrapper (with children), only provide context — no UI.
+  const blockedAlert = (
+    <AlertDialog open={blockedDialog.open} onOpenChange={(open) => setBlockedDialog({ ...blockedDialog, open })}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>No se puede enviar la invitación</AlertDialogTitle>
+          <AlertDialogDescription className="text-base pt-2">
+            {blockedDialog.message}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction onClick={() => setBlockedDialog({ open: false, message: '' })}>
+            Entendido
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+
+  // When used as a wrapper (with children), provide context and shared alert UI.
   if (children !== undefined) {
-    return <InviteContext.Provider value={ctxValue}>{children}</InviteContext.Provider>;
+    return (
+      <InviteContext.Provider value={ctxValue}>
+        {children}
+        {blockedAlert}
+      </InviteContext.Provider>
+    );
   }
 
   return (
@@ -355,21 +378,7 @@ export const InvitationManager = ({
         </div>
       </div>
 
-      <AlertDialog open={blockedDialog.open} onOpenChange={(open) => setBlockedDialog({ ...blockedDialog, open })}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>No se puede enviar la invitación</AlertDialogTitle>
-            <AlertDialogDescription className="text-base pt-2">
-              {blockedDialog.message}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setBlockedDialog({ open: false, message: '' })}>
-              Entendido
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {blockedAlert}
 
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); loadInvitations(); }} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
