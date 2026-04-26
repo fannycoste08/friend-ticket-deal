@@ -88,7 +88,6 @@ const Profile = () => {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
-  const [friendsTab, setFriendsTab] = useState<"list" | "requests">("list");
   const [pendingFriendRequestsCount, setPendingFriendRequestsCount] = useState(0);
 
   useEffect(() => {
@@ -337,7 +336,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <FriendshipRequests />
     </div>
   );
 
@@ -350,15 +348,7 @@ const Profile = () => {
           </div>
           <InviteFriendButton />
         </div>
-        <Tabs value={friendsTab} onValueChange={(v) => setFriendsTab(v as "list" | "requests")}>
-          <TabsList className="grid w-full grid-cols-2 max-w-sm">
-            <TabsTrigger value="list">Mis amigos</TabsTrigger>
-            <TabsTrigger value="requests">
-              Solicitudes{pendingFriendRequestsCount > 0 ? ` (${pendingFriendRequestsCount})` : ""}
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="list" className="mt-6">
-            {loadingFriends ? (
+        {loadingFriends ? (
               <p className="text-sm text-muted-foreground text-center py-12">Cargando tus amigos...</p>
             ) : friends.length === 0 ? (
               <div className="text-center py-16 bg-muted/30 rounded-xl">
@@ -402,12 +392,7 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
-            )}
-          </TabsContent>
-          <TabsContent value="requests" className="mt-6">
-            <FriendshipRequests embedded onCountChange={setPendingFriendRequestsCount} />
-          </TabsContent>
-        </Tabs>
+        )}
       </div>
     </InvitationManager>
   );
@@ -417,6 +402,7 @@ const Profile = () => {
       <div>
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Invitaciones</h2>
       </div>
+      <FriendshipRequests embedded onCountChange={setPendingFriendRequestsCount} />
       <InvitationManager userId={user.id} />
     </div>
   );
@@ -570,20 +556,20 @@ const Profile = () => {
           >
             <Icon className="w-4 h-4 shrink-0" />
             <span className="truncate">{item.label}</span>
-            {item.id === "friends" && friends.length + pendingFriendRequestsCount > 0 && (
+            {item.id === "friends" && friends.length > 0 && (
               <Badge
                 variant={isActive ? "secondary" : "outline"}
                 className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
               >
-                {friends.length + pendingFriendRequestsCount}
+                {friends.length}
               </Badge>
             )}
-            {item.id === "invitations" && pendingInvitationsCount > 0 && (
+            {item.id === "invitations" && pendingInvitationsCount + pendingFriendRequestsCount > 0 && (
               <Badge
                 variant={isActive ? "secondary" : "outline"}
                 className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
               >
-                {pendingInvitationsCount}
+                {pendingInvitationsCount + pendingFriendRequestsCount}
               </Badge>
             )}
             {item.id === "tickets" && availableTicketsCount + wantedTickets.length > 0 && (
