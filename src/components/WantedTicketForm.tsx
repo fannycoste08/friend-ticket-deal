@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -27,6 +26,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [formData, setFormData] = useState({
     artist: editTicket?.artist || '',
     city: editTicket?.city || '',
@@ -112,17 +112,32 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
           </div>
           <div className="space-y-2">
             <Label>Fecha del Concierto *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("w-full justify-start text-left font-normal h-10", !formData.event_date && "text-muted-foreground")}>
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.event_date ? format(formData.event_date, "d 'de' MMMM 'de' yyyy", { locale: es }) : <span>Selecciona una fecha</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[286px] p-0" align="start">
-                <Calendar mode="single" selected={formData.event_date} onSelect={(date) => handleChange('event_date', date)} disabled={(date) => date < new Date()} initialFocus fixedWeeks showOutsideDays className={cn("p-3 pointer-events-auto")} />
-              </PopoverContent>
-            </Popover>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowCalendar((v) => !v)}
+              className={cn("w-full justify-start text-left font-normal h-10", !formData.event_date && "text-muted-foreground")}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {formData.event_date ? format(formData.event_date, "d 'de' MMMM 'de' yyyy", { locale: es }) : <span>Selecciona una fecha</span>}
+            </Button>
+            {showCalendar && (
+              <div className="rounded-md border bg-popover">
+                <Calendar
+                  mode="single"
+                  selected={formData.event_date}
+                  onSelect={(date) => {
+                    handleChange('event_date', date);
+                    if (date) setShowCalendar(false);
+                  }}
+                  disabled={(date) => date < new Date()}
+                  initialFocus
+                  fixedWeeks
+                  showOutsideDays
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </div>
+            )}
           </div>
           <div className="flex gap-2 justify-end pt-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
