@@ -137,16 +137,8 @@ export const FriendshipRequests = ({ embedded = false, onCountChange }: Friendsh
   }
 
   if (embedded) {
-    if (loading) {
-      return <p className="text-sm text-muted-foreground text-center py-12">Cargando solicitudes...</p>;
-    }
-    if (requests.length === 0) {
-      return (
-        <div className="text-center py-16 bg-muted/30 rounded-xl">
-          <UserPlus className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground">No tienes solicitudes pendientes</p>
-        </div>
-      );
+    if (loading || requests.length === 0) {
+      return null;
     }
     return (
       <div className="space-y-3">
