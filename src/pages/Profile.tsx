@@ -557,20 +557,20 @@ const Profile = () => {
           >
             <Icon className="w-4 h-4 shrink-0" />
             <span className="truncate">{item.label}</span>
-            {item.id === "friends" && friends.length + pendingFriendRequestsCount > 0 && (
+            {item.id === "friends" && friends.length > 0 && (
               <Badge
                 variant={isActive ? "secondary" : "outline"}
                 className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
               >
-                {friends.length + pendingFriendRequestsCount}
+                {friends.length}
               </Badge>
             )}
-            {item.id === "invitations" && pendingInvitationsCount > 0 && (
+            {item.id === "invitations" && pendingInvitationsCount + pendingFriendRequestsCount > 0 && (
               <Badge
                 variant={isActive ? "secondary" : "outline"}
                 className="ml-auto text-xs h-5 min-w-[20px] flex items-center justify-center"
               >
-                {pendingInvitationsCount}
+                {pendingInvitationsCount + pendingFriendRequestsCount}
               </Badge>
             )}
             {item.id === "tickets" && availableTicketsCount + wantedTickets.length > 0 && (
