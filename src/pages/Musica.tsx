@@ -120,7 +120,7 @@ const Musica = () => {
           Música
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Conciertos seleccionados en Madrid y alrededores. Una agenda viva.
+          Todo lo que le gusta a la gente de Trusticket
         </p>
       </div>
 
