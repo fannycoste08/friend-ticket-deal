@@ -357,18 +357,19 @@ const Admin = () => {
                       >
                         <span className="inline-flex items-center gap-1">Registro <SortIcon column="created_at" /></span>
                       </th>
+                      <th className="w-12 px-2 py-3"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
                           {searchQuery || filterKey !== 'all' ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
