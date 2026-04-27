@@ -20,6 +20,7 @@ const Register = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [inviterName, setInviterName] = useState("");
   const [acceptedManifesto, setAcceptedManifesto] = useState(false);
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [showAlreadyRegisteredModal, setShowAlreadyRegisteredModal] = useState(false);
 
   if (user) {
@@ -245,10 +246,39 @@ const Register = () => {
                 </label>
               </div>
 
+              <div className="flex items-start space-x-3" style={{ marginTop: "12px" }}>
+                <Checkbox
+                  id="legal"
+                  checked={acceptedLegal}
+                  onCheckedChange={(checked) => setAcceptedLegal(checked === true)}
+                />
+                <label htmlFor="legal" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+                  He leído y acepto el{" "}
+                  <a
+                    href="/legal-notice"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    aviso legal
+                  </a>{" "}
+                  y la{" "}
+                  <a
+                    href="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    política de privacidad
+                  </a>
+                  .
+                </label>
+              </div>
+
               <Button
                 type="submit"
                 className="w-full h-11 gradient-primary border-0 hover:opacity-90"
-                disabled={loading || !acceptedManifesto}
+                disabled={loading || !acceptedManifesto || !acceptedLegal}
               >
                 {loading ? "Solicitando registro..." : "Solicitar registro"}
               </Button>
