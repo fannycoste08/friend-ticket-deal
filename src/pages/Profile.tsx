@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings } from "lucide-react";
+import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -56,6 +56,12 @@ interface Friend {
   name: string;
 }
 
+interface Suggestion {
+  id: string;
+  name: string;
+  mutualFriendName: string;
+}
+
 type Section = "friends" | "invitations" | "tickets" | "settings";
 type TicketsTab = "selling" | "wanted";
 
@@ -82,6 +88,8 @@ const Profile = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [sentSuggestionIds, setSentSuggestionIds] = useState<Set<string>>(new Set());
   const { emailNotificationsEnabled, toggleEmailNotifications } = useEmailNotifications(user?.id);
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
