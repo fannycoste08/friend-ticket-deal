@@ -166,10 +166,10 @@ const Musica = () => {
         <div className="flex flex-col gap-4 mb-5 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Conciertos
+              Agenda de conciertos
             </h2>
             <p className="text-muted-foreground text-sm mt-1">
-              Selección en Madrid y alrededores.
+              Seleccionados por Trusticket
             </p>
           </div>
           {mesesDisponibles.length > 0 && (
