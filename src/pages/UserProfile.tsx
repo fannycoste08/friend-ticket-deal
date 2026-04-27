@@ -389,6 +389,59 @@ const UserProfile = () => {
           </div>
         </Card>
 
+        {theirFriends.length > 0 && (
+          <Card className="p-6 mb-8">
+            <h2 className="text-sm font-medium text-muted-foreground mb-4">
+              Amigos de {profile.name}
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {theirFriends.map((f) => {
+                const alreadyFriend = myFriendIds.has(f.id);
+                const requestSent = pendingSentIds.has(f.id);
+                return (
+                  <div
+                    key={f.id}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-border/50"
+                  >
+                    <button
+                      onClick={() => navigate(`/user/${f.id}`)}
+                      className="flex items-center gap-3 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
+                    >
+                      <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
+                        <span className="text-sm font-medium text-primary">
+                          {f.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="font-medium text-foreground text-sm truncate hover:text-primary">
+                        {f.name}
+                      </p>
+                    </button>
+                    {alreadyFriend ? (
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        Ya sois amigos
+                      </span>
+                    ) : requestSent ? (
+                      <Button variant="ghost" size="sm" disabled className="shrink-0 text-xs text-muted-foreground">
+                        Solicitud enviada
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSendRequestToFriendOfFriend(f)}
+                        className="shrink-0 text-xs border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
+                      >
+                        <UserPlus className="w-3.5 h-3.5 mr-1" />
+                        Añadir
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
+
         {mutualFriends.length > 0 && (
           <Card className="p-6 mb-8">
             <div className="flex items-center gap-2 mb-4">
