@@ -256,6 +256,76 @@ const Profile = () => {
     const { data: profilesData } = await supabase.from("profiles").select("id, name").in("id", friendIds);
     setFriends(profilesData || []);
     setLoadingFriends(false);
+    loadSuggestions();
+  };
+
+  const loadSuggestions = async () => {
+    if (!user) return;
+    const { data, error } = await supabase.rpc("get_friend_suggestions", { _user_id: user.id });
+    if (error) {
+      console.error("Error loading suggestions:", error);
+      return;
+    }
+    const mapped: Suggestion[] = (data || []).map((s: any) => ({
+      id: s.suggestion_id,
+      name: s.suggestion_name,
+      mutualFriendName: s.mutual_friend_name,
+    }));
+    setSuggestions(mapped);
+
+    // Exclude users to whom we already have a pending/accepted relationship
+    if (mapped.length > 0) {
+      const ids = mapped.map((m) => m.id);
+      const { data: existing } = await supabase
+        .from("friendships")
+        .select("user_id, friend_id")
+        .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
+      if (existing) {
+        const already = new Set<string>();
+        existing.forEach((f) => {
+          const other = f.user_id === user.id ? f.friend_id : f.user_id;
+          if (ids.includes(other)) already.add(other);
+        });
+        if (already.size > 0) {
+          setSentSuggestionIds((prev) => {
+            const next = new Set(prev);
+            already.forEach((id) => next.add(id));
+            return next;
+          });
+        }
+      }
+    }
+  };
+
+  const handleSendSuggestionRequest = async (suggestion: Suggestion) => {
+    if (!user) return;
+    const { error } = await supabase.from("friendships").insert({
+      user_id: user.id,
+      friend_id: suggestion.id,
+      status: "pending",
+    });
+    if (error) {
+      toast.error("Error al enviar solicitud");
+      return;
+    }
+    setSentSuggestionIds((prev) => new Set(prev).add(suggestion.id));
+    try {
+      const { data: currentUserProfile } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .single();
+      await supabase.functions.invoke("send-friendship-notification", {
+        body: {
+          recipient_id: suggestion.id,
+          recipient_name: suggestion.name,
+          requester_name: currentUserProfile?.name || "Un usuario",
+        },
+      });
+    } catch (e) {
+      console.error("Error sending friendship notification email:", e);
+    }
+    toast.success("Solicitud de amistad enviada");
   };
 
   const handleDeleteFriend = async () => {
