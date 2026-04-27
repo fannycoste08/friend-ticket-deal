@@ -146,7 +146,7 @@ const Musica = () => {
               Agenda de conciertos en Madrid
             </h2>
             <p className="text-muted-foreground text-sm mt-1">
-              Seleccionados por Trusticket
+              Seleccionados con amor por Trusticket aunque no significa que haya entradas a la venta en esta página.
             </p>
           </div>
           <Button
