@@ -49,7 +49,6 @@ const Musica = () => {
   const [conciertos, setConciertos] = useState<Concierto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [mesFiltro, setMesFiltro] = useState<string>("todos");
   const [refreshing, setRefreshing] = useState(false);
 
   const load = async (isManualRefresh = false) => {
@@ -97,29 +96,7 @@ const Musica = () => {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  // Build month options from loaded concerts (key: yyyy-mm, label: "Mes Año")
-  const mesesDisponibles = Array.from(
-    new Map(
-      conciertos
-        .map((c) => parseFecha(c.fecha))
-        .filter((d): d is Date => !!d)
-        .map((d) => {
-          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-          const label = d.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
-          return [key, label.charAt(0).toUpperCase() + label.slice(1)];
-        })
-    ).entries()
-  ).sort(([a], [b]) => a.localeCompare(b));
-
-  const conciertosFiltrados =
-    mesFiltro === "todos"
-      ? conciertos
-      : conciertos.filter((c) => {
-          const d = parseFecha(c.fecha);
-          if (!d) return false;
-          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-          return key === mesFiltro;
-        });
+  const conciertosFiltrados = conciertos;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
@@ -172,36 +149,15 @@ const Musica = () => {
               Seleccionados por Trusticket
             </p>
           </div>
-          {mesesDisponibles.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={mesFiltro === "todos" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setMesFiltro("todos")}
-              >
-                Todos
-              </Button>
-              {mesesDisponibles.map(([key, label]) => (
-                <Button
-                  key={key}
-                  variant={mesFiltro === key ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setMesFiltro(key)}
-                >
-                  {label}
-                </Button>
-              ))}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => load(true)}
-                disabled={refreshing}
-                aria-label="Actualizar conciertos"
-              >
-                <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
-              </Button>
-            </div>
-          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => load(true)}
+            disabled={refreshing}
+            aria-label="Actualizar conciertos"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+          </Button>
         </div>
 
         <div className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
@@ -236,7 +192,7 @@ const Musica = () => {
               {!loading && !error && conciertosFiltrados.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
-                    No hay conciertos para este mes.
+                    No hay conciertos disponibles.
                   </TableCell>
                 </TableRow>
               )}
