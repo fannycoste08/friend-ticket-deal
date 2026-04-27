@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings } from "lucide-react";
+import { Mail, UserMinus, Bell, Trash2, User, Users, Ticket, Search, Settings, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -56,6 +56,12 @@ interface Friend {
   name: string;
 }
 
+interface Suggestion {
+  id: string;
+  name: string;
+  mutualFriendName: string;
+}
+
 type Section = "friends" | "invitations" | "tickets" | "settings";
 type TicketsTab = "selling" | "wanted";
 
@@ -82,6 +88,8 @@ const Profile = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [sentSuggestionIds, setSentSuggestionIds] = useState<Set<string>>(new Set());
   const { emailNotificationsEnabled, toggleEmailNotifications } = useEmailNotifications(user?.id);
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -248,6 +256,76 @@ const Profile = () => {
     const { data: profilesData } = await supabase.from("profiles").select("id, name").in("id", friendIds);
     setFriends(profilesData || []);
     setLoadingFriends(false);
+    loadSuggestions();
+  };
+
+  const loadSuggestions = async () => {
+    if (!user) return;
+    const { data, error } = await supabase.rpc("get_friend_suggestions", { _user_id: user.id });
+    if (error) {
+      console.error("Error loading suggestions:", error);
+      return;
+    }
+    const mapped: Suggestion[] = (data || []).map((s: any) => ({
+      id: s.suggestion_id,
+      name: s.suggestion_name,
+      mutualFriendName: s.mutual_friend_name,
+    }));
+    setSuggestions(mapped);
+
+    // Exclude users to whom we already have a pending/accepted relationship
+    if (mapped.length > 0) {
+      const ids = mapped.map((m) => m.id);
+      const { data: existing } = await supabase
+        .from("friendships")
+        .select("user_id, friend_id")
+        .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
+      if (existing) {
+        const already = new Set<string>();
+        existing.forEach((f) => {
+          const other = f.user_id === user.id ? f.friend_id : f.user_id;
+          if (ids.includes(other)) already.add(other);
+        });
+        if (already.size > 0) {
+          setSentSuggestionIds((prev) => {
+            const next = new Set(prev);
+            already.forEach((id) => next.add(id));
+            return next;
+          });
+        }
+      }
+    }
+  };
+
+  const handleSendSuggestionRequest = async (suggestion: Suggestion) => {
+    if (!user) return;
+    const { error } = await supabase.from("friendships").insert({
+      user_id: user.id,
+      friend_id: suggestion.id,
+      status: "pending",
+    });
+    if (error) {
+      toast.error("Error al enviar solicitud");
+      return;
+    }
+    setSentSuggestionIds((prev) => new Set(prev).add(suggestion.id));
+    try {
+      const { data: currentUserProfile } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .single();
+      await supabase.functions.invoke("send-friendship-notification", {
+        body: {
+          recipient_id: suggestion.id,
+          recipient_name: suggestion.name,
+          requester_name: currentUserProfile?.name || "Un usuario",
+        },
+      });
+    } catch (e) {
+      console.error("Error sending friendship notification email:", e);
+    }
+    toast.success("Solicitud de amistad enviada");
   };
 
   const handleDeleteFriend = async () => {
@@ -388,6 +466,58 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
+        )}
+        {suggestions.length > 0 && (
+          <div className="pt-4 border-t border-border/40 space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Personas que quizás conoces</h3>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 w-full">
+              {suggestions.map((s) => {
+                const sent = sentSuggestionIds.has(s.id);
+                return (
+                  <div
+                    key={s.id}
+                    className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300 w-full overflow-hidden"
+                  >
+                    <div className="flex items-center gap-3 w-full min-w-0">
+                      <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
+                        <span className="text-sm font-medium text-primary">
+                          {s.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground text-sm truncate">{s.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          Amigo/a de {s.mutualFriendName}
+                        </p>
+                      </div>
+                      {sent ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled
+                          className="shrink-0 text-xs text-muted-foreground"
+                        >
+                          Solicitud enviada
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSendSuggestionRequest(s)}
+                          className="shrink-0 text-xs border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
+                        >
+                          <UserPlus className="w-3.5 h-3.5 mr-1" />
+                          Añadir
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
     </InvitationManager>
