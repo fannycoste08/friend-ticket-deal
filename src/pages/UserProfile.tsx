@@ -58,6 +58,9 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [mutualFriends, setMutualFriends] = useState<Array<{ friend_id: string; friend_name: string }>>([]);
+  const [theirFriends, setTheirFriends] = useState<Array<{ id: string; name: string }>>([]);
+  const [myFriendIds, setMyFriendIds] = useState<Set<string>>(new Set());
+  const [pendingSentIds, setPendingSentIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (userId && user) {
@@ -105,6 +108,28 @@ const UserProfile = () => {
       .order('created_at', { ascending: false });
 
     setWantedTickets(wantedTicketsData || []);
+
+    // Load this user's friends (excluding myself, server-side)
+    const { data: theirFriendsData } = await supabase
+      .rpc('get_user_friends_public', { _target_user_id: userId });
+    setTheirFriends(
+      (theirFriendsData || []).map((f: any) => ({ id: f.friend_id, name: f.friend_name }))
+    );
+
+    // Load my own relationships to know who is already a friend / pending
+    const { data: myRelations } = await supabase
+      .from('friendships')
+      .select('user_id, friend_id, status')
+      .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
+    const accepted = new Set<string>();
+    const pending = new Set<string>();
+    (myRelations || []).forEach((r) => {
+      const other = r.user_id === user.id ? r.friend_id : r.user_id;
+      if (r.status === 'accepted') accepted.add(other);
+      else if (r.status === 'pending' && r.user_id === user.id) pending.add(other);
+    });
+    setMyFriendIds(accepted);
+    setPendingSentIds(pending);
 
     // Get network degree
     const { data: networkData } = await supabase
@@ -197,6 +222,37 @@ const UserProfile = () => {
 
     toast.success('Solicitud de amistad enviada');
     loadUserData();
+  };
+
+  const handleSendRequestToFriendOfFriend = async (target: { id: string; name: string }) => {
+    if (!user) return;
+    const { error } = await supabase.from('friendships').insert({
+      user_id: user.id,
+      friend_id: target.id,
+      status: 'pending',
+    });
+    if (error) {
+      toast.error('Error al enviar solicitud');
+      return;
+    }
+    setPendingSentIds((prev) => new Set(prev).add(target.id));
+    try {
+      const { data: currentUserProfile } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .single();
+      await supabase.functions.invoke('send-friendship-notification', {
+        body: {
+          recipient_id: target.id,
+          recipient_name: target.name,
+          requester_name: currentUserProfile?.name || 'Un usuario',
+        },
+      });
+    } catch (e) {
+      console.error('Error sending friendship notification email:', e);
+    }
+    toast.success('Solicitud de amistad enviada');
   };
 
   const handleAcceptFriendRequest = async () => {
