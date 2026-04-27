@@ -487,7 +487,13 @@ const Profile = () => {
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-foreground text-sm truncate">{s.name}</p>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/user/${s.id}`)}
+                          className="font-medium text-foreground text-sm truncate hover:text-primary hover:underline text-left max-w-full"
+                        >
+                          {s.name}
+                        </button>
                         <p className="text-xs text-muted-foreground truncate">
                           Amigo/a de {s.mutualFriendName}
                         </p>
