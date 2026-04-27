@@ -467,6 +467,58 @@ const Profile = () => {
                 ))}
               </div>
         )}
+        {suggestions.length > 0 && (
+          <div className="pt-4 border-t border-border/40 space-y-4">
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground">Personas que quizás conoces</h3>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 w-full">
+              {suggestions.map((s) => {
+                const sent = sentSuggestionIds.has(s.id);
+                return (
+                  <div
+                    key={s.id}
+                    className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300 w-full overflow-hidden"
+                  >
+                    <div className="flex items-center gap-3 w-full min-w-0">
+                      <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
+                        <span className="text-sm font-medium text-primary">
+                          {s.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground text-sm truncate">{s.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          Amigo/a de {s.mutualFriendName}
+                        </p>
+                      </div>
+                      {sent ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled
+                          className="shrink-0 text-xs text-muted-foreground"
+                        >
+                          Solicitud enviada
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSendSuggestionRequest(s)}
+                          className="shrink-0 text-xs border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
+                        >
+                          <UserPlus className="w-3.5 h-3.5 mr-1" />
+                          Añadir
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </InvitationManager>
   );
