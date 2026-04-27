@@ -14,7 +14,6 @@ const CreatePassword = () => {
   const { updatePassword } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [inviterEmail, setInviterEmail] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -95,58 +94,11 @@ const CreatePassword = () => {
       return;
     }
 
-    if (!inviterEmail.trim()) {
-      toast.error("Por favor, introduce el email de tu padrino");
-      return;
-    }
-
     setLoading(true);
 
     try {
       if (!userEmail) {
         toast.error("No se pudo obtener tu email. Por favor, intenta de nuevo.");
-        setLoading(false);
-        return;
-      }
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const { data: invitations, error: invitationError } = await supabase
-        .from("invitations")
-        .select("*")
-        .ilike("invitee_email", userEmail)
-        .eq("status", "approved");
-
-      if (invitationError) {
-        toast.error("Error al verificar la invitación");
-        setLoading(false);
-        return;
-      }
-
-      if (!invitations || invitations.length === 0) {
-        toast.error("No se encontró una invitación aprobada para tu email");
-        setLoading(false);
-        return;
-      }
-
-      const inviterIds = invitations.map((inv) => inv.inviter_id);
-      const { data: inviters, error: invitersError } = await supabase
-        .from("profiles")
-        .select("id, email")
-        .in("id", inviterIds);
-
-      if (invitersError || !inviters) {
-        toast.error("Error al verificar el padrino");
-        setLoading(false);
-        return;
-      }
-
-      const matchingInviter = inviters.find((inv) => inv.email?.toLowerCase() === inviterEmail.toLowerCase());
-
-      if (!matchingInviter) {
-        toast.error("El email del padrino no coincide con tu invitación");
         setLoading(false);
         return;
       }
@@ -258,20 +210,6 @@ const CreatePassword = () => {
             </div>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="inviterEmail">Email de tu padrino</Label>
-              <Input
-                id="inviterEmail"
-                type="email"
-                value={inviterEmail}
-                onChange={(e) => setInviterEmail(e.target.value)}
-                placeholder="padrino@ejemplo.com"
-                required
-                className="h-11 bg-secondary/50 border-border/50"
-              />
-              <p className="text-xs text-muted-foreground">Email de la persona que aprobó tu invitación</p>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="password">Nueva contraseña</Label>
               <div className="relative">
