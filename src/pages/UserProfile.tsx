@@ -58,6 +58,9 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [mutualFriends, setMutualFriends] = useState<Array<{ friend_id: string; friend_name: string }>>([]);
+  const [theirFriends, setTheirFriends] = useState<Array<{ id: string; name: string }>>([]);
+  const [myFriendIds, setMyFriendIds] = useState<Set<string>>(new Set());
+  const [pendingSentIds, setPendingSentIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (userId && user) {
@@ -105,6 +108,28 @@ const UserProfile = () => {
       .order('created_at', { ascending: false });
 
     setWantedTickets(wantedTicketsData || []);
+
+    // Load this user's friends (excluding myself, server-side)
+    const { data: theirFriendsData } = await supabase
+      .rpc('get_user_friends_public', { _target_user_id: userId });
+    setTheirFriends(
+      (theirFriendsData || []).map((f: any) => ({ id: f.friend_id, name: f.friend_name }))
+    );
+
+    // Load my own relationships to know who is already a friend / pending
+    const { data: myRelations } = await supabase
+      .from('friendships')
+      .select('user_id, friend_id, status')
+      .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
+    const accepted = new Set<string>();
+    const pending = new Set<string>();
+    (myRelations || []).forEach((r) => {
+      const other = r.user_id === user.id ? r.friend_id : r.user_id;
+      if (r.status === 'accepted') accepted.add(other);
+      else if (r.status === 'pending' && r.user_id === user.id) pending.add(other);
+    });
+    setMyFriendIds(accepted);
+    setPendingSentIds(pending);
 
     // Get network degree
     const { data: networkData } = await supabase
@@ -197,6 +222,37 @@ const UserProfile = () => {
 
     toast.success('Solicitud de amistad enviada');
     loadUserData();
+  };
+
+  const handleSendRequestToFriendOfFriend = async (target: { id: string; name: string }) => {
+    if (!user) return;
+    const { error } = await supabase.from('friendships').insert({
+      user_id: user.id,
+      friend_id: target.id,
+      status: 'pending',
+    });
+    if (error) {
+      toast.error('Error al enviar solicitud');
+      return;
+    }
+    setPendingSentIds((prev) => new Set(prev).add(target.id));
+    try {
+      const { data: currentUserProfile } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user.id)
+        .single();
+      await supabase.functions.invoke('send-friendship-notification', {
+        body: {
+          recipient_id: target.id,
+          recipient_name: target.name,
+          requester_name: currentUserProfile?.name || 'Un usuario',
+        },
+      });
+    } catch (e) {
+      console.error('Error sending friendship notification email:', e);
+    }
+    toast.success('Solicitud de amistad enviada');
   };
 
   const handleAcceptFriendRequest = async () => {
@@ -332,6 +388,59 @@ const UserProfile = () => {
             {getFriendshipButton()}
           </div>
         </Card>
+
+        {theirFriends.length > 0 && (
+          <Card className="p-6 mb-8">
+            <h2 className="text-sm font-medium text-muted-foreground mb-4">
+              Amigos de {profile.name}
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {theirFriends.map((f) => {
+                const alreadyFriend = myFriendIds.has(f.id);
+                const requestSent = pendingSentIds.has(f.id);
+                return (
+                  <div
+                    key={f.id}
+                    className="flex items-center gap-3 p-3 rounded-lg border border-border/50"
+                  >
+                    <button
+                      onClick={() => navigate(`/user/${f.id}`)}
+                      className="flex items-center gap-3 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
+                    >
+                      <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
+                        <span className="text-sm font-medium text-primary">
+                          {f.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <p className="font-medium text-foreground text-sm truncate hover:text-primary">
+                        {f.name}
+                      </p>
+                    </button>
+                    {alreadyFriend ? (
+                      <span className="text-xs text-muted-foreground shrink-0">
+                        Ya sois amigos
+                      </span>
+                    ) : requestSent ? (
+                      <Button variant="ghost" size="sm" disabled className="shrink-0 text-xs text-muted-foreground">
+                        Solicitud enviada
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSendRequestToFriendOfFriend(f)}
+                        className="shrink-0 text-xs border-primary/50 text-primary hover:bg-primary/10 hover:text-primary"
+                      >
+                        <UserPlus className="w-3.5 h-3.5 mr-1" />
+                        Añadir
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        )}
 
         {mutualFriends.length > 0 && (
           <Card className="p-6 mb-8">

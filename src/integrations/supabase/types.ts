@@ -567,6 +567,13 @@ export type Database = {
           friend_name: string
         }[]
       }
+      get_user_friends_public: {
+        Args: { _target_user_id: string }
+        Returns: {
+          friend_id: string
+          friend_name: string
+        }[]
+      }
       get_user_invitees_admin: {
         Args: { _user_id: string }
         Returns: {
