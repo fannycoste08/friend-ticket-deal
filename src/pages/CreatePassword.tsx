@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Ticket, Eye, EyeOff } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Ticket, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ const CreatePassword = () => {
   const [loading, setLoading] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [authenticating, setAuthenticating] = useState(true);
+  const [linkExpired, setLinkExpired] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -48,13 +49,12 @@ const CreatePassword = () => {
           setUserEmail(newSession.user.email);
           setAuthenticating(false);
         } else if (mounted) {
-          toast.error("El enlace ha expirado o ya fue usado. Solicita un nuevo enlace a tu padrino.");
-          setTimeout(() => navigate("/login"), 3000);
+          setLinkExpired(true);
           setAuthenticating(false);
         }
       } catch (error) {
         if (mounted) {
-          toast.error("Error al verificar la sesión");
+          setLinkExpired(true);
           setAuthenticating(false);
         }
       }
@@ -184,6 +184,39 @@ const CreatePassword = () => {
             <div>
               <h2 className="text-xl font-semibold mb-2 text-foreground">Verificando tu identidad...</h2>
               <p className="text-sm text-muted-foreground">Por favor espera un momento</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (linkExpired) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div
+          className="w-full max-w-md glass-strong rounded-2xl p-8"
+          style={{ boxShadow: "var(--shadow-elevated)" }}
+        >
+          <div className="text-center space-y-5">
+            <div className="mx-auto w-16 h-16 rounded-xl bg-destructive/15 flex items-center justify-center">
+              <AlertCircle className="w-9 h-9 text-destructive" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-foreground">Tu enlace ha caducado</h2>
+              <p className="text-sm text-muted-foreground">
+                El enlace para crear tu contraseña ya ha sido usado o ha caducado.
+                No te preocupes: tu cuenta está creada. Solo tienes que pedir un
+                nuevo enlace para establecer tu contraseña.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Button asChild className="w-full h-11 gradient-primary border-0 hover:opacity-90">
+                <Link to="/forgot-password">Pedir nuevo enlace</Link>
+              </Button>
+              <Button asChild variant="ghost" className="w-full h-11">
+                <Link to="/login">Volver al inicio de sesión</Link>
+              </Button>
             </div>
           </div>
         </div>
