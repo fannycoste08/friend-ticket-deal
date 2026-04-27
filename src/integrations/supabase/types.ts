@@ -533,6 +533,15 @@ export type Database = {
         }[]
       }
       get_friend_count: { Args: { profile_id: string }; Returns: number }
+      get_friend_suggestions: {
+        Args: { _user_id: string }
+        Returns: {
+          mutual_friend_id: string
+          mutual_friend_name: string
+          suggestion_id: string
+          suggestion_name: string
+        }[]
+      }
       get_mutual_friends: {
         Args: { user_a: string; user_b: string }
         Returns: {
