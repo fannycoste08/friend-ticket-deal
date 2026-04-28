@@ -9,13 +9,6 @@ const corsHeaders = {
 
 interface NotifyRequest {
   ticket_id: string;
-  artist: string;
-  venue: string;
-  city: string;
-  event_date: string;
-  price: number;
-  seller_id: string;
-  seller_name: string;
 }
 
 // Fallback HTML
@@ -70,12 +63,12 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { ticket_id, artist, venue, city, event_date, price, seller_id, seller_name }: NotifyRequest = await req.json();
-    
-    if (user.id !== seller_id) {
+    const { ticket_id }: NotifyRequest = await req.json();
+
+    if (!ticket_id || typeof ticket_id !== 'string') {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized - you can only send notifications for your own tickets' }),
-        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ error: 'ticket_id is required' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
@@ -84,6 +77,44 @@ const handler = async (req: Request): Promise<Response> => {
     const APP_URL = 'https://www.trusticket.com';
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Fetch the actual ticket from the database — never trust client-supplied content.
+    const { data: ticket, error: ticketError } = await supabase
+      .from('tickets')
+      .select('id, user_id, artist, venue, city, event_date, price')
+      .eq('id', ticket_id)
+      .maybeSingle();
+
+    if (ticketError || !ticket) {
+      console.error('Ticket not found:', ticketError);
+      return new Response(
+        JSON.stringify({ error: 'Ticket not found' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Authorization: only the ticket owner can trigger notifications for it.
+    if (ticket.user_id !== user.id) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - you can only send notifications for your own tickets' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const seller_id = ticket.user_id;
+    const artist = ticket.artist;
+    const venue = ticket.venue;
+    const city = ticket.city;
+    const event_date = ticket.event_date;
+    const price = ticket.price;
+
+    // Fetch seller name from profiles (server-side, not client-supplied).
+    const { data: sellerProfile } = await supabase
+      .from('profiles')
+      .select('name')
+      .eq('id', seller_id)
+      .single();
+    const seller_name = sellerProfile?.name ?? 'Un usuario';
 
     const { data: networkData, error: networkError } = await supabase.rpc("get_extended_network", {
       user_uuid: seller_id,
