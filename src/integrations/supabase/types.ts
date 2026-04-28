@@ -194,6 +194,33 @@ export type Database = {
         }
         Relationships: []
       }
+      invitation_links: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          revoked: boolean
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          revoked?: boolean
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          revoked?: boolean
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           created_at: string
@@ -621,6 +648,20 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      revoke_user_invitation_links: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
+      validate_invitation_link: {
+        Args: { _token: string }
+        Returns: {
+          inviter_id: string
+          inviter_name: string
+          is_expired: boolean
+          is_revoked: boolean
+          is_valid: boolean
+        }[]
       }
     }
     Enums: {
