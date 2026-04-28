@@ -200,6 +200,7 @@ export type Database = {
           expires_at: string
           id: string
           revoked: boolean
+          slug: string | null
           token: string
           user_id: string
         }
@@ -208,6 +209,7 @@ export type Database = {
           expires_at?: string
           id?: string
           revoked?: boolean
+          slug?: string | null
           token: string
           user_id: string
         }
@@ -216,6 +218,7 @@ export type Database = {
           expires_at?: string
           id?: string
           revoked?: boolean
+          slug?: string | null
           token?: string
           user_id?: string
         }
@@ -538,6 +541,7 @@ export type Database = {
     Functions: {
       cleanup_old_ip_rate_limits: { Args: never; Returns: undefined }
       delete_expired_tickets: { Args: never; Returns: undefined }
+      generate_invitation_slug: { Args: { _user_id: string }; Returns: string }
       get_admin_user_stats: {
         Args: never
         Returns: {
@@ -653,6 +657,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: undefined
       }
+      slugify_name: { Args: { _input: string }; Returns: string }
       validate_invitation_link: {
         Args: { _token: string }
         Returns: {
