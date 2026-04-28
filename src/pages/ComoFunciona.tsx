@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { UserPlus, Search, Mail } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const ComoFunciona = () => {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen bg-background py-12 px-6">
       <article className="max-w-3xl mx-auto fade-in-up">
@@ -62,34 +64,38 @@ const ComoFunciona = () => {
             ))}
           </div>
 
-          <hr className="border-border/30" />
+          {!user && (
+            <>
+              <hr className="border-border/30" />
 
-          {/* Bloque 4 */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground">¿Y si no me invita nadie?</h2>
-            <p>
-              Pide a alguien que ya esté en Trusticket que te invite, o escríbenos a{" "}
-              <a
-                href="mailto:trusticketinfo@gmail.com"
-                className="text-primary hover:underline underline-offset-2"
-              >
-                trusticketinfo@gmail.com
-              </a>{" "}
-              y te ayudamos a encontrar a alguien de tu red que ya esté dentro.
-            </p>
-          </div>
+              {/* Bloque 4 */}
+              <div className="space-y-4">
+                <h2 className="text-xl font-semibold text-foreground">¿Y si no me invita nadie?</h2>
+                <p>
+                  Pide a alguien que ya esté en Trusticket que te invite, o escríbenos a{" "}
+                  <a
+                    href="mailto:trusticketinfo@gmail.com"
+                    className="text-primary hover:underline underline-offset-2"
+                  >
+                    trusticketinfo@gmail.com
+                  </a>{" "}
+                  y te ayudamos a encontrar a alguien de tu red que ya esté dentro.
+                </p>
+              </div>
 
-          <hr className="border-border/30" />
+              <hr className="border-border/30" />
 
-          {/* CTA final */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-            <Button asChild size="lg" className="gradient-vibrant border-0">
-              <Link to="/register">Regístrate</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link to="/manifesto">Lee el Manifiesto</Link>
-            </Button>
-          </div>
+              {/* CTA final */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+                <Button asChild size="lg" className="gradient-vibrant border-0">
+                  <Link to="/register">Regístrate</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/manifesto">Lee el Manifiesto</Link>
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </article>
     </div>
