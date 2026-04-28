@@ -25,6 +25,21 @@ const ComoFunciona = () => {
 
           <hr className="border-border/30" />
 
+          {/* Bloque 3 — Red de confianza */}
+          <div className="rounded-2xl glass p-8 space-y-4">
+            <p>
+              <strong className="text-foreground">En Trusticket no ves entradas de desconocidos.</strong> Solo ves lo que publican tus amigos y los amigos de tus amigos.
+            </p>
+            <p>
+              ¿Por qué? Porque si un amigo tuyo le da entrada a alguien, es porque confía en esa persona. Y si tu amigo confía en ella, tú también puedes hacerlo.
+            </p>
+            <p>
+              Es la misma lógica de siempre — la del boca a boca, la del "te lo recomiendo yo" — pero aplicada a las entradas de conciertos.
+            </p>
+          </div>
+
+          <hr className="border-border/30" />
+
           {/* Bloque 2 — Tres pasos */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -52,21 +67,6 @@ const ComoFunciona = () => {
                 <p className="text-sm">{desc}</p>
               </div>
             ))}
-          </div>
-
-          <hr className="border-border/30" />
-
-          {/* Bloque 3 — Red de confianza */}
-          <div className="rounded-2xl glass p-8 space-y-4">
-            <p>
-              <strong className="text-foreground">En Trusticket no ves entradas de desconocidos.</strong> Solo ves lo que publican tus amigos y los amigos de tus amigos.
-            </p>
-            <p>
-              ¿Por qué? Porque si un amigo tuyo le da entrada a alguien, es porque confía en esa persona. Y si tu amigo confía en ella, tú también puedes hacerlo.
-            </p>
-            <p>
-              Es la misma lógica de siempre — la del boca a boca, la del "te lo recomiendo yo" — pero aplicada a las entradas de conciertos.
-            </p>
           </div>
 
           <hr className="border-border/30" />
