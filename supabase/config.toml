@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.get-conciertos]
 verify_jwt = false
+
+[functions.submit-invitation-link]
+verify_jwt = false
