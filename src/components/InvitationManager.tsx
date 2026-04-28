@@ -144,13 +144,13 @@ export const InvitationManager = ({
     let filteredApproved = approved || [];
     if (approved && approved.length > 0) {
       const emails = approved.map((inv) => inv.invitee_email.toLowerCase());
-      const { data: existingProfiles } = await supabase
-        .from('profiles')
-        .select('email')
-        .in('email', emails);
+      const { data: existingProfiles } = await supabase.rpc(
+        'get_registered_invitee_emails',
+        { _emails: emails }
+      );
 
       const existingEmails = new Set(
-        (existingProfiles || []).map((p) => p.email.toLowerCase())
+        ((existingProfiles as { email: string }[] | null) || []).map((p) => p.email.toLowerCase())
       );
       filteredApproved = approved.filter((inv) =>
         existingEmails.has(inv.invitee_email.toLowerCase())
@@ -375,11 +375,13 @@ export const InvitationManager = ({
       // Get inviter profile
       const { data: profile } = await supabase
         .from('profiles')
-        .select('name, email')
+        .select('name')
         .eq('id', userId)
         .single();
 
-      if (!profile) {
+      const { data: ownEmail } = await supabase.rpc('get_my_email');
+
+      if (!profile || !ownEmail) {
         toast.error('Error al obtener tu perfil');
         setLoading(false);
         return;

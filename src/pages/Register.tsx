@@ -34,13 +34,11 @@ const Register = () => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    const { data: existingUser } = await supabase
-      .from("profiles")
-      .select("email")
-      .ilike("email", normalizedEmail)
-      .maybeSingle();
+    const { data: emailCheck } = await supabase.functions.invoke("check-email-exists", {
+      body: { email: normalizedEmail },
+    });
 
-    if (existingUser) {
+    if (emailCheck?.exists) {
       setShowAlreadyRegisteredModal(true);
       setLoading(false);
       return;
