@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { UserPlus, Search, Mail } from "lucide-react";
+import { UserPlus, Search, Mail, Users } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const ComoFunciona = () => {
@@ -35,8 +35,8 @@ const ComoFunciona = () => {
 
           <hr className="border-border/30" />
 
-          {/* Bloque 2 — Tres pasos */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Bloque 2 — Cuatro pasos */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             {[
               {
                 Icon: UserPlus,
@@ -52,6 +52,11 @@ const ComoFunciona = () => {
                 Icon: Mail,
                 title: "3. Contacta directamente",
                 desc: "Si encuentras lo que buscas, mandas un mensaje al vendedor directamente. Trusticket solo os pone en contacto — el resto lo hacéis vosotros como queráis.",
+              },
+              {
+                Icon: Users,
+                title: "4. Invita a tus amigos",
+                desc: "Trusticket funciona cuanto más grande es tu red. Si entras, te pedimos que invites a las personas de tu entorno que también disfrutan de la música en directo. Cuantos más seáis, más entradas habrá disponibles y más fácil será encontrar lo que buscas.",
               },
             ].map(({ Icon, title, desc }) => (
               <div key={title} className="space-y-3">
