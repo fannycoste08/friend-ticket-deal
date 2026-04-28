@@ -96,9 +96,11 @@ export const InvitationManager = ({
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('pending');
   const [blockedDialog, setBlockedDialog] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
-  const [linkData, setLinkData] = useState<{ token: string; expires_at: string } | null>(null);
+  const [linkData, setLinkData] = useState<{ token: string; expires_at: string; slug: string | null } | null>(null);
   const [linkLoading, setLinkLoading] = useState(false);
-  const inviteUrl = linkData ? `${window.location.origin}/invite/${linkData.token}` : '';
+  const inviteUrl = linkData
+    ? `${window.location.origin}/invite/${linkData.slug || linkData.token}`
+    : '';
 
   const loadInvitations = async () => {
     console.log('🔍 [InvitationManager] Starting to load invitations...');
@@ -216,7 +218,7 @@ export const InvitationManager = ({
   const loadActiveLink = async () => {
     const { data } = await supabase
       .from('invitation_links')
-      .select('token, expires_at, revoked')
+      .select('token, expires_at, revoked, slug')
       .eq('user_id', userId)
       .eq('revoked', false)
       .gt('expires_at', new Date().toISOString())
@@ -224,7 +226,7 @@ export const InvitationManager = ({
       .limit(1)
       .maybeSingle();
     if (data) {
-      setLinkData({ token: data.token, expires_at: data.expires_at });
+      setLinkData({ token: data.token, expires_at: data.expires_at, slug: (data as any).slug ?? null });
     } else {
       setLinkData(null);
     }
@@ -249,16 +251,22 @@ export const InvitationManager = ({
         }
       }
       const token = generateToken();
+      // Generate a unique human-readable slug based on the user's name
+      const { data: slugData, error: slugErr } = await supabase.rpc('generate_invitation_slug', { _user_id: userId });
+      if (slugErr) {
+        console.error(slugErr);
+      }
+      const slug = (slugData as string | null) ?? null;
       const { data, error } = await supabase
         .from('invitation_links')
-        .insert({ user_id: userId, token })
-        .select('token, expires_at')
+        .insert({ user_id: userId, token, slug })
+        .select('token, expires_at, slug')
         .single();
       if (error || !data) {
         console.error(error);
         toast.error('No se pudo generar el link');
       } else {
-        setLinkData({ token: data.token, expires_at: data.expires_at });
+        setLinkData({ token: data.token, expires_at: data.expires_at, slug: (data as any).slug ?? null });
         toast.success(regenerate ? 'Link regenerado' : 'Link generado');
       }
     } finally {

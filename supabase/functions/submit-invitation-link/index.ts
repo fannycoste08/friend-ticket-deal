@@ -62,8 +62,9 @@ Deno.serve(async (req) => {
     // Validate the invitation link
     const { data: linkRow, error: linkErr } = await admin
       .from('invitation_links')
-      .select('id, user_id, expires_at, revoked')
-      .eq('token', token)
+      .select('id, user_id, expires_at, revoked, slug, token')
+      .or(`token.eq.${token},slug.eq.${token}`)
+      .order('created_at', { ascending: false })
       .maybeSingle();
 
     if (linkErr || !linkRow) {
