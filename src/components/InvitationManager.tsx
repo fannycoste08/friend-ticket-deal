@@ -1,5 +1,5 @@
 import { useState, useEffect, createContext, useContext } from 'react';
-import { Mail, Check, X, UserPlus, RefreshCw } from 'lucide-react';
+import { Mail, Check, X, UserPlus, RefreshCw, Link2, Copy } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -96,6 +96,9 @@ export const InvitationManager = ({
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('pending');
   const [blockedDialog, setBlockedDialog] = useState<{ open: boolean; message: string }>({ open: false, message: '' });
+  const [linkData, setLinkData] = useState<{ token: string; expires_at: string } | null>(null);
+  const [linkLoading, setLinkLoading] = useState(false);
+  const inviteUrl = linkData ? `${window.location.origin}/invite/${linkData.token}` : '';
 
   const loadInvitations = async () => {
     console.log('🔍 [InvitationManager] Starting to load invitations...');
@@ -174,6 +177,7 @@ export const InvitationManager = ({
     }
     
     loadInvitations();
+    loadActiveLink();
     
     // Check if URL has #invitations hash and open pending tab
     if (window.location.hash === '#invitations') {
@@ -208,6 +212,69 @@ export const InvitationManager = ({
       supabase.removeChannel(channel);
     };
   }, [userId]);
+
+  const loadActiveLink = async () => {
+    const { data } = await supabase
+      .from('invitation_links')
+      .select('token, expires_at, revoked')
+      .eq('user_id', userId)
+      .eq('revoked', false)
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) {
+      setLinkData({ token: data.token, expires_at: data.expires_at });
+    } else {
+      setLinkData(null);
+    }
+  };
+
+  const generateToken = () => {
+    const arr = new Uint8Array(24);
+    crypto.getRandomValues(arr);
+    return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const handleGenerateLink = async (regenerate = false) => {
+    setLinkLoading(true);
+    try {
+      if (regenerate) {
+        const { error: revokeErr } = await supabase.rpc('revoke_user_invitation_links', { _user_id: userId });
+        if (revokeErr) {
+          console.error(revokeErr);
+          toast.error('No se pudo regenerar el link');
+          setLinkLoading(false);
+          return;
+        }
+      }
+      const token = generateToken();
+      const { data, error } = await supabase
+        .from('invitation_links')
+        .insert({ user_id: userId, token })
+        .select('token, expires_at')
+        .single();
+      if (error || !data) {
+        console.error(error);
+        toast.error('No se pudo generar el link');
+      } else {
+        setLinkData({ token: data.token, expires_at: data.expires_at });
+        toast.success(regenerate ? 'Link regenerado' : 'Link generado');
+      }
+    } finally {
+      setLinkLoading(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!inviteUrl) return;
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      toast.success('Link copiado');
+    } catch {
+      toast.error('No se pudo copiar');
+    }
+  };
 
   const handleApprove = async (invitationId: string) => {
     setLoading(true);
@@ -405,6 +472,56 @@ export const InvitationManager = ({
       </div>
 
       {blockedAlert}
+
+      {/* Invitar por link */}
+      <div className="mb-6 rounded-lg border border-border bg-muted/30 p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <Link2 className="w-4 h-4 text-primary" />
+          <h3 className="font-semibold text-foreground text-sm">Invitar por link</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Comparte tu link personal. Quien lo use deberá rellenar sus datos y tú aprobarás la solicitud.
+        </p>
+
+        {!linkData ? (
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => handleGenerateLink(false)}
+            disabled={linkLoading}
+            className="gap-2"
+          >
+            <Link2 className="w-4 h-4" />
+            Generar mi link de invitación
+          </Button>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input value={inviteUrl} readOnly className="text-xs sm:text-sm flex-1" />
+              <Button type="button" size="sm" variant="outline" onClick={handleCopyLink} className="gap-2">
+                <Copy className="w-4 h-4" />
+                Copiar link
+              </Button>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <p className="text-xs text-muted-foreground">
+                Válido hasta el {format(new Date(linkData.expires_at), "d 'de' MMMM 'de' yyyy", { locale: es })}
+              </p>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={() => handleGenerateLink(true)}
+                disabled={linkLoading}
+                className="gap-2 text-xs"
+              >
+                <RefreshCw className="w-3 h-3" />
+                Regenerar (invalida el anterior)
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
 
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); loadInvitations(); }} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
