@@ -36,34 +36,28 @@ const handler = async (req: Request): Promise<Response> => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
     const token = authHeader.replace('Bearer ', '');
-    // Manual decode of the verified JWT payload (gateway already validated it).
-    // Avoids SDK session-resolution issues observed with this Deno SDK version.
-    let user: { id: string; email?: string } | null = null;
-    try {
-      const payloadPart = token.split('.')[1];
-      const padded = payloadPart.padEnd(
-        payloadPart.length + ((4 - (payloadPart.length % 4)) % 4),
-        '='
-      );
-      const decoded = JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/')));
-      if (decoded?.sub) {
-        user = { id: decoded.sub, email: decoded.email };
-      }
-    } catch (e) {
-      console.error('Failed to decode JWT:', e);
-    }
-
-    if (!user) {
+    // Verify JWT signature cryptographically via Supabase Auth (getClaims).
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims?.sub) {
+      console.error('JWT verification failed:', claimsError);
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+    const user: { id: string; email?: string } = {
+      id: claimsData.claims.sub as string,
+      email: claimsData.claims.email as string | undefined,
+    };
 
     const { invitee_email }: ValidateInvitationRequest = await req.json();
     if (!invitee_email || typeof invitee_email !== 'string') {
