@@ -18,13 +18,6 @@ const ComoFunciona = () => {
         </p>
 
         <div className="space-y-12 text-muted-foreground leading-relaxed">
-          {/* Bloque 1 */}
-          <p>
-            Compramos entradas meses antes sin saber si podremos ir. Las plataformas de reventa las ponen al doble de precio. Y cuando quieres vender la tuya, no sabes a quién ni cómo hacerlo de forma segura. <strong className="text-foreground">Trusticket existe para eso.</strong>
-          </p>
-
-          <hr className="border-border/30" />
-
           {/* Bloque 3 — Red de confianza */}
           <div className="rounded-2xl glass p-8 space-y-4">
             <p>
