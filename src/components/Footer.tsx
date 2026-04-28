@@ -27,6 +27,11 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
+                <Link to="/como-funciona" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Cómo funciona
+                </Link>
+              </li>
+              <li>
                 <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Quién está detrás de Trusticket
                 </Link>

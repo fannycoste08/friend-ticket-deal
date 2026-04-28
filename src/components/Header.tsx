@@ -101,6 +101,7 @@ const Header = () => {
               {[
                 { to: "/manifesto", label: "Manifesto" },
                 { to: "/musica", label: "Música" },
+                { to: "/como-funciona", label: "Cómo funciona" },
                 { to: "/about", label: "Quién está detrás de Trusticket" },
               ].map((item) => (
                 <NavLink
@@ -192,6 +193,7 @@ const Header = () => {
             {[
               { to: "/manifesto", label: "Manifesto" },
               { to: "/musica", label: "Música" },
+              { to: "/como-funciona", label: "Cómo funciona" },
               { to: "/about", label: "Quién está detrás de Trusticket" },
             ].map((item) => (
               <NavLink
