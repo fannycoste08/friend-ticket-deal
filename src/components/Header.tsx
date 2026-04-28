@@ -21,6 +21,7 @@ const Header = () => {
   const navItems = [
     { to: "/", label: "Feed" },
     { to: "/profile", label: "Perfil" },
+    { to: "/como-funciona", label: "Cómo funciona" },
     { to: "/musica", label: "Música" },
     ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
   ];
