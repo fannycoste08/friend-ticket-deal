@@ -643,6 +643,12 @@ export type Database = {
           name: string
         }[]
       }
+      get_registered_invitee_emails: {
+        Args: { _emails: string[] }
+        Returns: {
+          email: string
+        }[]
+      }
       get_user_friends_admin: {
         Args: { _user_id: string }
         Returns: {
