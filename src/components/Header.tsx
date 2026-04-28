@@ -99,9 +99,9 @@ const Header = () => {
           {!user && !isMobile && (
             <nav className="flex items-center gap-1">
               {[
+                { to: "/como-funciona", label: "Cómo funciona" },
                 { to: "/manifesto", label: "Manifesto" },
                 { to: "/musica", label: "Música" },
-                { to: "/como-funciona", label: "Cómo funciona" },
                 { to: "/about", label: "Quién está detrás de Trusticket" },
               ].map((item) => (
                 <NavLink
@@ -191,9 +191,9 @@ const Header = () => {
         {!user && isMobile && mobileOpen && (
           <nav className="pb-4 border-t border-border/40 pt-3 space-y-1 fade-in-up">
             {[
+              { to: "/como-funciona", label: "Cómo funciona" },
               { to: "/manifesto", label: "Manifesto" },
               { to: "/musica", label: "Música" },
-              { to: "/como-funciona", label: "Cómo funciona" },
               { to: "/about", label: "Quién está detrás de Trusticket" },
             ].map((item) => (
               <NavLink
