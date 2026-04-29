@@ -468,9 +468,12 @@ const Profile = () => {
               </div>
         )}
         {suggestions.length > 0 && (
-          <div className="pt-4 border-t border-border/40 space-y-4">
+          <div className="mt-6 rounded-2xl border border-dashed border-muted-foreground/30 bg-muted/20 p-4 md:p-5 space-y-3">
             <div>
               <h3 className="text-sm font-medium text-muted-foreground">Personas que quizás conoces</h3>
+              <p className="text-xs text-muted-foreground/80 mt-1 mb-4 leading-relaxed">
+                Añade solo a personas que conozcas en la vida real. Trusticket se basa en la confianza entre amigos — añadir a desconocidos debilita la red para todos.
+              </p>
             </div>
             <div className="grid gap-3 md:grid-cols-2 w-full">
               {suggestions.map((s) => {
@@ -478,7 +481,7 @@ const Profile = () => {
                 return (
                   <div
                     key={s.id}
-                    className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300 w-full overflow-hidden"
+                    className="rounded-2xl border border-border/50 p-4 transition-all duration-300 w-full overflow-hidden"
                   >
                     <div className="flex items-center gap-3 w-full min-w-0">
                       <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
