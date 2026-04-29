@@ -253,7 +253,7 @@ const Profile = () => {
       return;
     }
     const friendIds = friendshipsData.map((f) => (f.user_id === user.id ? f.friend_id : f.user_id));
-    const { data: profilesData } = await supabase.from("profiles").select("id, name").in("id", friendIds);
+    const { data: profilesData } = await supabase.from("profiles_public").select("id, name").in("id", friendIds);
     setFriends(profilesData || []);
     setLoadingFriends(false);
     loadSuggestions();
