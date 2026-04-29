@@ -374,7 +374,7 @@ export const InvitationManager = ({
       // action === 'allow_invitation' → proceed with normal invitation flow
       // Get inviter profile
       const { data: profile } = await supabase
-        .from('profiles_public')
+        .from('profiles')
         .select('name')
         .eq('id', userId)
         .single();

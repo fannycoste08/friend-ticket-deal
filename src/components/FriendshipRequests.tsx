@@ -56,7 +56,7 @@ export const FriendshipRequests = ({ embedded = false, onCountChange }: Friendsh
     if (data && data.length > 0) {
       const userIds = data.map(r => r.user_id);
       const { data: profilesData } = await supabase
-        .from('profiles_public')
+        .from('profiles')
         .select('id, name')
         .in('id', userIds);
 

@@ -55,7 +55,7 @@ export const FriendRequestsDialog = () => {
     // Get profile data for each requester
     const userIds = friendshipsData.map(f => f.user_id);
     const { data: profilesData } = await supabase
-      .from('profiles_public')
+      .from('profiles')
       .select('id, name')
       .in('id', userIds);
 
