@@ -145,16 +145,16 @@ export const FriendshipRequests = ({ embedded = false, onCountChange }: Friendsh
         {requests.map((request) => (
           <div
             key={request.id}
-            className="flex items-center justify-between p-4 border border-border/50 rounded-lg bg-card"
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border border-border/50 rounded-lg bg-card"
           >
-            <div>
-              <p className="font-medium">{request.profiles.name}</p>
+            <div className="min-w-0">
+              <p className="font-medium text-foreground break-words">{request.profiles.name}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               <Button
                 size="sm"
                 onClick={() => handleAccept(request.id)}
-                className="bg-gradient-to-r from-primary to-accent"
+                className="flex-1 sm:flex-none bg-gradient-to-r from-primary to-accent"
               >
                 <Check className="w-4 h-4 mr-1" />
                 Aceptar
@@ -163,6 +163,7 @@ export const FriendshipRequests = ({ embedded = false, onCountChange }: Friendsh
                 size="sm"
                 variant="outline"
                 onClick={() => handleReject(request.id)}
+                className="flex-1 sm:flex-none"
               >
                 <X className="w-4 h-4 mr-1" />
                 Rechazar

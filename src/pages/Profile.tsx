@@ -438,30 +438,32 @@ const Profile = () => {
                     key={friend.id}
                     className="bg-card rounded-2xl border border-border/40 p-4 hover-glow transition-all duration-300 w-full overflow-hidden"
                   >
-                    <div className="flex items-center gap-2 w-full min-w-0">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-2 w-full min-w-0">
                       <div className="w-9 h-9 rounded-full gradient-vibrant flex items-center justify-center shrink-0">
                         <span className="text-sm font-medium text-primary">{friend.name.charAt(0).toUpperCase()}</span>
                       </div>
-                      <h3 className="flex-1 min-w-0 font-medium text-foreground text-sm truncate">
+                      <h3 className="flex-1 min-w-[8rem] font-medium text-foreground text-sm break-words">
                         {friend.name}
                       </h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigate(`/user/${friend.id}`)}
-                        className="shrink-0 px-2 text-muted-foreground hover:text-foreground text-xs"
-                      >
-                        Ver perfil
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setFriendToDelete(friend)}
-                        className="shrink-0 px-2 text-destructive hover:text-destructive hover:bg-destructive/10 text-xs"
-                      >
-                        <UserMinus className="w-3.5 h-3.5 mr-1" />
-                        Eliminar
-                      </Button>
+                      <div className="flex items-center gap-1 shrink-0 ml-auto">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigate(`/user/${friend.id}`)}
+                          className="px-2 h-8 text-muted-foreground hover:text-foreground text-[12px]"
+                        >
+                          Ver perfil
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setFriendToDelete(friend)}
+                          className="px-2 h-8 text-destructive hover:text-destructive hover:bg-destructive/10 text-[12px]"
+                        >
+                          <UserMinus className="w-3.5 h-3.5 mr-1" />
+                          Eliminar
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
