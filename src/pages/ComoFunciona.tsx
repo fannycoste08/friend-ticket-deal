@@ -45,8 +45,8 @@ const ComoFunciona = () => {
               },
               {
                 Icon: Search,
-                title: "2. Publica o busca entradas",
-                desc: "¿Tienes una entrada que no vas a usar? Publícala en dos minutos. ¿Buscas entrada para un concierto? Añade tu búsqueda y te avisamos si alguien de tu red la tiene.",
+                 title: "2. Publica o busca entradas",
+                 desc: "¿Tienes una entrada que no vas a usar? Publícala. ¿Buscas entrada para un concierto? Añade tu búsqueda. Solo tus amigos y los amigos de tus amigos verán lo que publicas — y tú solo verás lo que publican ellos.",
               },
               {
                 Icon: Mail,
