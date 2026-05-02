@@ -50,7 +50,7 @@ export function ContactDialog({ open, onOpenChange, ticket, isWantedTicket = fal
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const defaultMessage = isWantedTicket 
-    ? `Hola, tengo entrada para ${ticket.artist} que estás buscando. Me gustaría hablar contigo sobre ello.`
+    ? `Hola, tengo la entrada que estás buscando para ${ticket.artist}.`
     : "";
 
   const form = useForm<z.infer<typeof formSchema>>({
