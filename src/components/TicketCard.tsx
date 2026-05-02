@@ -17,6 +17,7 @@ interface TicketCardProps {
     seller_name: string;
     user_id: string;
     description?: string;
+    quantity?: number;
   };
   currentUserId?: string;
   networkDegree?: number;
@@ -98,6 +99,7 @@ export const TicketCard = ({
 
       <div className="text-xs text-muted-foreground/70 mb-4">
         {ticket.ticket_type}
+        {ticket.quantity && ticket.quantity > 1 ? ` · ${ticket.quantity} entradas` : ""}
       </div>
 
       {ticket.description && (
