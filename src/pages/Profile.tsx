@@ -685,6 +685,53 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Personal data */}
+      <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: "var(--shadow-card)" }}>
+        <h3 className="font-semibold text-foreground mb-1">Datos personales</h3>
+        <p className="text-sm text-muted-foreground mb-4">Edita la información de tu cuenta</p>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="profile-name" className="text-sm text-foreground">Nombre</Label>
+            <Input
+              id="profile-name"
+              value={nameDraft}
+              maxLength={100}
+              onChange={(e) => {
+                setNameDraft(e.target.value);
+                if (nameError) setNameError(null);
+              }}
+              className="mt-1.5"
+            />
+            {nameError && (
+              <p className="text-xs text-destructive mt-1.5">{nameError}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="profile-email" className="text-sm text-foreground">Email</Label>
+            <Input
+              id="profile-email"
+              value={profileData?.email || ""}
+              disabled
+              readOnly
+              className="mt-1.5 opacity-70 cursor-not-allowed"
+            />
+            <p className="text-xs text-muted-foreground mt-1.5">El email no se puede modificar</p>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              onClick={handleSaveName}
+              disabled={
+                savingName ||
+                nameDraft.trim() === (profileData?.name || "").trim() ||
+                nameDraft.trim().length === 0
+              }
+            >
+              {savingName ? "Guardando..." : "Guardar cambios"}
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {/* Delete account */}
       <div className="bg-card rounded-2xl border border-destructive/20 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
