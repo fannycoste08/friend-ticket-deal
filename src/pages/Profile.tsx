@@ -96,6 +96,9 @@ const Profile = () => {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [pendingInvitationsCount, setPendingInvitationsCount] = useState(0);
   const [pendingFriendRequestsCount, setPendingFriendRequestsCount] = useState(0);
+  const [nameDraft, setNameDraft] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [savingName, setSavingName] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) navigate("/login");
@@ -146,10 +149,47 @@ const Profile = () => {
 
   const loadProfile = async () => {
     if (!user) return;
-    setProfileData({
-      name: user.user_metadata?.name || user.email?.split("@")[0] || "Usuario",
-      email: user.email || "",
-    });
+    // Prefer the canonical name from profiles table; fall back to metadata
+    const { data } = await supabase
+      .from("profiles")
+      .select("name, email")
+      .eq("id", user.id)
+      .maybeSingle();
+    const name = data?.name || user.user_metadata?.name || user.email?.split("@")[0] || "Usuario";
+    const email = data?.email || user.email || "";
+    setProfileData({ name, email });
+    setNameDraft(name);
+  };
+
+  const handleSaveName = async () => {
+    if (!user || !profileData) return;
+    const trimmed = nameDraft.trim();
+    if (!trimmed) {
+      setNameError("El nombre no puede estar vacío");
+      return;
+    }
+    if (trimmed.length > 100) {
+      setNameError("Máximo 100 caracteres");
+      return;
+    }
+    setNameError(null);
+    setSavingName(true);
+    try {
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ name: trimmed })
+        .eq("id", user.id);
+      if (profileError) throw profileError;
+      await supabase.auth.updateUser({ data: { name: trimmed } });
+      setProfileData({ ...profileData, name: trimmed });
+      setNameDraft(trimmed);
+      toast.success("Nombre actualizado correctamente");
+    } catch (e) {
+      console.error(e);
+      toast.error("No se pudo actualizar el nombre");
+    } finally {
+      setSavingName(false);
+    }
   };
 
   const loadTickets = async () => {
@@ -641,6 +681,53 @@ const Profile = () => {
               checked={emailNotificationsEnabled}
               onCheckedChange={toggleEmailNotifications}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* Personal data */}
+      <div className="bg-card rounded-2xl border border-border/40 p-6" style={{ boxShadow: "var(--shadow-card)" }}>
+        <h3 className="font-semibold text-foreground mb-1">Datos personales</h3>
+        <p className="text-sm text-muted-foreground mb-4">Edita la información de tu cuenta</p>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="profile-name" className="text-sm text-foreground">Nombre</Label>
+            <Input
+              id="profile-name"
+              value={nameDraft}
+              maxLength={100}
+              onChange={(e) => {
+                setNameDraft(e.target.value);
+                if (nameError) setNameError(null);
+              }}
+              className="mt-1.5"
+            />
+            {nameError && (
+              <p className="text-xs text-destructive mt-1.5">{nameError}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="profile-email" className="text-sm text-foreground">Email</Label>
+            <Input
+              id="profile-email"
+              value={profileData?.email || ""}
+              disabled
+              readOnly
+              className="mt-1.5 opacity-70 cursor-not-allowed"
+            />
+            <p className="text-xs text-muted-foreground mt-1.5">El email no se puede modificar</p>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              onClick={handleSaveName}
+              disabled={
+                savingName ||
+                nameDraft.trim() === (profileData?.name || "").trim() ||
+                nameDraft.trim().length === 0
+              }
+            >
+              {savingName ? "Guardando..." : "Guardar cambios"}
+            </Button>
           </div>
         </div>
       </div>
