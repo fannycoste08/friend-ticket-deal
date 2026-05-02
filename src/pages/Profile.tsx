@@ -149,10 +149,47 @@ const Profile = () => {
 
   const loadProfile = async () => {
     if (!user) return;
-    setProfileData({
-      name: user.user_metadata?.name || user.email?.split("@")[0] || "Usuario",
-      email: user.email || "",
-    });
+    // Prefer the canonical name from profiles table; fall back to metadata
+    const { data } = await supabase
+      .from("profiles")
+      .select("name, email")
+      .eq("id", user.id)
+      .maybeSingle();
+    const name = data?.name || user.user_metadata?.name || user.email?.split("@")[0] || "Usuario";
+    const email = data?.email || user.email || "";
+    setProfileData({ name, email });
+    setNameDraft(name);
+  };
+
+  const handleSaveName = async () => {
+    if (!user || !profileData) return;
+    const trimmed = nameDraft.trim();
+    if (!trimmed) {
+      setNameError("El nombre no puede estar vacío");
+      return;
+    }
+    if (trimmed.length > 100) {
+      setNameError("Máximo 100 caracteres");
+      return;
+    }
+    setNameError(null);
+    setSavingName(true);
+    try {
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ name: trimmed })
+        .eq("id", user.id);
+      if (profileError) throw profileError;
+      await supabase.auth.updateUser({ data: { name: trimmed } });
+      setProfileData({ ...profileData, name: trimmed });
+      setNameDraft(trimmed);
+      toast.success("Nombre actualizado correctamente");
+    } catch (e) {
+      console.error(e);
+      toast.error("No se pudo actualizar el nombre");
+    } finally {
+      setSavingName(false);
+    }
   };
 
   const loadTickets = async () => {
