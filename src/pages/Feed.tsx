@@ -32,6 +32,7 @@ interface Ticket {
   price: number;
   ticket_type: string;
   user_id: string;
+  quantity?: number;
   networkDegree?: number;
   mutualFriends?: Array<{ friend_name: string }>;
   profiles: { name: string } | null;
