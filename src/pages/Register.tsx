@@ -68,8 +68,26 @@ const Register = () => {
     );
 
     if (invitationError || !invitationResult?.success) {
-      if (invitationResult?.error === "Pending invitation already exists") {
-        toast.error("Ya existe una solicitud pendiente para este email");
+      // Try to read the actual error body from the FunctionsHttpError response
+      let errorCode: string | undefined = invitationResult?.error;
+      const ctx: any = (invitationError as any)?.context;
+      if (!errorCode && ctx?.json) {
+        try {
+          const body = await ctx.json();
+          errorCode = body?.error;
+        } catch {
+          try {
+            const txt = await ctx.text?.();
+            const parsed = txt ? JSON.parse(txt) : null;
+            errorCode = parsed?.error;
+          } catch {
+            // ignore parsing failures
+          }
+        }
+      }
+
+      if (errorCode === "Pending invitation already exists") {
+        toast.error("Ya existe una solicitud pendiente para este email. Revisa tu correo.");
       } else {
         toast.error("Error al crear la solicitud de invitación");
       }
