@@ -39,7 +39,7 @@ export const getInvitationPendingEmail = (
               
               <p style="margin: 0 0 24px 0; color: #333333; font-size: 16px; line-height: 24px;">
                 <strong>${invitee_name}</strong> (<span style="color: #8B5CF6;">${invitee_email}</span>) ha solicitado 
-                registrarse en Trusticket usando tu email como padrino.
+                registrarse en Trusticket usando tu email como referencia de invitación.
               </p>
               
               <!-- Botón de acción -->
