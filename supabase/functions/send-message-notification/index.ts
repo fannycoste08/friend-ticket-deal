@@ -9,10 +9,6 @@ const corsHeaders = {
 };
 
 interface MessageNotificationRequest {
-  recipient_email: string;
-  recipient_name: string;
-  sender_name: string;
-  ticket_artist: string;
   ticket_id: string;
 }
 
@@ -67,21 +63,75 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { recipient_email, recipient_name, sender_name, ticket_artist, ticket_id }: MessageNotificationRequest = await req.json();
-    
-    if (!recipient_email || !recipient_name || !sender_name || !ticket_artist || !ticket_id) {
+    const { ticket_id }: MessageNotificationRequest = await req.json();
+
+    if (!ticket_id || typeof ticket_id !== 'string') {
       return new Response(
-        JSON.stringify({ error: 'Faltan campos obligatorios' }),
+        JSON.stringify({ error: 'Falta ticket_id' }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    if (recipient_name.length > 100 || sender_name.length > 100 || ticket_artist.length > 200) {
+    // Admin client to safely look up recipient/sender data server-side
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Load ticket (artist + owner) — owner is the recipient
+    const { data: ticket, error: ticketError } = await supabaseAdmin
+      .from('tickets')
+      .select('id, user_id, artist')
+      .eq('id', ticket_id)
+      .single();
+
+    if (ticketError || !ticket) {
       return new Response(
-        JSON.stringify({ error: 'Uno de los campos de texto excede el límite permitido' }),
-        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ error: 'Ticket not found' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    // Reject self-contact: caller cannot notify themselves
+    if (ticket.user_id === user.id) {
+      return new Response(
+        JSON.stringify({ error: 'Cannot send a message to yourself' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Recipient = ticket owner — fetch from profiles via service role
+    const { data: recipientProfile, error: recipientError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, name, email')
+      .eq('id', ticket.user_id)
+      .single();
+
+    if (recipientError || !recipientProfile?.email) {
+      return new Response(
+        JSON.stringify({ error: 'Recipient not found' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // Sender = caller — fetch name from profiles
+    const { data: senderProfile, error: senderError } = await supabaseAdmin
+      .from('profiles')
+      .select('name')
+      .eq('id', user.id)
+      .single();
+
+    if (senderError || !senderProfile) {
+      return new Response(
+        JSON.stringify({ error: 'Sender not found' }),
+        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const recipient_email = recipientProfile.email;
+    const recipient_name = (recipientProfile.name ?? '').slice(0, 100);
+    const sender_name = (senderProfile.name ?? '').slice(0, 100);
+    const ticket_artist = (ticket.artist ?? '').slice(0, 200);
 
     const rateLimitCheck = await checkRateLimit(
       user.id, recipient_email, 'send-message-notification',
@@ -92,26 +142,6 @@ const handler = async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ error: rateLimitCheck.error }),
         { status: 429, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    const { data: ticket, error: ticketError } = await supabase
-      .from('tickets')
-      .select('id, user_id')
-      .eq('id', ticket_id)
-      .single();
-
-    if (ticketError || !ticket) {
-      return new Response(
-        JSON.stringify({ error: 'Unable to process request' }),
-        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    if (ticket.user_id !== user.id) {
-      return new Response(
-        JSON.stringify({ error: 'Insufficient permissions' }),
-        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
