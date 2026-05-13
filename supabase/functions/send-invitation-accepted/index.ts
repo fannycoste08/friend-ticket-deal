@@ -82,7 +82,7 @@ function getFallbackHtml(inviteeName: string, inviterName: string, passwordReset
               </td>
             </tr>
           </table>
-          <p style="margin: 15px 0 0 0; font-size: 13px; color: #6b7280;">Necesitarás el email de tu padrino para verificar tu identidad.</p>
+          <p style="margin: 15px 0 0 0; font-size: 13px; color: #6b7280;">Necesitarás el email de quien te invitó para verificar tu identidad.</p>
         </div>
         <p style="color: #374151; font-size: 14px; margin-top: 20px;">Iniciarás sesión con <strong>${inviteeEmail}</strong> y la contraseña que elijas.</p>
         <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta cuenta, ignora este email.</p>
@@ -161,7 +161,7 @@ const handler = async (req: Request): Promise<Response> => {
       .eq('id', user.id)
       .single();
 
-    const inviterName = inviterProfile?.name || 'Tu padrino';
+    const inviterName = inviterProfile?.name || 'Tu contacto en Trusticket';
     const inviterEmail = inviterProfile?.email || user.email || '';
 
     console.log('Sending invitation email:', { 

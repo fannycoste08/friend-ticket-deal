@@ -51,7 +51,7 @@ const Register = () => {
     });
 
     if (verifyError || !verifyResult?.exists) {
-      toast.error("El email del padrino no existe en el sistema");
+      toast.error("El email de quien te invita no existe en el sistema");
       setLoading(false);
       return;
     }
@@ -108,7 +108,7 @@ const Register = () => {
       // Don't fail the registration if email fails
     }
 
-    setInviterName("tu padrino");
+    setInviterName("tu contacto en Trusticket");
     setShowSuccessModal(true);
     setLoading(false);
   };
@@ -172,7 +172,7 @@ const Register = () => {
                 Tu solicitud ha sido enviada a <strong>{inviterName}</strong>.
               </p>
               <p className="text-sm text-muted-foreground">
-                Recibirás un correo de confirmación cuando la persona que te apadrina haya aceptado tu solicitud y
+                Recibirás un correo de confirmación cuando la persona que te ha invitado haya aceptado tu solicitud y
                 podrás crear tu contraseña para inciar sesión.
               </p>
             </DialogDescription>
@@ -193,7 +193,7 @@ const Register = () => {
         <div className="w-full max-w-md fade-in-up">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-foreground tracking-tight">Regístrate a Trusticket</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Solo puedes registrarte si alguien te apadrina</p>
+            <p className="mt-2 text-sm text-muted-foreground">Solo puedes registrarte si alguien te invita</p>
           </div>
 
           <div className="glass-strong rounded-2xl p-8" style={{ boxShadow: "var(--shadow-elevated)" }}>
@@ -227,7 +227,7 @@ const Register = () => {
                 <Input
                   id="inviterEmail"
                   type="email"
-                  placeholder="padrino@email.com"
+                  placeholder="contacto@email.com"
                   value={inviterEmail}
                   onChange={(e) => setInviterEmail(e.target.value)}
                   required
