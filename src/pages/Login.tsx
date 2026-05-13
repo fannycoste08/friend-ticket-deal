@@ -63,7 +63,7 @@ const Login = () => {
               <p className="text-lg font-semibold gradient-text max-w-md">¿Por qué existe Trusticket?</p>
               <div className="space-y-4">
                 {[
-                  "Compramos entradas con meses de antelación sin saber si vamos a poder asistir.",
+                  "Las entradas de concierto se ponen cada vez más pronto a la venta, y comprar con tanta antelación es un riesgo. ",
                   "Las plataformas de reventa no son siempre seguras y fomentan la especulación.",
                   "Vender y comprar una entrada se ha convertido en un dolor real para los fans de la música en directo.",
                 ].map((text, i) => (
@@ -132,8 +132,8 @@ const Login = () => {
                     {loading ? "Iniciando sesión..." : "Iniciar sesión"}
                   </Button>
                 </form>
-                <p className="mt-5 text-center text-sm text-muted-foreground">
-                  ¿No tienes cuenta aún? Si ya te han apadrinado,{" "}
+                <div className="mt-5 text-center text-sm text-muted-foreground">
+                  ¿No tienes cuenta aún? Si ya te han invitado,<br />
                   <Link
                     to="/register"
                     className="text-primary hover:text-primary/80 font-medium underline transition-colors"
@@ -141,7 +141,7 @@ const Login = () => {
                     regístrate aquí
                   </Link>
                   .
-                </p>
+                </div>
               </div>
             </div>
           </div>
