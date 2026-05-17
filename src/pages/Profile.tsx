@@ -299,7 +299,9 @@ const Profile = () => {
     // Filter out users who have never logged in (invited but not activated)
     const { data: activatedRows } = await supabase.rpc("get_activated_user_ids", { _ids: friendIds });
     const activatedSet = new Set((activatedRows || []).map((r: any) => r.user_id));
-    setFriends((profilesData || []).filter((p) => activatedSet.has(p.id)));
+    const allProfiles = profilesData || [];
+    setFriends(allProfiles.filter((p) => activatedSet.has(p.id)));
+    setPendingFriends(allProfiles.filter((p) => !activatedSet.has(p.id)));
     setLoadingFriends(false);
     loadSuggestions();
   };
