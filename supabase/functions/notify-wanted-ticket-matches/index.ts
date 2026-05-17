@@ -11,6 +11,15 @@ interface NotifyRequest {
   ticket_id: string;
 }
 
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // Fallback HTML
 function getFallbackHtml(vars: Record<string, string>): string {
   return `<!DOCTYPE html>
@@ -178,14 +187,14 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       const templateVars = {
-        user_name: match.profiles.name,
-        artist,
-        venue,
-        city,
+        user_name: escapeHtml(match.profiles.name ?? ''),
+        artist: escapeHtml(artist ?? ''),
+        venue: escapeHtml(venue ?? ''),
+        city: escapeHtml(city ?? ''),
         event_date: formattedDate,
         price: String(price),
-        seller_name,
-        relation_text: relationText,
+        seller_name: escapeHtml(seller_name ?? ''),
+        relation_text: escapeHtml(relationText ?? ''),
         app_url: APP_URL,
       };
 

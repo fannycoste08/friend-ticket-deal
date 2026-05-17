@@ -16,6 +16,15 @@ interface InvitationNotificationRequest {
   invitee_email: string;
 }
 
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -101,18 +110,22 @@ const handler = async (req: Request): Promise<Response> => {
     const APP_URL = 'https://www.trusticket.com';
 
     // Try DB template first, fallback to hardcoded
+    const safeInviterName = escapeHtml(inviterProfile.name ?? '');
+    const safeInviteeName = escapeHtml(invitee_name);
+    const safeInviteeEmail = escapeHtml(invitee_email);
+
     const dbTemplate = await getEmailTemplate('invitation-pending', {
-      inviter_name: inviterProfile.name,
-      invitee_name,
-      invitee_email,
+      inviter_name: safeInviterName,
+      invitee_name: safeInviteeName,
+      invitee_email: safeInviteeEmail,
       app_url: APP_URL,
     });
 
     const subject = dbTemplate?.subject ?? 'Nueva solicitud de registro en Trusticket';
     const html = dbTemplate?.html ?? getInvitationPendingEmail(
-      inviterProfile.name,
-      invitee_name,
-      invitee_email,
+      safeInviterName,
+      safeInviteeName,
+      safeInviteeEmail,
       APP_URL
     );
 
