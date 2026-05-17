@@ -13,6 +13,15 @@ interface InvitationAcceptedRequest {
   is_direct_invite?: boolean;
 }
 
+function escapeHtml(unsafe: string): string {
+  return (unsafe ?? '')
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // Direct invitation HTML template
 function getDirectInviteHtml(inviteeName: string, inviterName: string, inviterEmail: string, passwordResetLink: string): string {
   return `<!DOCTYPE html>
@@ -129,11 +138,21 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const allowedDomains = [supabaseUrl, 'https://ystnsszlaqhwysgptysd.supabase.co'];
-    const linkUrl = new URL(password_reset_link);
-    const isValidDomain = allowedDomains.some(domain => password_reset_link.startsWith(domain));
-    if (!isValidDomain) {
-      console.error('Invalid password reset link domain:', linkUrl.hostname);
+    const ALLOWED_HOSTNAMES = new Set(['trusticket.com', 'www.trusticket.com']);
+    let linkHostname: string;
+    let linkProtocol: string;
+    try {
+      const parsed = new URL(password_reset_link);
+      linkHostname = parsed.hostname;
+      linkProtocol = parsed.protocol;
+    } catch (e) {
+      console.error('Malformed password reset link:', password_reset_link);
+      return new Response(JSON.stringify({ error: 'Invalid password reset link' }), {
+        status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    if (linkProtocol !== 'https:' || !ALLOWED_HOSTNAMES.has(linkHostname)) {
+      console.error('Rejected password reset link with disallowed host:', { linkHostname, linkProtocol });
       return new Response(JSON.stringify({ error: 'Invalid password reset link' }), {
         status: 400, headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -176,37 +195,42 @@ const handler = async (req: Request): Promise<Response> => {
     let subject: string;
     let html: string;
 
+    const safeInviteeName = escapeHtml(invitation.invitee_name);
+    const safeInviterName = escapeHtml(inviterName);
+    const safeInviterEmail = escapeHtml(inviterEmail);
+    const safeInviteeEmail = escapeHtml(invitation.invitee_email);
+
     if (is_direct_invite) {
       // Direct invitation from account - different email
       const dbTemplate = await getEmailTemplate('direct-invitation', {
-        invitee_name: invitation.invitee_name,
-        inviter_name: inviterName,
-        inviter_email: inviterEmail,
+        invitee_name: safeInviteeName,
+        inviter_name: safeInviterName,
+        inviter_email: safeInviterEmail,
         password_reset_link,
       });
 
       subject = dbTemplate?.subject ?? `${inviterName} te quiere invitar a Trusticket`;
       html = dbTemplate?.html ?? getDirectInviteHtml(
-        invitation.invitee_name,
-        inviterName,
-        inviterEmail,
+        safeInviteeName,
+        safeInviterName,
+        safeInviterEmail,
         password_reset_link
       );
     } else {
       // Approval of registration request - existing email
       const dbTemplate = await getEmailTemplate('invitation-accepted', {
-        invitee_name: invitation.invitee_name,
-        inviter_name: inviterName,
+        invitee_name: safeInviteeName,
+        inviter_name: safeInviterName,
         password_reset_link,
-        invitee_email: invitation.invitee_email,
+        invitee_email: safeInviteeEmail,
       });
 
       subject = dbTemplate?.subject ?? 'Tu cuenta en Trusticket está lista';
       html = dbTemplate?.html ?? getFallbackHtml(
-        invitation.invitee_name,
-        inviterName,
+        safeInviteeName,
+        safeInviterName,
         password_reset_link,
-        invitation.invitee_email
+        safeInviteeEmail
       );
     }
 
