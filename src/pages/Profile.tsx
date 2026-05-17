@@ -327,7 +327,9 @@ const Profile = () => {
     }
     setSuggestions(mapped);
 
-    // Exclude users to whom we already have a pending/accepted relationship
+    // Distinguish direction of existing pending friendships:
+    // - If I'm user_id → I sent the request → mark as "Solicitud enviada"
+    // - If I'm friend_id → they sent it to me → hide from suggestions (it belongs in pending requests)
     if (mapped.length > 0) {
       const ids = mapped.map((m) => m.id);
       const { data: existing } = await supabase
@@ -335,15 +337,23 @@ const Profile = () => {
         .select("user_id, friend_id")
         .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
       if (existing) {
-        const already = new Set<string>();
+        const sentByMe = new Set<string>();
+        const receivedFromThem = new Set<string>();
         existing.forEach((f) => {
-          const other = f.user_id === user.id ? f.friend_id : f.user_id;
-          if (ids.includes(other)) already.add(other);
+          if (f.user_id === user.id && ids.includes(f.friend_id)) {
+            sentByMe.add(f.friend_id);
+          } else if (f.friend_id === user.id && ids.includes(f.user_id)) {
+            receivedFromThem.add(f.user_id);
+          }
         });
-        if (already.size > 0) {
+        if (receivedFromThem.size > 0) {
+          mapped = mapped.filter((m) => !receivedFromThem.has(m.id));
+          setSuggestions(mapped);
+        }
+        if (sentByMe.size > 0) {
           setSentSuggestionIds((prev) => {
             const next = new Set(prev);
-            already.forEach((id) => next.add(id));
+            sentByMe.forEach((id) => next.add(id));
             return next;
           });
         }
