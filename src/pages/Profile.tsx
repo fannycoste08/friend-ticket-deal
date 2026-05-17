@@ -294,7 +294,10 @@ const Profile = () => {
     }
     const friendIds = friendshipsData.map((f) => (f.user_id === user.id ? f.friend_id : f.user_id));
     const { data: profilesData } = await supabase.from("profiles").select("id, name").in("id", friendIds);
-    setFriends(profilesData || []);
+    // Filter out users who have never logged in (invited but not activated)
+    const { data: activatedRows } = await supabase.rpc("get_activated_user_ids", { _ids: friendIds });
+    const activatedSet = new Set((activatedRows || []).map((r: any) => r.user_id));
+    setFriends((profilesData || []).filter((p) => activatedSet.has(p.id)));
     setLoadingFriends(false);
     loadSuggestions();
   };
@@ -306,11 +309,18 @@ const Profile = () => {
       console.error("Error loading suggestions:", error);
       return;
     }
-    const mapped: Suggestion[] = (data || []).map((s: any) => ({
+    let mapped: Suggestion[] = (data || []).map((s: any) => ({
       id: s.suggestion_id,
       name: s.suggestion_name,
       mutualFriendName: s.mutual_friend_name,
     }));
+    // Filter out suggested users who have never logged in
+    if (mapped.length > 0) {
+      const sugIds = mapped.map((m) => m.id);
+      const { data: activatedRows } = await supabase.rpc("get_activated_user_ids", { _ids: sugIds });
+      const activatedSet = new Set((activatedRows || []).map((r: any) => r.user_id));
+      mapped = mapped.filter((m) => activatedSet.has(m.id));
+    }
     setSuggestions(mapped);
 
     // Exclude users to whom we already have a pending/accepted relationship
