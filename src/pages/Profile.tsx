@@ -88,6 +88,8 @@ const Profile = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
+  const [pendingFriends, setPendingFriends] = useState<Friend[]>([]);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [sentSuggestionIds, setSentSuggestionIds] = useState<Set<string>>(new Set());
   const { emailNotificationsEnabled, toggleEmailNotifications } = useEmailNotifications(user?.id);
@@ -297,7 +299,9 @@ const Profile = () => {
     // Filter out users who have never logged in (invited but not activated)
     const { data: activatedRows } = await supabase.rpc("get_activated_user_ids", { _ids: friendIds });
     const activatedSet = new Set((activatedRows || []).map((r: any) => r.user_id));
-    setFriends((profilesData || []).filter((p) => activatedSet.has(p.id)));
+    const allProfiles = profilesData || [];
+    setFriends(allProfiles.filter((p) => activatedSet.has(p.id)));
+    setPendingFriends(allProfiles.filter((p) => !activatedSet.has(p.id)));
     setLoadingFriends(false);
     loadSuggestions();
   };
@@ -376,6 +380,27 @@ const Profile = () => {
       console.error("Error sending friendship notification email:", e);
     }
     toast.success("Solicitud de amistad enviada");
+  };
+
+  const handleResendInvite = async (friend: Friend) => {
+    if (!user || resendingId) return;
+    setResendingId(friend.id);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "resend-invitation-accepted",
+        { body: { friend_id: friend.id } },
+      );
+      if (error || (data as any)?.error) {
+        const msg = (data as any)?.error || error?.message || "Error al reenviar el email";
+        toast.error(msg);
+        return;
+      }
+      toast.success(`Email reenviado a ${friend.name}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Error al reenviar el email");
+    } finally {
+      setResendingId(null);
+    }
   };
 
   const handleDeleteFriend = async () => {
@@ -518,6 +543,47 @@ const Profile = () => {
                   </div>
                 ))}
               </div>
+        )}
+        {pendingFriends.length > 0 && (
+          <div className="mt-6 space-y-3">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Invitados pendientes de activar
+            </h3>
+            <div className="grid gap-3 md:grid-cols-2 w-full">
+              {pendingFriends.map((p) => (
+                <div
+                  key={p.id}
+                  className="bg-card rounded-2xl border border-border/40 p-4 w-full overflow-hidden"
+                >
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-2 w-full min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {p.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-[8rem]">
+                      <h3 className="font-medium text-foreground text-sm break-words">
+                        {p.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Aún no ha creado su cuenta
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleResendInvite(p)}
+                      disabled={resendingId === p.id}
+                      className="shrink-0 text-xs ml-auto"
+                    >
+                      <Mail className="w-3.5 h-3.5 mr-1" />
+                      {resendingId === p.id ? "Enviando…" : "Reenviar email"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
         {suggestions.length > 0 && (
           <div className="mt-6 rounded-2xl border border-dashed border-muted-foreground/30 bg-muted/20 p-4 md:p-5 space-y-3">
