@@ -63,6 +63,9 @@ export const getInvitationPendingEmail = (
           <!-- Footer -->
           <tr>
             <td style="padding: 32px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0 0 16px 0; color: #898989; font-size: 13px; line-height: 20px;">
+                Trusticket está en fase beta. Si algo no funciona como esperabas, escríbenos a <a href="mailto:trusticketinfo@gmail.com" style="color: #898989;">trusticketinfo@gmail.com</a>
+              </p>
               <p style="margin: 0; color: #898989; font-size: 14px; line-height: 22px;">
                 Saludos,<br>
                 El equipo de <strong>Trusticket</strong>

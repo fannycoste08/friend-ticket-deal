@@ -40,7 +40,7 @@ function getFallbackHtml(vars: Record<string, string>): string {
 <div style="text-align:center"><a href="${vars.app_url}/feed" class="button">Ver entrada</a></div>
 <p style="color:#6b7280;font-size:14px;margin-top:20px">Entra a Trusticket para contactar con el vendedor y conseguir tu entrada.</p>
 </div>
-<div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
+<div class="footer"><p style="margin:0 0 10px 0">Trusticket está en fase beta. Si algo no funciona como esperabas, escríbenos a <a href="mailto:trusticketinfo@gmail.com" style="color:inherit">trusticketinfo@gmail.com</a></p><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
 </div></body></html>`;
 }
 

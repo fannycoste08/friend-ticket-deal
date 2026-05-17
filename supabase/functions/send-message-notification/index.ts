@@ -30,6 +30,7 @@ function getFallbackHtml(recipientName: string, senderName: string, ticketArtist
 <p>Hola ${recipientName},</p>
 <p><strong>${senderName}</strong> te ha enviado un mensaje sobre tu entrada de <strong>${ticketArtist}</strong>.</p>
 <p>Entra a Trusticket para ver el mensaje y responder.</p>
+<p style="color:#898989;font-size:13px">Trusticket está en fase beta. Si algo no funciona como esperabas, escríbenos a <a href="mailto:trusticketinfo@gmail.com" style="color:#898989">trusticketinfo@gmail.com</a></p>
 <p>Saludos,<br>El equipo de Trusticket</p>
 </body></html>`;
 }

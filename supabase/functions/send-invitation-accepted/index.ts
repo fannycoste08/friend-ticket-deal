@@ -55,7 +55,7 @@ function getDirectInviteHtml(inviteeName: string, inviterName: string, inviterEm
         </table>
         <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no conoces a esta persona o no esperabas esta invitación, puedes ignorar este email.</p>
       </div>
-      <div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
+      <div class="footer"><p style="margin:0 0 10px 0">Trusticket está en fase beta. Si algo no funciona como esperabas, escríbenos a <a href="mailto:trusticketinfo@gmail.com" style="color:inherit">trusticketinfo@gmail.com</a></p><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
     </div>
   </body>
 </html>`;
@@ -96,7 +96,7 @@ function getFallbackHtml(inviteeName: string, inviterName: string, passwordReset
         <p style="color: #374151; font-size: 14px; margin-top: 20px;">Iniciarás sesión con <strong>${inviteeEmail}</strong> y la contraseña que elijas.</p>
         <p style="color: #9ca3af; font-size: 12px; margin-top: 15px;">Si no solicitaste esta cuenta, ignora este email.</p>
       </div>
-      <div class="footer"><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
+      <div class="footer"><p style="margin:0 0 10px 0">Trusticket está en fase beta. Si algo no funciona como esperabas, escríbenos a <a href="mailto:trusticketinfo@gmail.com" style="color:inherit">trusticketinfo@gmail.com</a></p><p>© 2025 Trusticket. Compra y vende entradas de forma segura.</p></div>
     </div>
   </body>
 </html>`;
