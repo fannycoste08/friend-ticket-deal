@@ -1,12 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Music2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -104,29 +97,21 @@ const Musica = () => {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full gradient-vibrant mb-4">
           <Music2 className="w-6 h-6 text-white" />
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3 gradient-text">
-          Música
-        </h1>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Todo lo que le gusta a la gente de Trusticket
-        </p>
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3 gradient-text">Música</h1>
+        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Todo lo que le gusta a la gente de Trusticket</p>
       </div>
 
       {/* Playlist del mes */}
       <section className="mb-12 md:mb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center rounded-2xl border border-border/40 bg-card/50 p-6 md:p-8">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 gradient-text">
-              La playlist del mes
-            </h2>
-            <p className="text-muted-foreground">
-              Lo que está sonando en Trusticket ahora mismo.
-            </p>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 gradient-text">La playlist del mes</h2>
+            <p className="text-muted-foreground">Lo que está sonando en Trusticket ahora mismo.</p>
           </div>
           <div className="rounded-xl overflow-hidden">
             <iframe
               title="Playlist del mes en Spotify"
-              src="https://open.spotify.com/embed/playlist/4nNb5PwPtktobE2Hnj7cnN?utm_source=generator&theme=0"
+              src="https://open.spotify.com/playlist/4trWQJJP2FsRc7tCkWniC2?si=dff0b499d4284db1"
               width="100%"
               height="80"
               frameBorder="0"
@@ -142,9 +127,7 @@ const Musica = () => {
       <section>
         <div className="flex flex-col gap-4 mb-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Agenda de conciertos en Madrid
-            </h2>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Agenda de conciertos en Madrid</h2>
             <p className="text-muted-foreground text-sm mt-1">
               Seleccionados con amor por Trusticket aunque no significa que haya entradas a la venta en esta página.
             </p>
@@ -174,10 +157,18 @@ const Musica = () => {
               {loading &&
                 Array.from({ length: 6 }).map((_, i) => (
                   <TableRow key={i} className="border-border/40">
-                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-40" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-32" />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Skeleton className="h-4 w-16 ml-auto" />
+                    </TableCell>
                   </TableRow>
                 ))}
 
