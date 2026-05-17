@@ -597,6 +597,12 @@ export type Database = {
       cleanup_old_ip_rate_limits: { Args: never; Returns: undefined }
       delete_expired_tickets: { Args: never; Returns: undefined }
       generate_invitation_slug: { Args: { _user_id: string }; Returns: string }
+      get_activated_user_ids: {
+        Args: { _ids: string[] }
+        Returns: {
+          user_id: string
+        }[]
+      }
       get_admin_user_stats: {
         Args: never
         Returns: {

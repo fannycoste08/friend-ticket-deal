@@ -112,9 +112,16 @@ const UserProfile = () => {
     // Load this user's friends (excluding myself, server-side)
     const { data: theirFriendsData } = await supabase
       .rpc('get_user_friends_public', { _target_user_id: userId });
-    setTheirFriends(
-      (theirFriendsData || []).map((f: any) => ({ id: f.friend_id, name: f.friend_name }))
-    );
+    const mappedFriends = (theirFriendsData || []).map((f: any) => ({ id: f.friend_id, name: f.friend_name }));
+    // Filter out users who have never logged in (invited but not activated)
+    if (mappedFriends.length > 0) {
+      const ids = mappedFriends.map((f) => f.id);
+      const { data: activatedRows } = await supabase.rpc('get_activated_user_ids', { _ids: ids });
+      const activatedSet = new Set((activatedRows || []).map((r: any) => r.user_id));
+      setTheirFriends(mappedFriends.filter((f) => activatedSet.has(f.id)));
+    } else {
+      setTheirFriends([]);
+    }
 
     // Load my own relationships to know who is already a friend / pending
     const { data: myRelations } = await supabase
