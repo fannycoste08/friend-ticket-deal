@@ -13,6 +13,15 @@ interface FriendshipNotificationRequest {
   requester_name: string;
 }
 
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 // Fallback HTML
 function getFallbackHtml(recipientName: string, requesterName: string, appUrl: string): string {
   return `<!DOCTYPE html>
@@ -110,14 +119,17 @@ const handler = async (req: Request): Promise<Response> => {
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     const APP_URL = 'https://www.trusticket.com';
 
+    const safeRecipientName = escapeHtml(recipient_name ?? '');
+    const safeRequesterName = escapeHtml(requester_name ?? '');
+
     const dbTemplate = await getEmailTemplate('friendship-notification', {
-      recipient_name,
-      requester_name,
+      recipient_name: safeRecipientName,
+      requester_name: safeRequesterName,
       app_url: APP_URL,
     });
 
     const subject = dbTemplate?.subject ?? 'Nueva solicitud de amistad en Trusticket';
-    const html = dbTemplate?.html ?? getFallbackHtml(recipient_name, requester_name, APP_URL);
+    const html = dbTemplate?.html ?? getFallbackHtml(safeRecipientName, safeRequesterName, APP_URL);
 
     const emailResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
