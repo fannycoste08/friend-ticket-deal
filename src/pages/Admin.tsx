@@ -25,6 +25,7 @@ interface UserStats {
   active_wanted: number;
   messages_sent: number;
   messages_received: number;
+  last_sign_in_at: string | null;
 }
 
 interface FriendRow {
@@ -73,15 +74,15 @@ interface UserDetails {
   wanted: WantedRow[];
 }
 
-type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at';
+type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at';
 type FilterKey = 'all' | 'no_friends' | 'no_activity';
 
 const Admin = () => {
   const [users, setUsers] = useState<UserStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortKey, setSortKey] = useState<SortKey>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortKey, setSortKey] = useState<SortKey>('last_sign_in_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [filterKey, setFilterKey] = useState<FilterKey>('all');
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [detailsCache, setDetailsCache] = useState<Record<string, UserDetails>>({});
@@ -114,6 +115,15 @@ const Admin = () => {
           const am = a.messages_sent + a.messages_received;
           const bm = b.messages_sent + b.messages_received;
           return (am - bm) * dir;
+        }
+        case 'last_sign_in_at': {
+          // "Nunca" (null) siempre primero, independientemente del orden
+          const aNull = !a.last_sign_in_at;
+          const bNull = !b.last_sign_in_at;
+          if (aNull && !bNull) return -1;
+          if (!aNull && bNull) return 1;
+          if (aNull && bNull) return 0;
+          return (new Date(a.last_sign_in_at!).getTime() - new Date(b.last_sign_in_at!).getTime()) * dir;
         }
         case 'created_at':
         default:
