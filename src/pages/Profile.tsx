@@ -544,6 +544,47 @@ const Profile = () => {
                 ))}
               </div>
         )}
+        {pendingFriends.length > 0 && (
+          <div className="mt-6 space-y-3">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Invitados pendientes de activar
+            </h3>
+            <div className="grid gap-3 md:grid-cols-2 w-full">
+              {pendingFriends.map((p) => (
+                <div
+                  key={p.id}
+                  className="bg-card rounded-2xl border border-border/40 p-4 w-full overflow-hidden"
+                >
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-2 w-full min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {p.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-[8rem]">
+                      <h3 className="font-medium text-foreground text-sm break-words">
+                        {p.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Aún no ha creado su cuenta
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleResendInvite(p)}
+                      disabled={resendingId === p.id}
+                      className="shrink-0 text-xs ml-auto"
+                    >
+                      <Mail className="w-3.5 h-3.5 mr-1" />
+                      {resendingId === p.id ? "Enviando…" : "Reenviar email"}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {suggestions.length > 0 && (
           <div className="mt-6 rounded-2xl border border-dashed border-muted-foreground/30 bg-muted/20 p-4 md:p-5 space-y-3">
             <div>
