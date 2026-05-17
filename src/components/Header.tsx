@@ -43,9 +43,12 @@ const Header = () => {
           {/* Logo */}
           <Link
             to={user ? "/" : "/login"}
-            className="text-xl font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity"
           >
             <span className="gradient-text">Trusticket</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-primary/20 text-primary leading-none">
+              beta
+            </span>
           </Link>
 
           {/* Desktop nav */}
