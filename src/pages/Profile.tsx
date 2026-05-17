@@ -88,6 +88,8 @@ const Profile = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [friendToDelete, setFriendToDelete] = useState<Friend | null>(null);
+  const [pendingFriends, setPendingFriends] = useState<Friend[]>([]);
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [sentSuggestionIds, setSentSuggestionIds] = useState<Set<string>>(new Set());
   const { emailNotificationsEnabled, toggleEmailNotifications } = useEmailNotifications(user?.id);
