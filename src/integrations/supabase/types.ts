@@ -606,6 +606,7 @@ export type Database = {
           email: string
           friend_count: number
           id: string
+          last_sign_in_at: string
           messages_received: number
           messages_sent: number
           name: string
