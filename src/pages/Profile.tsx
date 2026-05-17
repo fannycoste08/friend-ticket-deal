@@ -382,6 +382,27 @@ const Profile = () => {
     toast.success("Solicitud de amistad enviada");
   };
 
+  const handleResendInvite = async (friend: Friend) => {
+    if (!user || resendingId) return;
+    setResendingId(friend.id);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "resend-invitation-accepted",
+        { body: { friend_id: friend.id } },
+      );
+      if (error || (data as any)?.error) {
+        const msg = (data as any)?.error || error?.message || "Error al reenviar el email";
+        toast.error(msg);
+        return;
+      }
+      toast.success(`Email reenviado a ${friend.name}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Error al reenviar el email");
+    } finally {
+      setResendingId(null);
+    }
+  };
+
   const handleDeleteFriend = async () => {
     if (!user || !friendToDelete) return;
     const { error } = await supabase
