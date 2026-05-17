@@ -317,18 +317,24 @@ const Admin = () => {
                       >
                         <span className="inline-flex items-center gap-1">Registro <SortIcon column="created_at" /></span>
                       </th>
+                      <th
+                        className="text-left px-4 py-3 font-medium text-sm cursor-pointer select-none hover:text-foreground transition-colors"
+                        onClick={() => toggleSort('last_sign_in_at')}
+                      >
+                        <span className="inline-flex items-center gap-1">Último acceso <SortIcon column="last_sign_in_at" /></span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
                           {searchQuery || filterKey !== 'all' ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
@@ -390,10 +396,17 @@ const Admin = () => {
                               <td className="px-4 py-3 text-muted-foreground text-sm">
                                 {formatDate(user.created_at)}
                               </td>
+                              <td className="px-4 py-3 text-sm">
+                                {user.last_sign_in_at ? (
+                                  <span className="text-muted-foreground">{formatDate(user.last_sign_in_at)}</span>
+                                ) : (
+                                  <span className="text-destructive font-medium">Nunca</span>
+                                )}
+                              </td>
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
-                                <td colSpan={7} className="px-6 py-4">
+                                <td colSpan={8} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Loader2 className="w-4 h-4 animate-spin" />
