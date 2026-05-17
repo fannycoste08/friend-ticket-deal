@@ -138,7 +138,13 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    const ALLOWED_HOSTNAMES = new Set(['trusticket.com', 'www.trusticket.com']);
+    // Allow trusticket.com plus the project's Supabase Auth hostname,
+    // since generateLink() returns links rooted at <project>.supabase.co
+    const ALLOWED_HOSTNAMES = new Set<string>(['trusticket.com', 'www.trusticket.com']);
+    try {
+      const supabaseHost = new URL(supabaseUrl).hostname;
+      if (supabaseHost) ALLOWED_HOSTNAMES.add(supabaseHost);
+    } catch (_) { /* ignore */ }
     let linkHostname: string;
     let linkProtocol: string;
     try {
