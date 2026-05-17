@@ -25,6 +25,7 @@ interface UserStats {
   active_wanted: number;
   messages_sent: number;
   messages_received: number;
+  last_sign_in_at: string | null;
 }
 
 interface FriendRow {
@@ -73,15 +74,15 @@ interface UserDetails {
   wanted: WantedRow[];
 }
 
-type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at';
+type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at';
 type FilterKey = 'all' | 'no_friends' | 'no_activity';
 
 const Admin = () => {
   const [users, setUsers] = useState<UserStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortKey, setSortKey] = useState<SortKey>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortKey, setSortKey] = useState<SortKey>('last_sign_in_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [filterKey, setFilterKey] = useState<FilterKey>('all');
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [detailsCache, setDetailsCache] = useState<Record<string, UserDetails>>({});
@@ -114,6 +115,15 @@ const Admin = () => {
           const am = a.messages_sent + a.messages_received;
           const bm = b.messages_sent + b.messages_received;
           return (am - bm) * dir;
+        }
+        case 'last_sign_in_at': {
+          // "Nunca" (null) siempre primero, independientemente del orden
+          const aNull = !a.last_sign_in_at;
+          const bNull = !b.last_sign_in_at;
+          if (aNull && !bNull) return -1;
+          if (!aNull && bNull) return 1;
+          if (aNull && bNull) return 0;
+          return (new Date(a.last_sign_in_at!).getTime() - new Date(b.last_sign_in_at!).getTime()) * dir;
         }
         case 'created_at':
         default:
@@ -307,18 +317,24 @@ const Admin = () => {
                       >
                         <span className="inline-flex items-center gap-1">Registro <SortIcon column="created_at" /></span>
                       </th>
+                      <th
+                        className="text-left px-4 py-3 font-medium text-sm cursor-pointer select-none hover:text-foreground transition-colors"
+                        onClick={() => toggleSort('last_sign_in_at')}
+                      >
+                        <span className="inline-flex items-center gap-1">Último acceso <SortIcon column="last_sign_in_at" /></span>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
                           {searchQuery || filterKey !== 'all' ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
@@ -380,10 +396,17 @@ const Admin = () => {
                               <td className="px-4 py-3 text-muted-foreground text-sm">
                                 {formatDate(user.created_at)}
                               </td>
+                              <td className="px-4 py-3 text-sm">
+                                {user.last_sign_in_at ? (
+                                  <span className="text-muted-foreground">{formatDate(user.last_sign_in_at)}</span>
+                                ) : (
+                                  <span className="text-destructive font-medium">Nunca</span>
+                                )}
+                              </td>
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
-                                <td colSpan={7} className="px-6 py-4">
+                                <td colSpan={8} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Loader2 className="w-4 h-4 animate-spin" />
