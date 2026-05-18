@@ -263,7 +263,6 @@ const Feed = () => {
           )}
         </div>
 
-        {(() => null)()}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full fade-in-up-delay-2">
           <TabsList className="grid w-full grid-cols-2 mb-8 h-11 bg-secondary/50 rounded-xl p-1 border border-border/30">
             <TabsTrigger value="sale" className="rounded-lg text-sm font-medium data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:border-0">
