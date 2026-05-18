@@ -9,6 +9,7 @@ import WantedTicketForm from "@/components/WantedTicketForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -63,6 +64,13 @@ const Feed = () => {
   const [wantedTicketToDelete, setWantedTicketToDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("sale");
+
+  const visibleSaleCount = tickets.filter(
+    (t) => searchQuery === "" || t.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  ).length;
+  const visibleWantedCount = wantedTickets.filter(
+    (t) => searchQuery === "" || t.artist.toLowerCase().includes(searchQuery.toLowerCase())
+  ).length;
 
   useEffect(() => {
     if (!loading && !user) {
