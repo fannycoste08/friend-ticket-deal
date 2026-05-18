@@ -62,6 +62,7 @@ const Feed = () => {
   const [editingWantedTicket, setEditingWantedTicket] = useState<WantedTicket | null>(null);
   const [wantedTicketToDelete, setWantedTicketToDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<string>("sale");
 
   useEffect(() => {
     if (!loading && !user) {
@@ -254,13 +255,28 @@ const Feed = () => {
           )}
         </div>
 
-        <Tabs defaultValue="sale" className="w-full fade-in-up-delay-2">
+        {(() => null)()}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full fade-in-up-delay-2">
           <TabsList className="grid w-full grid-cols-2 mb-8 h-11 bg-secondary/50 rounded-xl p-1 border border-border/30">
             <TabsTrigger value="sale" className="rounded-lg text-sm font-medium data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:border-0">
-              Entradas a la venta
+              <span className="inline-flex items-center gap-2">
+                Entradas a la venta
+                {visibleSaleCount > 0 && (
+                  <Badge className="h-4 min-w-[16px] flex items-center justify-center p-0 px-1 text-[10px] gradient-primary border-0">
+                    {visibleSaleCount}
+                  </Badge>
+                )}
+              </span>
             </TabsTrigger>
             <TabsTrigger value="wanted" className="rounded-lg text-sm font-medium data-[state=active]:gradient-accent data-[state=active]:text-accent-foreground data-[state=active]:border-0">
-              Entradas buscadas
+              <span className="inline-flex items-center gap-2">
+                Entradas buscadas
+                {visibleWantedCount > 0 && (
+                  <Badge className="h-4 min-w-[16px] flex items-center justify-center p-0 px-1 text-[10px] gradient-primary border-0">
+                    {visibleWantedCount}
+                  </Badge>
+                )}
+              </span>
             </TabsTrigger>
           </TabsList>
 
@@ -274,9 +290,23 @@ const Feed = () => {
                 <p className="text-sm text-muted-foreground">Cargando entradas...</p>
               </div>
             ) : tickets.length === 0 ? (
-              <div className="text-center py-16">
-                <p className="text-muted-foreground">No hay entradas disponibles</p>
-                <p className="text-sm text-muted-foreground mt-1">¡Sé el primero en publicar una!</p>
+              <div className="text-center py-16 px-4 max-w-md mx-auto">
+                <h3 className="text-lg font-semibold text-foreground">
+                  Tu red no tiene entradas a la venta ahora mismo
+                </h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Pero hay personas en tu red buscando entradas. ¿Tienes algo para vender?
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2 justify-center mt-6">
+                  <Button
+                    size="sm"
+                    onClick={() => setActiveTab("wanted")}
+                    className="gradient-accent text-accent-foreground border-0"
+                  >
+                    Ver qué buscan
+                  </Button>
+                  <TicketForm onSuccess={loadTickets} />
+                </div>
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
