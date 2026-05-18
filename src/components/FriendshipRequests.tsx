@@ -14,6 +14,7 @@ interface FriendRequest {
   profiles: {
     name: string;
   };
+  mutualFriendName?: string | null;
 }
 
 interface FriendshipRequestsProps {
@@ -64,9 +65,23 @@ export const FriendshipRequests = ({ embedded = false, onCountChange }: Friendsh
         profilesData?.map(p => [p.id, { name: p.name }]) || []
       );
 
+      // Look up one mutual friend per requester (same extended-network logic as feed).
+      const mutualEntries = await Promise.all(
+        data.map(async (r) => {
+          const { data: mutuals } = await supabase.rpc('get_mutual_friends', {
+            user_a: user.id,
+            user_b: r.user_id,
+          });
+          const first = (mutuals as { friend_name: string }[] | null)?.[0];
+          return [r.user_id, first?.friend_name ?? null] as const;
+        })
+      );
+      const mutualMap = new Map(mutualEntries);
+
       const requestsWithProfiles = data.map(r => ({
         ...r,
-        profiles: profilesMap.get(r.user_id) || { name: 'Usuario' }
+        profiles: profilesMap.get(r.user_id) || { name: 'Usuario' },
+        mutualFriendName: mutualMap.get(r.user_id) ?? null,
       }));
 
       setRequests(requestsWithProfiles);
@@ -149,6 +164,11 @@ export const FriendshipRequests = ({ embedded = false, onCountChange }: Friendsh
           >
             <div className="min-w-0">
               <p className="font-medium text-foreground break-words">{request.profiles.name}</p>
+              {request.mutualFriendName && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Amigo/a de {request.mutualFriendName}
+                </p>
+              )}
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <Button
@@ -191,6 +211,11 @@ export const FriendshipRequests = ({ embedded = false, onCountChange }: Friendsh
           >
             <div>
               <p className="font-medium">{request.profiles.name}</p>
+              {request.mutualFriendName && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Amigo/a de {request.mutualFriendName}
+                </p>
+              )}
             </div>
             <div className="flex gap-2">
               <Button
