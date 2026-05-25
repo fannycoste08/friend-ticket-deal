@@ -64,6 +64,7 @@ const Feed = () => {
   const [wantedTicketToDelete, setWantedTicketToDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("sale");
+  const [isNarrow, setIsNarrow] = useState(false);
 
   const visibleSaleCount = tickets.filter(
     (t) => searchQuery === "" || t.artist.toLowerCase().includes(searchQuery.toLowerCase())
