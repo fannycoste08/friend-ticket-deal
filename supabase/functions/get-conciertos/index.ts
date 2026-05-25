@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("get-conciertos error:", message);
-    return new Response(JSON.stringify({ error: message, conciertos: [] }), {
+    return new Response(JSON.stringify({ error: "Ha ocurrido un error, inténtalo de nuevo", conciertos: [] }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
