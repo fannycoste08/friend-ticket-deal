@@ -80,6 +80,13 @@ const Feed = () => {
   }, [user, loading, navigate]);
 
   useEffect(() => {
+    const checkWidth = () => setIsNarrow(window.innerWidth < 380);
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
+
+  useEffect(() => {
     if (user) {
       loadTickets();
       loadWantedTickets();
