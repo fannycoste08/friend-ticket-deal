@@ -117,6 +117,27 @@ const handler = async (req: Request): Promise<Response> => {
     const event_date = ticket.event_date;
     const price = ticket.price;
 
+    // 24h cooldown per ticket: prevent duplicate notification batches.
+    const cooldownSentinel = `ticket:${ticket_id}`;
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: recentLogs, error: cooldownError } = await supabase
+      .from('email_logs')
+      .select('id')
+      .eq('function_name', 'notify-wanted-ticket-matches')
+      .eq('recipient_email', cooldownSentinel)
+      .gte('sent_at', twentyFourHoursAgo)
+      .limit(1);
+
+    if (cooldownError) {
+      console.error('Error checking cooldown:', cooldownError);
+    } else if (recentLogs && recentLogs.length > 0) {
+      console.log(`Cooldown active for ticket ${ticket_id}, skipping notifications`);
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: 'cooldown', notifications_sent: 0 }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     // Fetch seller name from profiles (server-side, not client-supplied).
     const { data: sellerProfile } = await supabase
       .from('profiles')
@@ -229,6 +250,18 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     await Promise.all(emailPromises);
+
+    // Record cooldown marker only if we actually attempted to send something.
+    if (matches.length > 0) {
+      const { error: logError } = await supabase.from('email_logs').insert({
+        user_id: seller_id,
+        function_name: 'notify-wanted-ticket-matches',
+        recipient_email: cooldownSentinel,
+      });
+      if (logError) {
+        console.error('Error logging cooldown marker:', logError);
+      }
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 
