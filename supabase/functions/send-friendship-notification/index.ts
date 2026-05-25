@@ -9,8 +9,6 @@ const corsHeaders = {
 
 interface FriendshipNotificationRequest {
   recipient_id: string;
-  recipient_name: string;
-  requester_name: string;
 }
 
 function escapeHtml(unsafe: string): string {
@@ -85,7 +83,14 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { recipient_id, recipient_name, requester_name }: FriendshipNotificationRequest = await req.json();
+    const { recipient_id }: FriendshipNotificationRequest = await req.json();
+
+    if (!recipient_id || typeof recipient_id !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request' }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
 
     const { data: friendshipRequest, error: friendshipError } = await supabaseAdmin
       .from('friendships')
@@ -102,13 +107,23 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { data: recipientProfile, error: profileError } = await supabaseAdmin
+    // Derive both names + recipient email server-side from profiles (never trust client)
+    const { data: profilesData, error: profilesError } = await supabaseAdmin
       .from('profiles')
-      .select('email')
-      .eq('id', recipient_id)
-      .single();
+      .select('id, name, email')
+      .in('id', [recipient_id, user.id]);
 
-    if (profileError || !recipientProfile?.email) {
+    if (profilesError || !profilesData) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid recipient' }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const recipientProfile = profilesData.find((p) => p.id === recipient_id);
+    const requesterProfile = profilesData.find((p) => p.id === user.id);
+
+    if (!recipientProfile?.email) {
       return new Response(
         JSON.stringify({ error: 'Invalid recipient' }),
         { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
@@ -116,11 +131,13 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const recipient_email = recipientProfile.email;
+    const recipient_name = recipientProfile.name ?? '';
+    const requester_name = requesterProfile?.name ?? '';
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
     const APP_URL = 'https://www.trusticket.com';
 
-    const safeRecipientName = escapeHtml(recipient_name ?? '');
-    const safeRequesterName = escapeHtml(requester_name ?? '');
+    const safeRecipientName = escapeHtml(recipient_name);
+    const safeRequesterName = escapeHtml(requester_name);
 
     const dbTemplate = await getEmailTemplate('friendship-notification', {
       recipient_name: safeRecipientName,
