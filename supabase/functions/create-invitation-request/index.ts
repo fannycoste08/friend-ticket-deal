@@ -150,9 +150,9 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error in create-invitation-request function:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500, 
+      JSON.stringify({ error: 'Ha ocurrido un error, inténtalo de nuevo' }),
+      {
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
