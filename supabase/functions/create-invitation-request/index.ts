@@ -123,9 +123,9 @@ Deno.serve(async (req) => {
     if (error) {
       console.error('Error creating invitation:', error);
       return new Response(
-        JSON.stringify({ error: 'Database error', details: error.message }),
-        { 
-          status: 500, 
+        JSON.stringify({ error: 'Ha ocurrido un error, inténtalo de nuevo' }),
+        {
+          status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
