@@ -273,7 +273,7 @@ const Feed = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full fade-in-up-delay-2">
           <TabsList className="grid w-full grid-cols-2 mb-8 h-11 bg-secondary/50 rounded-xl p-1 border border-border/30">
-            <TabsTrigger value="sale" className="rounded-lg max-sm:text-[12px] text-sm font-medium data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:border-_0">
+            <TabsTrigger value="sale" className="rounded-lg max-sm:text-[12px] text-sm font-medium data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:border-0">
               <span className="inline-flex items-center gap-1 max-sm:gap-0.5 whitespace-nowrap">
                 {isNarrow ? "A la venta" : "Entradas a la venta"}
                 {visibleSaleCount > 0 && (
