@@ -155,6 +155,7 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
             <div className="space-y-2">
               <Label htmlFor="venue">Recinto *</Label>
               <Input id="venue" value={formData.venue} onChange={(e) => handleChange('venue', e.target.value)} placeholder="Ej: WiZink Center" required className="h-10" />
+              <p className="text-xs text-muted-foreground">Solo el nombre del recinto, no la dirección completa.</p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="city">Ciudad *</Label>
@@ -186,6 +187,7 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
                   <SelectItem value="general">General</SelectItem>
                   <SelectItem value="vip">VIP</SelectItem>
                   <SelectItem value="pista">Pista</SelectItem>
+                  <SelectItem value="platea">Platea</SelectItem>
                   <SelectItem value="grada">Grada</SelectItem>
                 </SelectContent>
               </Select>
@@ -202,8 +204,8 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
 
           <div className="space-y-2">
             <Label htmlFor="description">Descripción</Label>
-            <Textarea id="description" value={formData.description} onChange={(e) => handleChange('description', e.target.value)} placeholder="Detalles adicionales..." rows={3} maxLength={100} />
-            <p className="text-xs text-muted-foreground">{formData.description.length}/100</p>
+            <Textarea id="description" value={formData.description} onChange={(e) => handleChange('description', e.target.value)} placeholder="Detalles adicionales..." rows={3} maxLength={250} />
+            <p className="text-xs text-muted-foreground">{formData.description.length}/250</p>
           </div>
 
           <div className="flex gap-2 justify-end pt-2">
