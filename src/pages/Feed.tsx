@@ -265,21 +265,21 @@ const Feed = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full fade-in-up-delay-2">
           <TabsList className="grid w-full grid-cols-2 mb-8 h-11 bg-secondary/50 rounded-xl p-1 border border-border/30">
-            <TabsTrigger value="sale" className="rounded-lg text-sm font-medium data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:border-0">
-              <span className="inline-flex items-center gap-2">
-                Entradas a la venta
+            <TabsTrigger value="sale" className="rounded-lg max-sm:text-[12px] text-sm font-medium data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground data-[state=active]:border-_0">
+              <span className="inline-flex items-center gap-1 max-sm:gap-0.5 whitespace-nowrap">
+                {isNarrow ? "A la venta" : "Entradas a la venta"}
                 {visibleSaleCount > 0 && (
-                  <Badge className="h-4 min-w-[16px] flex items-center justify-center p-0 px-1 text-[10px] gradient-primary border-0">
+                  <Badge className={`flex items-center justify-center p-0 border-0 ${isNarrow ? 'h-[18px] w-[18px] text-[10px]' : 'h-4 min-w-[16px] px-1 text-[10px]'} gradient-primary`}>
                     {visibleSaleCount}
                   </Badge>
                 )}
               </span>
             </TabsTrigger>
-            <TabsTrigger value="wanted" className="rounded-lg text-sm font-medium data-[state=active]:gradient-accent data-[state=active]:text-accent-foreground data-[state=active]:border-0">
-              <span className="inline-flex items-center gap-2">
-                Entradas buscadas
+            <TabsTrigger value="wanted" className="rounded-lg max-sm:text-[12px] text-sm font-medium data-[state=active]:gradient-accent data-[state=active]:text-accent-foreground data-[state=active]:border-0">
+              <span className="inline-flex items-center gap-1 max-sm:gap-0.5 whitespace-nowrap">
+                {isNarrow ? "Buscadas" : "Entradas buscadas"}
                 {visibleWantedCount > 0 && (
-                  <Badge className="h-4 min-w-[16px] flex items-center justify-center p-0 px-1 text-[10px] gradient-primary border-0">
+                  <Badge className={`flex items-center justify-center p-0 border-0 ${isNarrow ? 'h-[18px] w-[18px] text-[10px]' : 'h-4 min-w-[16px] px-1 text-[10px]'} gradient-primary`}>
                     {visibleWantedCount}
                   </Badge>
                 )}
