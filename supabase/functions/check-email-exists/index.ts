@@ -160,7 +160,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error("Error in check-email-exists function:", error);
     return new Response(
-      JSON.stringify({ error: error.message, exists: false }),
+      JSON.stringify({ error: "Ha ocurrido un error, inténtalo de nuevo", exists: false }),
       { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
