@@ -49,10 +49,10 @@ export const TicketCard = ({
   const networkLabel = getNetworkLabel();
 
   return (
-    <div className="bg-card rounded-2xl border border-border/40 p-6 hover-glow group transition-all duration-300">
+    <div className="bg-card rounded-2xl border border-border/40 p-3 md:p-6 hover-glow group transition-all duration-300">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
-          <h3 className="text-xl font-bold text-foreground tracking-tight mb-1 group-hover:gradient-text transition-colors">
+          <h3 className="text-[15px] md:text-xl font-bold text-foreground tracking-tight mb-1 group-hover:gradient-text transition-colors">
             {ticket.artist}
           </h3>
           <div className="space-y-1.5 text-sm">
@@ -111,9 +111,11 @@ export const TicketCard = ({
           Tu entrada
         </Button>
       ) : (
-        <Button className="w-full gradient-primary border-0 hover:opacity-90 transition-opacity" onClick={onContact}>
-          Me interesa
-        </Button>
+        <div className="flex justify-end">
+          <Button size="sm" className="gradient-primary border-0 hover:opacity-90 transition-opacity" onClick={onContact}>
+            Me interesa
+          </Button>
+        </div>
       )}
     </div>
   );
