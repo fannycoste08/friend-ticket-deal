@@ -26,6 +26,7 @@ interface UserStats {
   messages_sent: number;
   messages_received: number;
   last_sign_in_at: string | null;
+  has_password: boolean | null;
 }
 
 interface FriendRow {
@@ -399,8 +400,10 @@ const Admin = () => {
                               <td className="px-4 py-3 text-sm">
                                 {user.last_sign_in_at ? (
                                   <span className="text-muted-foreground">{formatDate(user.last_sign_in_at)}</span>
+                                ) : user.has_password ? (
+                                  <span className="font-medium text-orange-500">Nunca entró</span>
                                 ) : (
-                                  <span className="text-destructive font-medium">Nunca</span>
+                                  <span className="text-destructive font-medium">Sin contraseña</span>
                                 )}
                               </td>
                             </tr>

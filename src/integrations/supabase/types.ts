@@ -611,6 +611,7 @@ export type Database = {
           created_at: string
           email: string
           friend_count: number
+          has_password: boolean
           id: string
           last_sign_in_at: string
           messages_received: number
