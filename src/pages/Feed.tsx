@@ -324,7 +324,7 @@ const Feed = () => {
                 </div>
               </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-2 md:gap-4 md:grid-cols-2">
                 {tickets
                   .filter(
                     (ticket) =>
@@ -386,7 +386,7 @@ const Feed = () => {
                 <p className="text-sm text-muted-foreground mt-1">¡Sé el primero en publicar una!</p>
               </div>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-2 md:gap-4 md:grid-cols-2">
                 {wantedTickets
                   .filter(
                     (ticket) =>

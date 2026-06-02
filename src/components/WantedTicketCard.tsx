@@ -1,4 +1,4 @@
-import { Calendar, MapPin, Search, Pencil, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -52,14 +52,10 @@ export const WantedTicketCard = ({
   const networkLabel = getNetworkLabel();
 
   return (
-    <div className="bg-card rounded-2xl border border-dashed border-accent/30 p-6 hover-glow group transition-all duration-300">
+    <div className="bg-card rounded-2xl border border-dashed border-accent/30 p-3 md:p-6 hover-glow group transition-all duration-300">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
-          <Badge variant="outline" className="text-xs mb-3 border-accent/30 text-accent bg-accent/10">
-            <Search className="w-3 h-3 mr-1" />
-            BUSCO
-          </Badge>
-          <h3 className="text-xl font-bold text-foreground tracking-tight mb-1 group-hover:text-accent transition-colors">
+          <h3 className="text-[15px] md:text-xl font-bold text-foreground tracking-tight mb-1 group-hover:text-accent transition-colors">
             {ticket.artist}
           </h3>
           <div className="space-y-1.5 text-sm">
@@ -116,9 +112,11 @@ export const WantedTicketCard = ({
           </Button>
         </div>
       ) : (
-        <Button className="w-full gradient-accent border-0 hover:opacity-90 transition-opacity text-accent-foreground" onClick={onContact}>
-          Ofrecerle entrada
-        </Button>
+        <div className="flex justify-end">
+          <Button size="sm" className="gradient-accent border-0 hover:opacity-90 transition-opacity text-accent-foreground" onClick={onContact}>
+            Ofrecerle entrada
+          </Button>
+        </div>
       )}
     </div>
   );
