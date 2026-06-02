@@ -26,6 +26,7 @@ interface UserStats {
   messages_sent: number;
   messages_received: number;
   last_sign_in_at: string | null;
+  has_password: boolean | null;
 }
 
 interface FriendRow {
