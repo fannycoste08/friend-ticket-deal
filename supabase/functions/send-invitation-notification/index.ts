@@ -140,6 +140,10 @@ const handler = async (req: Request): Promise<Response> => {
         to: [inviterProfile.email],
         subject,
         html,
+        tracking: {
+          opens: true,
+          clicks: true,
+        },
       }),
     });
 

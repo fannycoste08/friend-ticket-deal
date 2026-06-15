@@ -251,6 +251,9 @@ const handler = async (req: Request): Promise<Response> => {
         to: [invitation.invitee_email],
         subject,
         html,
+        tracking: {
+          opens: true,
+        },
       }),
     });
 
