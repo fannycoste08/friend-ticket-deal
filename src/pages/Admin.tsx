@@ -76,7 +76,7 @@ interface UserDetails {
 }
 
 type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at';
-type FilterKey = 'all' | 'no_friends' | 'no_activity';
+type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user';
 
 const Admin = () => {
   const [users, setUsers] = useState<UserStats[]>([]);
@@ -103,6 +103,12 @@ const Admin = () => {
         u.messages_sent === 0 &&
         u.messages_received === 0
       );
+    } else if (filterKey === 'no_password') {
+      result = result.filter(u => !u.has_password);
+    } else if (filterKey === 'password_never_signed_in') {
+      result = result.filter(u => u.has_password && !u.last_sign_in_at);
+    } else if (filterKey === 'active_user') {
+      result = result.filter(u => !!u.last_sign_in_at);
     }
 
     const dir = sortOrder === 'desc' ? -1 : 1;
@@ -240,6 +246,65 @@ const Admin = () => {
           </TabsList>
 
           <TabsContent value="users">
+            {/* Resumen de tipos de usuario */}
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">
+              <button
+                onClick={() => setFilterKey('all')}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  filterKey === 'all'
+                    ? 'bg-primary/10 border-primary/30 text-primary'
+                    : 'bg-card border-border hover:border-primary/20'
+                }`}
+              >
+                <span className="text-lg font-bold">{users.length}</span>
+                <span className="text-xs text-muted-foreground">Total usuarios</span>
+              </button>
+              <button
+                onClick={() => setFilterKey('no_password')}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  filterKey === 'no_password'
+                    ? 'bg-red-500/10 border-red-500/30 text-red-500'
+                    : 'bg-card border-border hover:border-red-500/20'
+                }`}
+              >
+                <span className="text-lg font-bold">{users.filter(u => !u.has_password).length}</span>
+                <span className="text-xs text-muted-foreground">Sin contraseña</span>
+              </button>
+              <button
+                onClick={() => setFilterKey('password_never_signed_in')}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  filterKey === 'password_never_signed_in'
+                    ? 'bg-orange-500/10 border-orange-500/30 text-orange-500'
+                    : 'bg-card border-border hover:border-orange-500/20'
+                }`}
+              >
+                <span className="text-lg font-bold">{users.filter(u => u.has_password && !u.last_sign_in_at).length}</span>
+                <span className="text-xs text-muted-foreground">Nunca entró</span>
+              </button>
+              <button
+                onClick={() => setFilterKey('active_user')}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  filterKey === 'active_user'
+                    ? 'bg-green-500/10 border-green-500/30 text-green-500'
+                    : 'bg-card border-border hover:border-green-500/20'
+                }`}
+              >
+                <span className="text-lg font-bold">{users.filter(u => !!u.last_sign_in_at).length}</span>
+                <span className="text-xs text-muted-foreground">Activos</span>
+              </button>
+              <button
+                onClick={() => setFilterKey('no_friends')}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  filterKey === 'no_friends'
+                    ? 'bg-blue-500/10 border-blue-500/30 text-blue-500'
+                    : 'bg-card border-border hover:border-blue-500/20'
+                }`}
+              >
+                <span className="text-lg font-bold">{users.filter(u => u.friend_count === 0).length}</span>
+                <span className="text-xs text-muted-foreground">Sin amigos</span>
+              </button>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -258,6 +323,30 @@ const Admin = () => {
                   onClick={() => setFilterKey('all')}
                 >
                   Todos
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filterKey === 'no_password' ? 'default' : 'outline'}
+                  onClick={() => setFilterKey('no_password')}
+                  className={filterKey === 'no_password' ? 'bg-red-600 hover:bg-red-700' : ''}
+                >
+                  Sin contraseña
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filterKey === 'password_never_signed_in' ? 'default' : 'outline'}
+                  onClick={() => setFilterKey('password_never_signed_in')}
+                  className={filterKey === 'password_never_signed_in' ? 'bg-orange-600 hover:bg-orange-700' : ''}
+                >
+                  Nunca entró
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filterKey === 'active_user' ? 'default' : 'outline'}
+                  onClick={() => setFilterKey('active_user')}
+                  className={filterKey === 'active_user' ? 'bg-green-600 hover:bg-green-700' : ''}
+                >
+                  Activos
                 </Button>
                 <Button
                   size="sm"
