@@ -111,6 +111,17 @@ const CreatePassword = () => {
         return;
       }
 
+      const {
+        data: { session: currentSession },
+      } = await supabase.auth.getSession();
+      if (currentSession?.user?.id) {
+        await supabase
+          .from("profiles")
+          .update({ password_set_at: new Date().toISOString() })
+          .eq("id", currentSession.user.id)
+          .is("password_set_at", null);
+      }
+
       await supabase.auth.signOut();
 
       toast.success("¡Contraseña creada correctamente! Ya puedes iniciar sesión");
