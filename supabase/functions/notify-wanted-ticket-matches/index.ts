@@ -235,6 +235,9 @@ const handler = async (req: Request): Promise<Response> => {
           to: [match.profiles.email],
           subject,
           html,
+          tracking: {
+            opens: true,
+          },
         }),
       });
 
