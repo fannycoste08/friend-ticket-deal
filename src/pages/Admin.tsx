@@ -76,7 +76,7 @@ interface UserDetails {
 }
 
 type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at';
-type FilterKey = 'all' | 'no_friends' | 'no_activity';
+type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user';
 
 const Admin = () => {
   const [users, setUsers] = useState<UserStats[]>([]);
