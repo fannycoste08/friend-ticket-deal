@@ -103,6 +103,12 @@ const Admin = () => {
         u.messages_sent === 0 &&
         u.messages_received === 0
       );
+    } else if (filterKey === 'no_password') {
+      result = result.filter(u => !u.has_password);
+    } else if (filterKey === 'password_never_signed_in') {
+      result = result.filter(u => u.has_password && !u.last_sign_in_at);
+    } else if (filterKey === 'active_user') {
+      result = result.filter(u => !!u.last_sign_in_at);
     }
 
     const dir = sortOrder === 'desc' ? -1 : 1;
