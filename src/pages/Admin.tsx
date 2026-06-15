@@ -27,6 +27,7 @@ interface UserStats {
   messages_received: number;
   last_sign_in_at: string | null;
   has_password: boolean | null;
+  password_set_at: string | null;
 }
 
 interface FriendRow {
@@ -104,9 +105,9 @@ const Admin = () => {
         u.messages_received === 0
       );
     } else if (filterKey === 'no_password') {
-      result = result.filter(u => !u.has_password);
+      result = result.filter(u => !u.password_set_at);
     } else if (filterKey === 'password_never_signed_in') {
-      result = result.filter(u => u.has_password && !u.last_sign_in_at);
+      result = result.filter(u => !!u.password_set_at && !u.last_sign_in_at);
     } else if (filterKey === 'active_user') {
       result = result.filter(u => !!u.last_sign_in_at);
     }
@@ -267,7 +268,7 @@ const Admin = () => {
                     : 'bg-card border-border hover:border-red-500/20'
                 }`}
               >
-                <span className="text-lg font-bold">{users.filter(u => !u.has_password).length}</span>
+                <span className="text-lg font-bold">{users.filter(u => !u.password_set_at).length}</span>
                 <span className="text-xs text-muted-foreground">Sin contraseña</span>
               </button>
               <button
@@ -278,7 +279,7 @@ const Admin = () => {
                     : 'bg-card border-border hover:border-orange-500/20'
                 }`}
               >
-                <span className="text-lg font-bold">{users.filter(u => u.has_password && !u.last_sign_in_at).length}</span>
+                <span className="text-lg font-bold">{users.filter(u => !!u.password_set_at && !u.last_sign_in_at).length}</span>
                 <span className="text-xs text-muted-foreground">Nunca entró</span>
               </button>
               <button
