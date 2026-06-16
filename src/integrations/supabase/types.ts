@@ -609,6 +609,7 @@ export type Database = {
       get_admin_user_stats: {
         Args: never
         Returns: {
+          account_state: string
           active_tickets: number
           active_wanted: number
           created_at: string

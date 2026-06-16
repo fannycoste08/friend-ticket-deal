@@ -27,6 +27,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Backfill password_set_at on first sign-in for historical users
+        // (those who created their password before the column existed).
+        if (event === 'SIGNED_IN' && session?.user) {
+          const userId = session.user.id;
+          setTimeout(() => {
+            supabase
+              .from('profiles')
+              .update({ password_set_at: new Date().toISOString() })
+              .eq('id', userId)
+              .is('password_set_at', null)
+              .then(({ error }) => {
+                if (error) console.warn('[AuthContext] password_set_at backfill failed:', error.message);
+              });
+          }, 0);
+        }
       }
     );
 
