@@ -1,4 +1,4 @@
-import { Pencil, Trash2, CheckCircle } from "lucide-react";
+import { Pencil, Trash2, CheckCircle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -19,9 +19,10 @@ interface MyTicketCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onMarkAsSold: () => void;
+  onMarkAsAvailable: () => void;
 }
 
-export const MyTicketCard = ({ ticket, onEdit, onDelete, onMarkAsSold }: MyTicketCardProps) => {
+export const MyTicketCard = ({ ticket, onEdit, onDelete, onMarkAsSold, onMarkAsAvailable }: MyTicketCardProps) => {
   const isSold = ticket.status === "sold";
 
   return (
@@ -55,10 +56,20 @@ export const MyTicketCard = ({ ticket, onEdit, onDelete, onMarkAsSold }: MyTicke
       )}
 
       {isSold ? (
-        <Button variant="outline" size="sm" onClick={onDelete} className="w-full">
-          <Trash2 className="w-3 h-3 mr-1" />
-          Eliminar
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={onMarkAsAvailable} className="flex-1">
+            <RotateCcw className="w-3 h-3 mr-1" />
+            Volver a poner en venta
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onDelete}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
       ) : (
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={onEdit} className="flex-1">

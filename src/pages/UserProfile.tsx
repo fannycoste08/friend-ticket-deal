@@ -92,7 +92,6 @@ const UserProfile = () => {
         profiles!tickets_user_id_fkey(name)
       `)
       .eq('user_id', userId)
-      .eq('status', 'available')
       .order('created_at', { ascending: false });
 
     setTickets(ticketsData || []);
