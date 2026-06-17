@@ -51,10 +51,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Validate email format
-    if (!validateEmail(invitee_email)) {
+    // Validate email formats
+    const inviteeEmailCheck = validateEmail(invitee_email);
+    if (!inviteeEmailCheck.valid) {
       return new Response(
-        JSON.stringify({ error: 'Invalid email format' }),
+        JSON.stringify({ error: inviteeEmailCheck.error || 'Invalid email format' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const inviterEmailCheck = validateEmail(inviter_email);
+    if (!inviterEmailCheck.valid) {
+      return new Response(
+        JSON.stringify({ error: inviterEmailCheck.error || 'Invalid email format' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
