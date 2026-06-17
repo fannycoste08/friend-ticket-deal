@@ -115,7 +115,6 @@ const Feed = () => {
     const { data, error } = await supabase
       .from("tickets")
       .select(`*, profiles!tickets_user_id_fkey(name)`)
-      .eq("status", "available")
       .in("user_id", allowedUserIds)
       .order("created_at", { ascending: false });
 

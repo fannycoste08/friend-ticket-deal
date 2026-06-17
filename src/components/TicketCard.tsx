@@ -18,6 +18,7 @@ interface TicketCardProps {
     user_id: string;
     description?: string;
     quantity?: number;
+    status?: string;
   };
   currentUserId?: string;
   networkDegree?: number;
@@ -34,6 +35,7 @@ export const TicketCard = ({
 }: TicketCardProps) => {
   const navigate = useNavigate();
   const isMyTicket = currentUserId === ticket.user_id;
+  const isSold = ticket.status === "sold";
 
   const getNetworkLabel = () => {
     if (!networkDegree) return null;
@@ -49,7 +51,11 @@ export const TicketCard = ({
   const networkLabel = getNetworkLabel();
 
   return (
-    <div className="bg-card rounded-2xl border border-border/40 p-3 md:p-6 hover-glow group transition-all duration-300">
+    <div
+      className={`bg-card rounded-2xl border border-border/40 p-3 md:p-6 hover-glow group transition-all duration-300 ${
+        isSold ? "opacity-70" : ""
+      }`}
+    >
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
           <h3 className="text-[15px] md:text-xl font-bold text-foreground tracking-tight mb-1 group-hover:gradient-text transition-colors">
@@ -70,6 +76,16 @@ export const TicketCard = ({
         </div>
         <div className="text-right shrink-0">
           <span className="text-2xl font-bold gradient-text">{ticket.price}€</span>
+          {isSold && (
+            <div className="mt-1">
+              <Badge
+                variant="outline"
+                className="text-xs bg-accent/10 text-accent border-accent/20"
+              >
+                Vendida
+              </Badge>
+            </div>
+          )}
         </div>
       </div>
 
@@ -106,7 +122,11 @@ export const TicketCard = ({
         <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{ticket.description}</p>
       )}
 
-      {isMyTicket ? (
+      {isSold ? (
+        <Button variant="outline" className="w-full" disabled>
+          Vendida
+        </Button>
+      ) : isMyTicket ? (
         <Button variant="outline" className="w-full" disabled>
           Tu entrada
         </Button>

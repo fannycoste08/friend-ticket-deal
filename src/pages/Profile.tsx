@@ -250,6 +250,16 @@ const Profile = () => {
     loadTickets();
   };
 
+  const handleMarkAsAvailable = async (id: string) => {
+    const { error } = await supabase.from("tickets").update({ status: "available" }).eq("id", id);
+    if (error) {
+      toast.error("Error al volver a poner en venta");
+      return;
+    }
+    toast.success("Entrada de nuevo en venta");
+    loadTickets();
+  };
+
   const loadWantedTickets = async () => {
     if (!user) return;
     setLoadingWanted(true);
@@ -714,6 +724,7 @@ const Profile = () => {
                   onEdit={() => setEditingTicket(ticket)}
                   onDelete={() => handleDeleteTicket(ticket.id)}
                   onMarkAsSold={() => handleMarkAsSold(ticket.id)}
+                  onMarkAsAvailable={() => handleMarkAsAvailable(ticket.id)}
                 />
               ))}
             </div>
