@@ -130,7 +130,11 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
                     handleChange('event_date', date);
                     if (date) setShowCalendar(false);
                   }}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return date < today;
+                  }}
                   initialFocus
                   fixedWeeks
                   showOutsideDays
