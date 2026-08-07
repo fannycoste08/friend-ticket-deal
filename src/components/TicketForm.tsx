@@ -173,7 +173,7 @@ const TicketForm = ({ onSuccess, editTicket }: TicketFormProps) => {
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-[286px] p-0" align="start">
-                <Calendar mode="single" selected={formData.event_date} onSelect={(date) => handleChange('event_date', date)} disabled={(date) => date < new Date()} initialFocus fixedWeeks showOutsideDays className={cn("p-3 pointer-events-auto")} />
+                <Calendar mode="single" selected={formData.event_date} onSelect={(date) => handleChange('event_date', date)} disabled={(date) => { const today = new Date(); today.setHours(0, 0, 0, 0); return date < today; }} initialFocus fixedWeeks showOutsideDays className={cn("p-3 pointer-events-auto")} />
               </PopoverContent>
             </Popover>
           </div>
