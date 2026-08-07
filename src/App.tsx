@@ -29,6 +29,7 @@ import About from "./pages/About";
 import Musica from "./pages/Musica";
 import ComoFunciona from "./pages/ComoFunciona";
 import Admin from "./pages/Admin";
+import OAuthConsent from "./pages/OAuthConsent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
               <Route path="/create-password" element={<CreatePassword />} />
               <Route path="/register" element={<Register />} />
               <Route path="/invite/:token" element={<Invite />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route 
                 path="/create-test-user" 
                 element={

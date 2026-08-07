@@ -1,0 +1,274 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://ystnsszlaqhwysgptysd.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "trusticket",
+      "version": "0.1.0",
+      "title": "Trusticket"
+    },
+    "tools": [
+      {
+        "name": "list_feed_tickets",
+        "title": "Listar entradas a la venta",
+        "description": "Lista las entradas de concierto a la venta visibles en la red de confianza del usuario (amigos y amigos de amigos). Permite filtrar por artista o ciudad.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "artist": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Filtro parcial por nombre de artista."
+            },
+            "city": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Filtro parcial por ciudad."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "description": "Número máximo de entradas."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_wanted_tickets",
+        "title": "Listar entradas buscadas",
+        "description": "Lista las entradas que la red de confianza del usuario está buscando. Útil para saber a quién le puedes ofrecer una entrada.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "artist": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Filtro parcial por nombre de artista."
+            },
+            "city": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Filtro parcial por ciudad."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "description": "Número máximo de resultados."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_tickets",
+        "title": "Listar mis entradas",
+        "description": "Lista las entradas publicadas por el propio usuario, incluyendo su estado (available o sold), y también sus búsquedas activas.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "available",
+                "sold",
+                "all"
+              ],
+              "default": "all",
+              "description": "Filtrar por estado de la entrada."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_ticket",
+        "title": "Publicar entrada a la venta",
+        "description": "Publica una entrada de concierto a la venta en la red de confianza del usuario. El precio debe respetar el precio original (Trusticket no permite especulación).",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "artist": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Nombre del artista o grupo."
+            },
+            "venue": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 150,
+              "description": "Sala o recinto del concierto."
+            },
+            "city": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Ciudad del concierto."
+            },
+            "event_date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Fecha del evento en formato YYYY-MM-DD."
+            },
+            "price": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Precio por entrada en euros."
+            },
+            "quantity": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "default": 1,
+              "description": "Número de entradas disponibles."
+            },
+            "ticket_type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60,
+              "description": "Tipo de entrada (p. ej. General, Pista, Grada)."
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Nota opcional, máximo 100 caracteres."
+            }
+          },
+          "required": [
+            "artist",
+            "venue",
+            "city",
+            "event_date",
+            "price",
+            "ticket_type"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_wanted_ticket",
+        "title": "Publicar búsqueda de entrada",
+        "description": "Publica una búsqueda de entrada para que la red de confianza del usuario sepa qué concierto está buscando.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "artist": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Nombre del artista o grupo que busca."
+            },
+            "city": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Ciudad del concierto."
+            },
+            "event_date": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+              "description": "Fecha del evento en formato YYYY-MM-DD."
+            },
+            "email_notifications": {
+              "type": "boolean",
+              "default": true,
+              "description": "Recibir email cuando aparezca una entrada que coincida."
+            }
+          },
+          "required": [
+            "artist",
+            "city",
+            "event_date"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "update_ticket_status",
+        "title": "Marcar entrada como vendida o disponible",
+        "description": "Cambia el estado de una entrada propia entre 'available' (en venta) y 'sold' (vendida). Solo afecta a entradas del propio usuario.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "ticket_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID de la entrada a actualizar."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "available",
+                "sold"
+              ],
+              "description": "Nuevo estado de la entrada."
+            }
+          },
+          "required": [
+            "ticket_id",
+            "status"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,14 +10,19 @@ import concertHero from "@/assets/concert-hero.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signIn, user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Only allow same-origin relative paths as a post-login redirect target.
+  const rawNext = searchParams.get("next");
+  const nextPath = rawNext && /^\/(?!\/)/.test(rawNext) ? rawNext : null;
+
   if (user) {
-    navigate("/");
+    navigate(nextPath ?? "/");
     return null;
   }
 
@@ -38,6 +43,10 @@ const Login = () => {
     }
 
     toast.success("¡Bienvenido!");
+    if (nextPath) {
+      window.location.href = nextPath;
+      return;
+    }
     navigate("/");
   };
 
