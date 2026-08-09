@@ -286,7 +286,7 @@ const Admin = () => {
 
           <TabsContent value="users">
             {/* Resumen de tipos de usuario */}
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
               <button
                 onClick={() => setFilterKey('all')}
                 className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
@@ -330,6 +330,17 @@ const Admin = () => {
               >
                 <span className="text-lg font-bold">{users.filter(u => !!u.last_sign_in_at).length}</span>
                 <span className="text-xs text-muted-foreground">Activos</span>
+              </button>
+              <button
+                onClick={() => setFilterKey('can_email')}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  filterKey === 'can_email'
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                    : 'bg-card border-border hover:border-emerald-500/20'
+                }`}
+              >
+                <span className="text-lg font-bold">{users.filter(canEmail).length}</span>
+                <span className="text-xs text-muted-foreground">Puedo escribir</span>
               </button>
               <button
                 onClick={() => setFilterKey('no_friends')}
