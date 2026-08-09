@@ -5,10 +5,12 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 import {
   Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, ArrowUpDown,
   Search, ListChecks, ChevronDown, ChevronRight, UserPlus, Loader2,
-  Ticket, MessageSquare, Heart, Filter,
+  Ticket, MessageSquare, Heart, Filter, MailCheck, MailX, Copy, Ban,
 } from 'lucide-react';
 import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
@@ -28,6 +30,7 @@ interface UserStats {
   last_sign_in_at: string | null;
   has_password: boolean | null;
   password_set_at: string | null;
+  newsletter_unsubscribed: boolean | null;
 }
 
 interface FriendRow {
@@ -77,7 +80,10 @@ interface UserDetails {
 }
 
 type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at';
-type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user';
+type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user' | 'can_email' | 'unsubscribed';
+
+const canEmail = (u: { last_sign_in_at: string | null; newsletter_unsubscribed: boolean | null }) =>
+  !!u.last_sign_in_at && u.newsletter_unsubscribed !== true;
 
 const Admin = () => {
   const [users, setUsers] = useState<UserStats[]>([]);
@@ -110,6 +116,10 @@ const Admin = () => {
       result = result.filter(u => !!u.password_set_at && !u.last_sign_in_at);
     } else if (filterKey === 'active_user') {
       result = result.filter(u => !!u.last_sign_in_at);
+    } else if (filterKey === 'can_email') {
+      result = result.filter(canEmail);
+    } else if (filterKey === 'unsubscribed') {
+      result = result.filter(u => u.newsletter_unsubscribed === true);
     }
 
     const dir = sortOrder === 'desc' ? -1 : 1;
@@ -149,6 +159,34 @@ const Admin = () => {
     const { data, error } = await supabase.rpc('get_admin_user_stats');
     if (!error) setUsers((data as UserStats[]) || []);
     setLoading(false);
+  };
+
+  const toggleNewsletterUnsubscribed = async (userId: string, value: boolean) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, newsletter_unsubscribed: value } : u));
+    const { error } = await supabase.rpc('admin_set_newsletter_unsubscribed', {
+      _user_id: userId,
+      _value: value,
+    });
+    if (error) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, newsletter_unsubscribed: !value } : u));
+      toast.error('No se pudo actualizar la baja de newsletter');
+      return;
+    }
+    toast.success(value ? 'Marcado como dado de baja' : 'Baja de newsletter retirada');
+  };
+
+  const copyFilteredEmails = async () => {
+    const emails = filteredUsers.filter(canEmail).map(u => u.email).filter(Boolean);
+    if (emails.length === 0) {
+      toast.error('No hay emails que copiar');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(emails.join(', '));
+      toast.success(`${emails.length} emails copiados al portapapeles`);
+    } catch {
+      toast.error('No se pudo copiar al portapapeles');
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -248,7 +286,7 @@ const Admin = () => {
 
           <TabsContent value="users">
             {/* Resumen de tipos de usuario */}
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
               <button
                 onClick={() => setFilterKey('all')}
                 className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
@@ -292,6 +330,17 @@ const Admin = () => {
               >
                 <span className="text-lg font-bold">{users.filter(u => !!u.last_sign_in_at).length}</span>
                 <span className="text-xs text-muted-foreground">Activos</span>
+              </button>
+              <button
+                onClick={() => setFilterKey('can_email')}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all ${
+                  filterKey === 'can_email'
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-500'
+                    : 'bg-card border-border hover:border-emerald-500/20'
+                }`}
+              >
+                <span className="text-lg font-bold">{users.filter(canEmail).length}</span>
+                <span className="text-xs text-muted-foreground">Puedo escribir</span>
               </button>
               <button
                 onClick={() => setFilterKey('no_friends')}
@@ -349,6 +398,30 @@ const Admin = () => {
                 >
                   Activos
                 </Button>
+                <Button
+                  size="sm"
+                  variant={filterKey === 'can_email' ? 'default' : 'outline'}
+                  onClick={() => setFilterKey('can_email')}
+                  className={`gap-1 ${filterKey === 'can_email' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                >
+                  <MailCheck className="w-3.5 h-3.5" />
+                  Puedo escribir
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filterKey === 'unsubscribed' ? 'default' : 'outline'}
+                  onClick={() => setFilterKey('unsubscribed')}
+                  className="gap-1"
+                >
+                  <Ban className="w-3.5 h-3.5" />
+                  Dados de baja
+                </Button>
+                {filterKey === 'can_email' && (
+                  <Button size="sm" onClick={copyFilteredEmails} className="gap-1">
+                    <Copy className="w-3.5 h-3.5" />
+                    Copiar emails ({filteredUsers.filter(canEmail).length})
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant={filterKey === 'no_friends' ? 'default' : 'outline'}
@@ -414,18 +487,21 @@ const Admin = () => {
                       >
                         <span className="inline-flex items-center gap-1">Último acceso <SortIcon column="last_sign_in_at" /></span>
                       </th>
+                      <th className="text-center px-4 py-3 font-medium text-sm whitespace-nowrap">
+                        Newsletter
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={9} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={9} className="text-center py-8 text-muted-foreground">
                           {searchQuery || filterKey !== 'all' ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
@@ -496,10 +572,35 @@ const Admin = () => {
                                   <span className="text-destructive font-medium">Sin contraseña</span>
                                 )}
                               </td>
+                              <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center justify-center gap-2">
+                                  {user.newsletter_unsubscribed ? (
+                                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground" title="Dado de baja">
+                                      <Ban className="w-3.5 h-3.5" />
+                                      Baja
+                                    </span>
+                                  ) : canEmail(user) ? (
+                                    <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-500" title="Puede recibir emails">
+                                      <MailCheck className="w-3.5 h-3.5" />
+                                      Sí
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive" title="No ha iniciado sesión nunca">
+                                      <MailX className="w-3.5 h-3.5" />
+                                      No
+                                    </span>
+                                  )}
+                                  <Switch
+                                    checked={!!user.newsletter_unsubscribed}
+                                    onCheckedChange={(checked) => toggleNewsletterUnsubscribed(user.id, checked)}
+                                    aria-label="Marcar baja de newsletter"
+                                  />
+                                </div>
+                              </td>
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
-                                <td colSpan={8} className="px-6 py-4">
+                                <td colSpan={9} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Loader2 className="w-4 h-4 animate-spin" />

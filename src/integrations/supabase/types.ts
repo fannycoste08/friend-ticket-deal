@@ -296,6 +296,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          newsletter_unsubscribed: boolean
           password_set_at: string | null
           updated_at: string
         }
@@ -304,6 +305,7 @@ export type Database = {
           email: string
           id: string
           name: string
+          newsletter_unsubscribed?: boolean
           password_set_at?: string | null
           updated_at?: string
         }
@@ -312,6 +314,7 @@ export type Database = {
           email?: string
           id?: string
           name?: string
+          newsletter_unsubscribed?: boolean
           password_set_at?: string | null
           updated_at?: string
         }
@@ -597,6 +600,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_set_newsletter_unsubscribed: {
+        Args: { _user_id: string; _value: boolean }
+        Returns: undefined
+      }
       cleanup_old_ip_rate_limits: { Args: never; Returns: undefined }
       delete_expired_tickets: { Args: never; Returns: undefined }
       generate_invitation_slug: { Args: { _user_id: string }; Returns: string }
@@ -621,6 +628,7 @@ export type Database = {
           messages_received: number
           messages_sent: number
           name: string
+          newsletter_unsubscribed: boolean
           password_set_at: string
         }[]
       }
