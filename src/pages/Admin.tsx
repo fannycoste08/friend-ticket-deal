@@ -487,18 +487,21 @@ const Admin = () => {
                       >
                         <span className="inline-flex items-center gap-1">Último acceso <SortIcon column="last_sign_in_at" /></span>
                       </th>
+                      <th className="text-center px-4 py-3 font-medium text-sm whitespace-nowrap">
+                        Newsletter
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={9} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={9} className="text-center py-8 text-muted-foreground">
                           {searchQuery || filterKey !== 'all' ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
@@ -569,10 +572,35 @@ const Admin = () => {
                                   <span className="text-destructive font-medium">Sin contraseña</span>
                                 )}
                               </td>
+                              <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-center justify-center gap-2">
+                                  {user.newsletter_unsubscribed ? (
+                                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground" title="Dado de baja">
+                                      <Ban className="w-3.5 h-3.5" />
+                                      Baja
+                                    </span>
+                                  ) : canEmail(user) ? (
+                                    <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-500" title="Puede recibir emails">
+                                      <MailCheck className="w-3.5 h-3.5" />
+                                      Sí
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-xs font-medium text-destructive" title="No ha iniciado sesión nunca">
+                                      <MailX className="w-3.5 h-3.5" />
+                                      No
+                                    </span>
+                                  )}
+                                  <Switch
+                                    checked={!!user.newsletter_unsubscribed}
+                                    onCheckedChange={(checked) => toggleNewsletterUnsubscribed(user.id, checked)}
+                                    aria-label="Marcar baja de newsletter"
+                                  />
+                                </div>
+                              </td>
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
-                                <td colSpan={8} className="px-6 py-4">
+                                <td colSpan={9} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Loader2 className="w-4 h-4 animate-spin" />
