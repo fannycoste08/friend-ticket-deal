@@ -400,6 +400,30 @@ const Admin = () => {
                 </Button>
                 <Button
                   size="sm"
+                  variant={filterKey === 'can_email' ? 'default' : 'outline'}
+                  onClick={() => setFilterKey('can_email')}
+                  className={`gap-1 ${filterKey === 'can_email' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                >
+                  <MailCheck className="w-3.5 h-3.5" />
+                  Puedo escribir
+                </Button>
+                <Button
+                  size="sm"
+                  variant={filterKey === 'unsubscribed' ? 'default' : 'outline'}
+                  onClick={() => setFilterKey('unsubscribed')}
+                  className="gap-1"
+                >
+                  <Ban className="w-3.5 h-3.5" />
+                  Dados de baja
+                </Button>
+                {filterKey === 'can_email' && (
+                  <Button size="sm" onClick={copyFilteredEmails} className="gap-1">
+                    <Copy className="w-3.5 h-3.5" />
+                    Copiar emails ({filteredUsers.filter(canEmail).length})
+                  </Button>
+                )}
+                <Button
+                  size="sm"
                   variant={filterKey === 'no_friends' ? 'default' : 'outline'}
                   onClick={() => setFilterKey('no_friends')}
                 >
