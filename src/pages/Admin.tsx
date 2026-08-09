@@ -161,6 +161,34 @@ const Admin = () => {
     setLoading(false);
   };
 
+  const toggleNewsletterUnsubscribed = async (userId: string, value: boolean) => {
+    setUsers(prev => prev.map(u => u.id === userId ? { ...u, newsletter_unsubscribed: value } : u));
+    const { error } = await supabase.rpc('admin_set_newsletter_unsubscribed', {
+      _user_id: userId,
+      _value: value,
+    });
+    if (error) {
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, newsletter_unsubscribed: !value } : u));
+      toast.error('No se pudo actualizar la baja de newsletter');
+      return;
+    }
+    toast.success(value ? 'Marcado como dado de baja' : 'Baja de newsletter retirada');
+  };
+
+  const copyFilteredEmails = async () => {
+    const emails = filteredUsers.filter(canEmail).map(u => u.email).filter(Boolean);
+    if (emails.length === 0) {
+      toast.error('No hay emails que copiar');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(emails.join(', '));
+      toast.success(`${emails.length} emails copiados al portapapeles`);
+    } catch {
+      toast.error('No se pudo copiar al portapapeles');
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: 'numeric', month: 'short', year: 'numeric',
