@@ -5,10 +5,12 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 import {
   Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, ArrowUpDown,
   Search, ListChecks, ChevronDown, ChevronRight, UserPlus, Loader2,
-  Ticket, MessageSquare, Heart, Filter,
+  Ticket, MessageSquare, Heart, Filter, MailCheck, MailX, Copy, Ban,
 } from 'lucide-react';
 import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
@@ -28,6 +30,7 @@ interface UserStats {
   last_sign_in_at: string | null;
   has_password: boolean | null;
   password_set_at: string | null;
+  newsletter_unsubscribed: boolean | null;
 }
 
 interface FriendRow {
@@ -77,7 +80,10 @@ interface UserDetails {
 }
 
 type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at';
-type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user';
+type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user' | 'can_email' | 'unsubscribed';
+
+const canEmail = (u: { last_sign_in_at: string | null; newsletter_unsubscribed: boolean | null }) =>
+  !!u.last_sign_in_at && u.newsletter_unsubscribed !== true;
 
 const Admin = () => {
   const [users, setUsers] = useState<UserStats[]>([]);
@@ -110,6 +116,10 @@ const Admin = () => {
       result = result.filter(u => !!u.password_set_at && !u.last_sign_in_at);
     } else if (filterKey === 'active_user') {
       result = result.filter(u => !!u.last_sign_in_at);
+    } else if (filterKey === 'can_email') {
+      result = result.filter(canEmail);
+    } else if (filterKey === 'unsubscribed') {
+      result = result.filter(u => u.newsletter_unsubscribed === true);
     }
 
     const dir = sortOrder === 'desc' ? -1 : 1;
