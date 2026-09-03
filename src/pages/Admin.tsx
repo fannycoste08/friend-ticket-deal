@@ -739,7 +739,10 @@ const Admin = () => {
                                   <Badge variant="outline" className="border-orange-500/40 text-orange-400 px-1.5 py-0 text-[11px]" title="Invitación pendiente de aprobación">
                                     A1
                                   </Badge>
+                                ) : user.invite_origin === 'registrado' ? (
+                                  <span className="text-muted-foreground text-[11px]" title="Ya completó el registro (creó su contraseña)">Registrado</span>
                                 ) : (
+
                                   <span className="text-muted-foreground/50">—</span>
                                 )}
                               </td>
