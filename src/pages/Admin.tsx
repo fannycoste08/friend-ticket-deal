@@ -713,6 +713,23 @@ const Admin = () => {
                                   />
                                 </div>
                               </td>
+                              <td className="px-4 py-3 text-center text-sm">
+                                {user.invite_origin === 'B' ? (
+                                  <Badge variant="outline" className="border-purple-500/40 text-purple-400" title="Invitado directamente por otro usuario">
+                                    Grupo B
+                                  </Badge>
+                                ) : user.invite_origin === 'A2' ? (
+                                  <Badge variant="outline" className="border-blue-500/40 text-blue-400" title="Pidió acceso él mismo y fue aprobado después">
+                                    Grupo A2
+                                  </Badge>
+                                ) : user.invite_origin === 'pendiente' ? (
+                                  <Badge variant="outline" className="border-orange-500/40 text-orange-400" title="Invitación pendiente de aprobación">
+                                    Grupo A1
+                                  </Badge>
+                                ) : (
+                                  <span className="text-muted-foreground/50">—</span>
+                                )}
+                              </td>
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
