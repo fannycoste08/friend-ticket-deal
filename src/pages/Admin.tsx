@@ -83,7 +83,7 @@ interface UserDetails {
   wanted: WantedRow[];
 }
 
-type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at' | 'invite_origin';
+type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at' | 'invite_origin' | 'password_set_at';
 type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user' | 'can_email' | 'unsubscribed';
 
 const canEmail = (u: { last_sign_in_at: string | null; newsletter_unsubscribed: boolean | null }) =>
@@ -157,6 +157,18 @@ const Admin = () => {
           const rank = (v: string) => (order.indexOf(v) === -1 ? 99 : order.indexOf(v));
           return (rank(aVal) - rank(bVal)) * dir;
         }
+        case 'password_set_at': {
+
+          // Sin contraseña (null) siempre al final
+          const aNull = !a.password_set_at;
+          const bNull = !b.password_set_at;
+          if (aNull && bNull) return 0;
+          if (aNull) return 1;
+          if (bNull) return -1;
+          return (new Date(a.password_set_at!).getTime() - new Date(b.password_set_at!).getTime()) * dir;
+        }
+
+
 
         case 'created_at':
         default:
@@ -605,11 +617,25 @@ const Admin = () => {
                         Newsletter
                       </th>
                       <th
-                        className="text-center px-2 py-2 font-medium text-xs cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap"
-                        onClick={() => toggleSort('invite_origin')}
+                        className="text-center px-2 py-2 font-medium text-xs select-none whitespace-nowrap"
                       >
-                        <span className="inline-flex items-center gap-1">Origen <SortIcon column="invite_origin" /></span>
+                        <span className="inline-flex items-center gap-2">
+                          <span
+                            className="inline-flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"
+                            onClick={() => toggleSort('invite_origin')}
+                          >
+                            Origen <SortIcon column="invite_origin" />
+                          </span>
+                          <span
+                            className="inline-flex items-center gap-1 cursor-pointer text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                            onClick={() => toggleSort('password_set_at')}
+                            title="Ordenar por fecha de creación de contraseña"
+                          >
+                            fecha <SortIcon column="password_set_at" />
+                          </span>
+                        </span>
                       </th>
+
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -740,7 +766,15 @@ const Admin = () => {
                                     A1
                                   </Badge>
                                 ) : user.invite_origin === 'registrado' ? (
-                                  <span className="text-muted-foreground text-[11px]" title="Ya completó el registro (creó su contraseña)">Registrado</span>
+                                  <span className="text-muted-foreground text-[11px] leading-tight block" title="Ya completó el registro (creó su contraseña)">
+                                    Registrado
+                                    {user.password_set_at && (
+                                      <span className="block text-[10px] text-muted-foreground/70">
+                                        {new Date(user.password_set_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                                      </span>
+                                    )}
+                                  </span>
+
                                 ) : (
 
                                   <span className="text-muted-foreground/50">—</span>
