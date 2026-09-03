@@ -86,7 +86,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
     onSuccess?.();
   };
 
-  const handleChange = (field: string, value: string | Date | undefined) => {
+  const handleChange = (field: string, value: string | number | Date | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
