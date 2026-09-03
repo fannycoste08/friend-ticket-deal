@@ -595,6 +595,9 @@ const Admin = () => {
                       <th className="text-center px-4 py-3 font-medium text-sm whitespace-nowrap">
                         Newsletter
                       </th>
+                      <th className="text-center px-4 py-3 font-medium text-sm whitespace-nowrap">
+                        Origen
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
