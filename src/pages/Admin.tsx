@@ -83,7 +83,7 @@ interface UserDetails {
   wanted: WantedRow[];
 }
 
-type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at';
+type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at' | 'invite_origin';
 type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user' | 'can_email' | 'unsubscribed';
 
 const canEmail = (u: { last_sign_in_at: string | null; newsletter_unsubscribed: boolean | null }) =>
@@ -148,6 +148,16 @@ const Admin = () => {
           if (!aNull && bNull) return 1;
           if (aNull && bNull) return 0;
           return (new Date(a.last_sign_in_at!).getTime() - new Date(b.last_sign_in_at!).getTime()) * dir;
+        }
+        case 'invite_origin': {
+          const order = ['A1', 'A2', 'B'];
+          const aVal = a.invite_origin ?? '';
+          const bVal = b.invite_origin ?? '';
+          const aIdx = order.indexOf(aVal);
+          const bIdx = order.indexOf(bVal);
+          // Orden predefinido A1 → A2 → B → resto; luego se invierte con dir
+          const rank = (v: string) => (order.indexOf(v) === -1 ? 99 : order.indexOf(v));
+          return (rank(aVal) - rank(bVal)) * dir;
         }
         case 'created_at':
         default:
@@ -595,8 +605,11 @@ const Admin = () => {
                       <th className="text-center px-2 py-2 font-medium text-xs whitespace-nowrap">
                         Newsletter
                       </th>
-                      <th className="text-center px-2 py-2 font-medium text-xs whitespace-nowrap">
-                        Origen
+                      <th
+                        className="text-center px-2 py-2 font-medium text-xs cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap"
+                        onClick={() => toggleSort('invite_origin')}
+                      >
+                        <span className="inline-flex items-center gap-1">Origen <SortIcon column="invite_origin" /></span>
                       </th>
                     </tr>
                   </thead>
