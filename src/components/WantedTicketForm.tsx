@@ -19,6 +19,7 @@ interface WantedTicketFormProps {
     artist: string;
     city: string;
     event_date: string;
+    quantity?: number;
   };
 }
 
