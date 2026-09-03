@@ -605,8 +605,11 @@ const Admin = () => {
                       <th className="text-center px-2 py-2 font-medium text-xs whitespace-nowrap">
                         Newsletter
                       </th>
-                      <th className="text-center px-2 py-2 font-medium text-xs whitespace-nowrap">
-                        Origen
+                      <th
+                        className="text-center px-2 py-2 font-medium text-xs cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap"
+                        onClick={() => toggleSort('invite_origin')}
+                      >
+                        <span className="inline-flex items-center gap-1">Origen <SortIcon column="invite_origin" /></span>
                       </th>
                     </tr>
                   </thead>
