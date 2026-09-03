@@ -10,6 +10,7 @@ interface MyWantedTicketCardProps {
     artist: string;
     city: string;
     event_date: string;
+    quantity?: number;
   };
   onEdit: () => void;
   onDelete: () => void;
