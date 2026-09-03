@@ -6,12 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import {
   Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, ArrowUpDown,
   Search, ListChecks, ChevronDown, ChevronRight, UserPlus, Loader2,
-  Ticket, MessageSquare, Heart, Filter, MailCheck, MailX, Copy, Ban,
+  Ticket, MessageSquare, Heart, Filter, MailCheck, MailX, Copy, Ban, Download,
 } from 'lucide-react';
+
 import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
 import AdminOutreach from '@/components/AdminOutreach';
