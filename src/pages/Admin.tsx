@@ -605,11 +605,25 @@ const Admin = () => {
                         Newsletter
                       </th>
                       <th
-                        className="text-center px-2 py-2 font-medium text-xs cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap"
-                        onClick={() => toggleSort('invite_origin')}
+                        className="text-center px-2 py-2 font-medium text-xs select-none whitespace-nowrap"
                       >
-                        <span className="inline-flex items-center gap-1">Origen <SortIcon column="invite_origin" /></span>
+                        <span className="inline-flex items-center gap-2">
+                          <span
+                            className="inline-flex items-center gap-1 cursor-pointer hover:text-foreground transition-colors"
+                            onClick={() => toggleSort('invite_origin')}
+                          >
+                            Origen <SortIcon column="invite_origin" />
+                          </span>
+                          <span
+                            className="inline-flex items-center gap-1 cursor-pointer text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                            onClick={() => toggleSort('password_set_at')}
+                            title="Ordenar por fecha de creación de contraseña"
+                          >
+                            fecha <SortIcon column="password_set_at" />
+                          </span>
+                        </span>
                       </th>
+
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
