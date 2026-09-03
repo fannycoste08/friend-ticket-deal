@@ -11,6 +11,7 @@ interface WantedTicketCardProps {
     artist: string;
     city: string;
     event_date: string;
+    quantity?: number;
     seeker_name: string;
     user_id: string;
   };
