@@ -33,6 +33,7 @@ interface UserStats {
   has_password: boolean | null;
   password_set_at: string | null;
   newsletter_unsubscribed: boolean | null;
+  invite_origin: string | null;
 }
 
 interface FriendRow {
