@@ -68,6 +68,7 @@ interface WantedRow {
   artist: string;
   event_date: string;
   city: string;
+  quantity?: number;
 }
 
 interface UserDetails {
