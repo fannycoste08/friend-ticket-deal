@@ -31,6 +31,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
   const [formData, setFormData] = useState({
     artist: editTicket?.artist || '',
     city: editTicket?.city || '',
+    quantity: editTicket?.quantity || 1,
     event_date: editTicket?.event_date ? new Date(editTicket.event_date) : undefined as Date | undefined,
     email_notifications: true,
   });
