@@ -6,12 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import {
   Users, UserCheck, FileText, Mail, Send, ArrowUp, ArrowDown, ArrowUpDown,
   Search, ListChecks, ChevronDown, ChevronRight, UserPlus, Loader2,
-  Ticket, MessageSquare, Heart, Filter, MailCheck, MailX, Copy, Ban,
+  Ticket, MessageSquare, Heart, Filter, MailCheck, MailX, Copy, Ban, Download,
 } from 'lucide-react';
+
 import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
 import AdminOutreach from '@/components/AdminOutreach';
@@ -95,6 +97,8 @@ const Admin = () => {
   const [filterKey, setFilterKey] = useState<FilterKey>('all');
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
   const [detailsCache, setDetailsCache] = useState<Record<string, UserDetails>>({});
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
 
   const filteredUsers = useMemo(() => {
     const q = searchQuery.toLowerCase();
@@ -189,6 +193,70 @@ const Admin = () => {
       toast.error('No se pudo copiar al portapapeles');
     }
   };
+
+  const selectedUsers = useMemo(
+    () => users.filter(u => selectedIds.includes(u.id)),
+    [users, selectedIds]
+  );
+  const selectedEmails = selectedUsers.map(u => u.email).filter(Boolean);
+
+  const toggleSelected = (userId: string, checked: boolean) => {
+    setSelectedIds(prev => checked ? [...prev, userId] : prev.filter(id => id !== userId));
+  };
+
+  const allFilteredSelected =
+    filteredUsers.length > 0 && filteredUsers.every(u => selectedIds.includes(u.id));
+
+  const toggleSelectAllFiltered = () => {
+    if (allFilteredSelected) {
+      const ids = new Set(filteredUsers.map(u => u.id));
+      setSelectedIds(prev => prev.filter(id => !ids.has(id)));
+    } else {
+      setSelectedIds(prev => Array.from(new Set([...prev, ...filteredUsers.map(u => u.id)])));
+    }
+  };
+
+  const copySelectedEmails = async () => {
+    if (selectedEmails.length === 0) {
+      toast.error('No has seleccionado a nadie');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(selectedEmails.join(', '));
+      toast.success(`${selectedEmails.length} emails copiados`);
+    } catch {
+      toast.error('No se pudo copiar al portapapeles');
+    }
+  };
+
+  const openGmailWithSelected = () => {
+    if (selectedEmails.length === 0) {
+      toast.error('No has seleccionado a nadie');
+      return;
+    }
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&bcc=${encodeURIComponent(selectedEmails.join(','))}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const downloadSelectedCsv = () => {
+    if (selectedUsers.length === 0) {
+      toast.error('No has seleccionado a nadie');
+      return;
+    }
+    const escape = (v: string) => `"${(v ?? '').replace(/"/g, '""')}"`;
+    const csv = [
+      'Nombre,Email',
+      ...selectedUsers.map(u => `${escape(u.name)},${escape(u.email)}`),
+    ].join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `contactos-trusticket-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast.success(`${selectedUsers.length} contactos descargados`);
+  };
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -440,12 +508,47 @@ const Admin = () => {
               </div>
             </div>
 
+            <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl border border-border bg-card">
+              <Button size="sm" variant="outline" onClick={toggleSelectAllFiltered}>
+                {allFilteredSelected ? 'Deseleccionar visibles' : `Seleccionar visibles (${filteredUsers.length})`}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {selectedIds.length} seleccionados
+              </span>
+              <div className="flex-1" />
+              <Button size="sm" variant="outline" onClick={copySelectedEmails} className="gap-1" disabled={selectedIds.length === 0}>
+                <Copy className="w-3.5 h-3.5" />
+                Copiar emails
+              </Button>
+              <Button size="sm" variant="outline" onClick={downloadSelectedCsv} className="gap-1" disabled={selectedIds.length === 0}>
+                <Download className="w-3.5 h-3.5" />
+                Descargar CSV
+              </Button>
+              <Button size="sm" onClick={openGmailWithSelected} className="gap-1" disabled={selectedIds.length === 0}>
+                <Mail className="w-3.5 h-3.5" />
+                Abrir en Gmail (BCC)
+              </Button>
+              {selectedIds.length > 0 && (
+                <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])}>
+                  Limpiar
+                </Button>
+              )}
+            </div>
+
             <Card className="overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted/50">
                     <tr>
+                      <th className="w-8 px-2 py-3">
+                        <Checkbox
+                          checked={allFilteredSelected}
+                          onCheckedChange={toggleSelectAllFiltered}
+                          aria-label="Seleccionar todos los visibles"
+                        />
+                      </th>
                       <th className="w-8 px-2 py-3"></th>
+
                       <th
                         className="text-left px-4 py-3 font-medium text-sm cursor-pointer select-none hover:text-foreground transition-colors"
                         onClick={() => toggleSort('name')}
@@ -496,13 +599,13 @@ const Admin = () => {
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={9} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={10} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={9} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={10} className="text-center py-8 text-muted-foreground">
                           {searchQuery || filterKey !== 'all' ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
@@ -516,7 +619,15 @@ const Admin = () => {
                               className="hover:bg-muted/30 transition-colors cursor-pointer"
                               onClick={() => toggleUser(user.id)}
                             >
+                              <td className="px-2 py-3" onClick={(e) => e.stopPropagation()}>
+                                <Checkbox
+                                  checked={selectedIds.includes(user.id)}
+                                  onCheckedChange={(checked) => toggleSelected(user.id, !!checked)}
+                                  aria-label={`Seleccionar ${user.name}`}
+                                />
+                              </td>
                               <td className="px-2 py-3 text-muted-foreground">
+
                                 {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                               </td>
                               <td className="px-4 py-3">
@@ -601,7 +712,7 @@ const Admin = () => {
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
-                                <td colSpan={9} className="px-6 py-4">
+                                <td colSpan={10} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Loader2 className="w-4 h-4 animate-spin" />
