@@ -202,6 +202,7 @@ var create_wanted_ticket_default = defineTool5({
   inputSchema: {
     artist: z5.string().trim().min(1).max(100).describe("Nombre del artista o grupo que busca."),
     city: z5.string().trim().min(1).max(100).describe("Ciudad del concierto."),
+    quantity: z5.number().int().min(1).max(99).default(1).optional().describe("N\xFAmero de entradas que busca."),
     event_date: z5.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("Fecha del evento en formato YYYY-MM-DD."),
     email_notifications: z5.boolean().default(true).optional().describe("Recibir email cuando aparezca una entrada que coincida.")
   },
