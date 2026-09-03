@@ -111,7 +111,7 @@ const Musica = () => {
           <div className="rounded-xl overflow-hidden">
             <iframe
               title="Playlist del mes en Spotify"
-              src="https://open.spotify.com/embed/playlist/4trWQJJP2FsRc7tCkWniC2?utm_source=generator"
+              src="https://open.spotify.com/embed/playlist/1tpGKP4vTFnE1pKwGr0Eqz?utm_source=generator"
               width="100%"
               height="80"
               frameBorder="0"
