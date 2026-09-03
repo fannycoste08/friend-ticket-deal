@@ -725,6 +725,7 @@ const Admin = () => {
                                                 <span className="font-medium">{w.artist}</span>
                                                 <span className="text-muted-foreground">{formatDate(w.event_date)}</span>
                                                 <span className="text-muted-foreground">· {w.city}</span>
+                                                <span className="text-muted-foreground">· {w.quantity ?? 1} {w.quantity === 1 ? 'entrada' : 'entradas'}</span>
                                               </li>
                                             ))}
                                           </ul>
