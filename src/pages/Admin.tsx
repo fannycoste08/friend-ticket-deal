@@ -150,15 +150,14 @@ const Admin = () => {
           return (new Date(a.last_sign_in_at!).getTime() - new Date(b.last_sign_in_at!).getTime()) * dir;
         }
         case 'invite_origin': {
-          const order = ['A1', 'A2', 'B'];
-          const aVal = a.invite_origin ?? '';
-          const bVal = b.invite_origin ?? '';
-          const aIdx = order.indexOf(aVal);
-          const bIdx = order.indexOf(bVal);
-          // Orden predefinido A1 → A2 → B → resto; luego se invierte con dir
+          const order = ['A1', 'A2', 'B', 'registrado'];
+          const aVal = a.invite_origin === 'pendiente' ? 'A1' : (a.invite_origin ?? '');
+          const bVal = b.invite_origin === 'pendiente' ? 'A1' : (b.invite_origin ?? '');
+          // Orden predefinido A1 → A2 → B → registrado → resto; luego se invierte con dir
           const rank = (v: string) => (order.indexOf(v) === -1 ? 99 : order.indexOf(v));
           return (rank(aVal) - rank(bVal)) * dir;
         }
+
         case 'created_at':
         default:
           return (new Date(a.created_at).getTime() - new Date(b.created_at).getTime()) * dir;
@@ -740,7 +739,10 @@ const Admin = () => {
                                   <Badge variant="outline" className="border-orange-500/40 text-orange-400 px-1.5 py-0 text-[11px]" title="Invitación pendiente de aprobación">
                                     A1
                                   </Badge>
+                                ) : user.invite_origin === 'registrado' ? (
+                                  <span className="text-muted-foreground text-[11px]" title="Ya completó el registro (creó su contraseña)">Registrado</span>
                                 ) : (
+
                                   <span className="text-muted-foreground/50">—</span>
                                 )}
                               </td>
