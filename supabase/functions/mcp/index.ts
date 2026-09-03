@@ -216,9 +216,10 @@ var create_wanted_ticket_default = defineTool5({
       user_id: ctx.getUserId(),
       artist: input.artist,
       city: input.city,
+      quantity: input.quantity ?? 1,
       event_date: input.event_date,
       email_notifications: input.email_notifications ?? true
-    }).select("id, artist, city, event_date, email_notifications").single();
+    }).select("id, artist, city, event_date, quantity, email_notifications").single();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: `B\xFAsqueda publicada: ${JSON.stringify(data)}` }],
