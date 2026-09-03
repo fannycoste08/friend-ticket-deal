@@ -619,7 +619,15 @@ const Admin = () => {
                               className="hover:bg-muted/30 transition-colors cursor-pointer"
                               onClick={() => toggleUser(user.id)}
                             >
+                              <td className="px-2 py-3" onClick={(e) => e.stopPropagation()}>
+                                <Checkbox
+                                  checked={selectedIds.includes(user.id)}
+                                  onCheckedChange={(checked) => toggleSelected(user.id, !!checked)}
+                                  aria-label={`Seleccionar ${user.name}`}
+                                />
+                              </td>
                               <td className="px-2 py-3 text-muted-foreground">
+
                                 {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                               </td>
                               <td className="px-4 py-3">
