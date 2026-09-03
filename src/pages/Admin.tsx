@@ -766,7 +766,15 @@ const Admin = () => {
                                     A1
                                   </Badge>
                                 ) : user.invite_origin === 'registrado' ? (
-                                  <span className="text-muted-foreground text-[11px]" title="Ya completó el registro (creó su contraseña)">Registrado</span>
+                                  <span className="text-muted-foreground text-[11px] leading-tight block" title="Ya completó el registro (creó su contraseña)">
+                                    Registrado
+                                    {user.password_set_at && (
+                                      <span className="block text-[10px] text-muted-foreground/70">
+                                        {new Date(user.password_set_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                                      </span>
+                                    )}
+                                  </span>
+
                                 ) : (
 
                                   <span className="text-muted-foreground/50">—</span>
