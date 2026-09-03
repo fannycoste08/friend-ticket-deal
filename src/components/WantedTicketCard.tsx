@@ -11,6 +11,7 @@ interface WantedTicketCardProps {
     artist: string;
     city: string;
     event_date: string;
+    quantity?: number;
     seeker_name: string;
     user_id: string;
   };
@@ -66,6 +67,9 @@ export const WantedTicketCard = ({
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="w-3.5 h-3.5 shrink-0" />
               <span>{format(new Date(ticket.event_date), "d 'de' MMMM 'de' yyyy", { locale: es })}</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <span>{ticket.quantity ?? 1} {ticket.quantity === 1 ? 'entrada' : 'entradas'}</span>
             </div>
           </div>
         </div>

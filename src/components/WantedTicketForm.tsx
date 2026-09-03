@@ -19,6 +19,7 @@ interface WantedTicketFormProps {
     artist: string;
     city: string;
     event_date: string;
+    quantity?: number;
   };
 }
 
@@ -30,6 +31,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
   const [formData, setFormData] = useState({
     artist: editTicket?.artist || '',
     city: editTicket?.city || '',
+    quantity: editTicket?.quantity || 1,
     event_date: editTicket?.event_date ? new Date(editTicket.event_date) : undefined as Date | undefined,
     email_notifications: true,
   });
@@ -40,6 +42,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
       setFormData({
         artist: editTicket.artist,
         city: editTicket.city,
+        quantity: editTicket.quantity ?? 1,
         event_date: new Date(editTicket.event_date),
         email_notifications: true,
       });
@@ -55,6 +58,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
     const ticketData = {
       artist: formData.artist,
       city: formData.city,
+      quantity: Math.max(1, Number(formData.quantity) || 1),
       event_date: format(formData.event_date, 'yyyy-MM-dd'),
       email_notifications: formData.email_notifications,
     };
@@ -76,13 +80,13 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
     }
 
     toast.success(editTicket ? '¡Búsqueda actualizada!' : '¡Búsqueda publicada!');
-    setFormData({ artist: '', city: '', event_date: undefined, email_notifications: true });
+    setFormData({ artist: '', city: '', quantity: 1, event_date: undefined, email_notifications: true });
     setOpen(false);
     setLoading(false);
     onSuccess?.();
   };
 
-  const handleChange = (field: string, value: string | Date | undefined) => {
+  const handleChange = (field: string, value: string | number | Date | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -109,6 +113,10 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
           <div className="space-y-2">
             <Label htmlFor="city">Ciudad *</Label>
             <Input id="city" value={formData.city} onChange={(e) => handleChange('city', e.target.value)} placeholder="Ej: Madrid" required className="h-10" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="quantity">Número de entradas *</Label>
+            <Input id="quantity" type="number" min={1} max={99} value={formData.quantity} onChange={(e) => handleChange('quantity', parseInt(e.target.value) || 1)} required className="h-10" />
           </div>
           <div className="space-y-2">
             <Label>Fecha del Concierto *</Label>

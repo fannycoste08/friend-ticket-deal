@@ -10,6 +10,7 @@ export default defineTool({
   inputSchema: {
     artist: z.string().trim().min(1).max(100).describe("Nombre del artista o grupo que busca."),
     city: z.string().trim().min(1).max(100).describe("Ciudad del concierto."),
+    quantity: z.number().int().min(1).max(99).default(1).optional().describe("Número de entradas que busca."),
     event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("Fecha del evento en formato YYYY-MM-DD."),
     email_notifications: z
       .boolean()
@@ -29,10 +30,11 @@ export default defineTool({
         user_id: ctx.getUserId(),
         artist: input.artist,
         city: input.city,
+        quantity: input.quantity ?? 1,
         event_date: input.event_date,
         email_notifications: input.email_notifications ?? true,
       })
-      .select("id, artist, city, event_date, email_notifications")
+      .select("id, artist, city, event_date, quantity, email_notifications")
       .single();
 
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };

@@ -104,7 +104,7 @@ var list_wanted_tickets_default = defineTool2({
       return { content: [{ type: "text", text: "No autenticado" }], isError: true };
     }
     const supabase = supabaseForUser(ctx);
-    let query = supabase.from("wanted_tickets").select("id, artist, city, event_date, created_at").gte("event_date", (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)).order("event_date", { ascending: true }).limit(limit ?? 20);
+    let query = supabase.from("wanted_tickets").select("id, artist, city, event_date, quantity, created_at").gte("event_date", (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)).order("event_date", { ascending: true }).limit(limit ?? 20);
     if (artist) query = query.ilike("artist", `%${artist}%`);
     if (city) query = query.ilike("city", `%${city}%`);
     const { data, error } = await query;
@@ -202,6 +202,7 @@ var create_wanted_ticket_default = defineTool5({
   inputSchema: {
     artist: z5.string().trim().min(1).max(100).describe("Nombre del artista o grupo que busca."),
     city: z5.string().trim().min(1).max(100).describe("Ciudad del concierto."),
+    quantity: z5.number().int().min(1).max(99).default(1).optional().describe("N\xFAmero de entradas que busca."),
     event_date: z5.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("Fecha del evento en formato YYYY-MM-DD."),
     email_notifications: z5.boolean().default(true).optional().describe("Recibir email cuando aparezca una entrada que coincida.")
   },
@@ -215,9 +216,10 @@ var create_wanted_ticket_default = defineTool5({
       user_id: ctx.getUserId(),
       artist: input.artist,
       city: input.city,
+      quantity: input.quantity ?? 1,
       event_date: input.event_date,
       email_notifications: input.email_notifications ?? true
-    }).select("id, artist, city, event_date, email_notifications").single();
+    }).select("id, artist, city, event_date, quantity, email_notifications").single();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: `B\xFAsqueda publicada: ${JSON.stringify(data)}` }],

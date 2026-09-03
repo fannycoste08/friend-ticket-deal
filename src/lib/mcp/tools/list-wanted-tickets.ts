@@ -20,7 +20,7 @@ export default defineTool({
     const supabase = supabaseForUser(ctx);
     let query = supabase
       .from("wanted_tickets")
-      .select("id, artist, city, event_date, created_at")
+      .select("id, artist, city, event_date, quantity, created_at")
       .gte("event_date", new Date().toISOString().slice(0, 10))
       .order("event_date", { ascending: true })
       .limit(limit ?? 20);

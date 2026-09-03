@@ -44,6 +44,7 @@ interface WantedTicket {
   artist: string;
   city: string;
   event_date: string;
+  quantity?: number;
   user_id: string;
   networkDegree?: number;
   mutualFriends?: Array<{ friend_name: string }>;
