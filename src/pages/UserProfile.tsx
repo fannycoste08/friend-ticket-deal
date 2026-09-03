@@ -35,6 +35,7 @@ interface WantedTicket {
   artist: string;
   city: string;
   event_date: string;
+  quantity?: number;
   user_id: string;
   profiles: {
     name: string;
