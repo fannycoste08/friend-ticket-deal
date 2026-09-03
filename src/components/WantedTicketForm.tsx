@@ -115,6 +115,10 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
             <Input id="city" value={formData.city} onChange={(e) => handleChange('city', e.target.value)} placeholder="Ej: Madrid" required className="h-10" />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="quantity">Número de entradas *</Label>
+            <Input id="quantity" type="number" min={1} max={99} value={formData.quantity} onChange={(e) => handleChange('quantity', parseInt(e.target.value) || 1)} required className="h-10" />
+          </div>
+          <div className="space-y-2">
             <Label>Fecha del Concierto *</Label>
             <Button
               type="button"
