@@ -33,6 +33,7 @@ interface UserStats {
   has_password: boolean | null;
   password_set_at: string | null;
   newsletter_unsubscribed: boolean | null;
+  invite_origin: string | null;
 }
 
 interface FriendRow {
@@ -594,18 +595,21 @@ const Admin = () => {
                       <th className="text-center px-4 py-3 font-medium text-sm whitespace-nowrap">
                         Newsletter
                       </th>
+                      <th className="text-center px-4 py-3 font-medium text-sm whitespace-nowrap">
+                        Origen
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {loading ? (
                       <tr>
-                        <td colSpan={10} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={11} className="text-center py-8 text-muted-foreground">
                           Cargando usuarios...
                         </td>
                       </tr>
                     ) : filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={10} className="text-center py-8 text-muted-foreground">
+                        <td colSpan={11} className="text-center py-8 text-muted-foreground">
                           {searchQuery || filterKey !== 'all' ? 'No se encontraron resultados' : 'No hay usuarios registrados'}
                         </td>
                       </tr>
@@ -709,10 +713,27 @@ const Admin = () => {
                                   />
                                 </div>
                               </td>
+                              <td className="px-4 py-3 text-center text-sm">
+                                {user.invite_origin === 'B' ? (
+                                  <Badge variant="outline" className="border-purple-500/40 text-purple-400" title="Invitado directamente por otro usuario">
+                                    Grupo B
+                                  </Badge>
+                                ) : user.invite_origin === 'A2' ? (
+                                  <Badge variant="outline" className="border-blue-500/40 text-blue-400" title="Pidió acceso él mismo y fue aprobado después">
+                                    Grupo A2
+                                  </Badge>
+                                ) : user.invite_origin === 'pendiente' ? (
+                                  <Badge variant="outline" className="border-orange-500/40 text-orange-400" title="Invitación pendiente de aprobación">
+                                    Grupo A1
+                                  </Badge>
+                                ) : (
+                                  <span className="text-muted-foreground/50">—</span>
+                                )}
+                              </td>
                             </tr>
                             {isExpanded && (
                               <tr className="bg-muted/20">
-                                <td colSpan={10} className="px-6 py-4">
+                                <td colSpan={11} className="px-6 py-4">
                                   {!details || details.loading ? (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                       <Loader2 className="w-4 h-4 animate-spin" />

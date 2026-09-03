@@ -627,6 +627,7 @@ export type Database = {
           friend_count: number
           has_password: boolean
           id: string
+          invite_origin: string
           last_sign_in_at: string
           messages_received: number
           messages_sent: number
