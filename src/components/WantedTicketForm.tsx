@@ -58,6 +58,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
     const ticketData = {
       artist: formData.artist,
       city: formData.city,
+      quantity: Math.max(1, Number(formData.quantity) || 1),
       event_date: format(formData.event_date, 'yyyy-MM-dd'),
       email_notifications: formData.email_notifications,
     };
