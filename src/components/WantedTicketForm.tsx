@@ -79,7 +79,7 @@ const WantedTicketForm = ({ onSuccess, editTicket }: WantedTicketFormProps) => {
     }
 
     toast.success(editTicket ? '¡Búsqueda actualizada!' : '¡Búsqueda publicada!');
-    setFormData({ artist: '', city: '', event_date: undefined, email_notifications: true });
+    setFormData({ artist: '', city: '', quantity: 1, event_date: undefined, email_notifications: true });
     setOpen(false);
     setLoading(false);
     onSuccess?.();
