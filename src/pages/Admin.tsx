@@ -190,6 +190,70 @@ const Admin = () => {
     }
   };
 
+  const selectedUsers = useMemo(
+    () => users.filter(u => selectedIds.includes(u.id)),
+    [users, selectedIds]
+  );
+  const selectedEmails = selectedUsers.map(u => u.email).filter(Boolean);
+
+  const toggleSelected = (userId: string, checked: boolean) => {
+    setSelectedIds(prev => checked ? [...prev, userId] : prev.filter(id => id !== userId));
+  };
+
+  const allFilteredSelected =
+    filteredUsers.length > 0 && filteredUsers.every(u => selectedIds.includes(u.id));
+
+  const toggleSelectAllFiltered = () => {
+    if (allFilteredSelected) {
+      const ids = new Set(filteredUsers.map(u => u.id));
+      setSelectedIds(prev => prev.filter(id => !ids.has(id)));
+    } else {
+      setSelectedIds(prev => Array.from(new Set([...prev, ...filteredUsers.map(u => u.id)])));
+    }
+  };
+
+  const copySelectedEmails = async () => {
+    if (selectedEmails.length === 0) {
+      toast.error('No has seleccionado a nadie');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(selectedEmails.join(', '));
+      toast.success(`${selectedEmails.length} emails copiados`);
+    } catch {
+      toast.error('No se pudo copiar al portapapeles');
+    }
+  };
+
+  const openGmailWithSelected = () => {
+    if (selectedEmails.length === 0) {
+      toast.error('No has seleccionado a nadie');
+      return;
+    }
+    const url = `https://mail.google.com/mail/?view=cm&fs=1&bcc=${encodeURIComponent(selectedEmails.join(','))}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const downloadSelectedCsv = () => {
+    if (selectedUsers.length === 0) {
+      toast.error('No has seleccionado a nadie');
+      return;
+    }
+    const escape = (v: string) => `"${(v ?? '').replace(/"/g, '""')}"`;
+    const csv = [
+      'Nombre,Email',
+      ...selectedUsers.map(u => `${escape(u.name)},${escape(u.email)}`),
+    ].join('\n');
+    const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `contactos-trusticket-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast.success(`${selectedUsers.length} contactos descargados`);
+  };
+
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: 'numeric', month: 'short', year: 'numeric',
