@@ -535,6 +535,7 @@ export type Database = {
           email_notifications: boolean
           event_date: string
           id: string
+          quantity: number
           updated_at: string
           user_id: string
         }
@@ -545,6 +546,7 @@ export type Database = {
           email_notifications?: boolean
           event_date: string
           id?: string
+          quantity?: number
           updated_at?: string
           user_id: string
         }
@@ -555,6 +557,7 @@ export type Database = {
           email_notifications?: boolean
           event_date?: string
           id?: string
+          quantity?: number
           updated_at?: string
           user_id?: string
         }
@@ -727,6 +730,7 @@ export type Database = {
           created_at: string
           event_date: string
           id: string
+          quantity: number
         }[]
       }
       has_role: {
