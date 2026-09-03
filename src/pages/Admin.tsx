@@ -83,7 +83,7 @@ interface UserDetails {
   wanted: WantedRow[];
 }
 
-type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at' | 'invite_origin';
+type SortKey = 'name' | 'email' | 'friend_count' | 'active_tickets' | 'messages' | 'created_at' | 'last_sign_in_at' | 'invite_origin' | 'password_set_at';
 type FilterKey = 'all' | 'no_friends' | 'no_activity' | 'no_password' | 'password_never_signed_in' | 'active_user' | 'can_email' | 'unsubscribed';
 
 const canEmail = (u: { last_sign_in_at: string | null; newsletter_unsubscribed: boolean | null }) =>
