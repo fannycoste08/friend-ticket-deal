@@ -156,7 +156,9 @@ const Admin = () => {
           // Orden predefinido A1 → A2 → B → registrado → resto; luego se invierte con dir
           const rank = (v: string) => (order.indexOf(v) === -1 ? 99 : order.indexOf(v));
           return (rank(aVal) - rank(bVal)) * dir;
+        }
         case 'password_set_at': {
+
           // Sin contraseña (null) siempre al final
           const aNull = !a.password_set_at;
           const bNull = !b.password_set_at;
