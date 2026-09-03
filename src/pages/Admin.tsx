@@ -506,12 +506,47 @@ const Admin = () => {
               </div>
             </div>
 
+            <div className="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl border border-border bg-card">
+              <Button size="sm" variant="outline" onClick={toggleSelectAllFiltered}>
+                {allFilteredSelected ? 'Deseleccionar visibles' : `Seleccionar visibles (${filteredUsers.length})`}
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {selectedIds.length} seleccionados
+              </span>
+              <div className="flex-1" />
+              <Button size="sm" variant="outline" onClick={copySelectedEmails} className="gap-1" disabled={selectedIds.length === 0}>
+                <Copy className="w-3.5 h-3.5" />
+                Copiar emails
+              </Button>
+              <Button size="sm" variant="outline" onClick={downloadSelectedCsv} className="gap-1" disabled={selectedIds.length === 0}>
+                <Download className="w-3.5 h-3.5" />
+                Descargar CSV
+              </Button>
+              <Button size="sm" onClick={openGmailWithSelected} className="gap-1" disabled={selectedIds.length === 0}>
+                <Mail className="w-3.5 h-3.5" />
+                Abrir en Gmail (BCC)
+              </Button>
+              {selectedIds.length > 0 && (
+                <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])}>
+                  Limpiar
+                </Button>
+              )}
+            </div>
+
             <Card className="overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted/50">
                     <tr>
+                      <th className="w-8 px-2 py-3">
+                        <Checkbox
+                          checked={allFilteredSelected}
+                          onCheckedChange={toggleSelectAllFiltered}
+                          aria-label="Seleccionar todos los visibles"
+                        />
+                      </th>
                       <th className="w-8 px-2 py-3"></th>
+
                       <th
                         className="text-left px-4 py-3 font-medium text-sm cursor-pointer select-none hover:text-foreground transition-colors"
                         onClick={() => toggleSort('name')}
