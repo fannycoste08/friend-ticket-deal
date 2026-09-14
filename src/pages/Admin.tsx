@@ -358,6 +358,10 @@ const Admin = () => {
               <Users className="w-4 h-4" />
               Usuarios
             </TabsTrigger>
+            <TabsTrigger value="tickets" className="gap-1.5">
+              <Ticket className="w-4 h-4" />
+              Entradas
+            </TabsTrigger>
             <TabsTrigger value="emails" className="gap-1.5">
               <Mail className="w-4 h-4" />
               Emails
