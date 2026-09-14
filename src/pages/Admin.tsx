@@ -18,6 +18,7 @@ import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
 import AdminOutreach from '@/components/AdminOutreach';
 import AdminLaunchTasks from '@/components/AdminLaunchTasks';
+import AdminTickets from '@/components/AdminTickets';
 
 interface UserStats {
   id: string;
@@ -356,6 +357,10 @@ const Admin = () => {
             <TabsTrigger value="users" className="gap-1.5">
               <Users className="w-4 h-4" />
               Usuarios
+            </TabsTrigger>
+            <TabsTrigger value="tickets" className="gap-1.5">
+              <Ticket className="w-4 h-4" />
+              Entradas
             </TabsTrigger>
             <TabsTrigger value="emails" className="gap-1.5">
               <Mail className="w-4 h-4" />
@@ -930,6 +935,10 @@ const Admin = () => {
             <div className="mt-4 text-sm text-muted-foreground text-center">
               Total: {filteredUsers.length}{searchQuery ? ` de ${users.length}` : ''} usuarios
             </div>
+          </TabsContent>
+
+          <TabsContent value="tickets">
+            <AdminTickets />
           </TabsContent>
 
           <TabsContent value="emails">
