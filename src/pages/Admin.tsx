@@ -937,6 +937,10 @@ const Admin = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="tickets">
+            <AdminTickets />
+          </TabsContent>
+
           <TabsContent value="emails">
             <AdminEmailTemplates />
           </TabsContent>
