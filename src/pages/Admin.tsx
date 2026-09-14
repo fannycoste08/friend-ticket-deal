@@ -18,6 +18,7 @@ import AdminDocs from '@/components/AdminDocs';
 import AdminEmailTemplates from '@/components/AdminEmailTemplates';
 import AdminOutreach from '@/components/AdminOutreach';
 import AdminLaunchTasks from '@/components/AdminLaunchTasks';
+import AdminTickets from '@/components/AdminTickets';
 
 interface UserStats {
   id: string;
