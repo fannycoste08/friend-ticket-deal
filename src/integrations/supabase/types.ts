@@ -636,6 +636,38 @@ export type Database = {
           password_set_at: string
         }[]
       }
+      get_all_tickets_admin: {
+        Args: never
+        Returns: {
+          artist: string
+          city: string
+          created_at: string
+          event_date: string
+          id: string
+          owner_email: string
+          owner_name: string
+          price: number
+          quantity: number
+          status: string
+          ticket_type: string
+          user_id: string
+          venue: string
+        }[]
+      }
+      get_all_wanted_tickets_admin: {
+        Args: never
+        Returns: {
+          artist: string
+          city: string
+          created_at: string
+          event_date: string
+          id: string
+          quantity: number
+          seeker_email: string
+          seeker_name: string
+          user_id: string
+        }[]
+      }
       get_extended_network: {
         Args: { user_uuid: string }
         Returns: {
