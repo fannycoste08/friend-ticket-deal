@@ -81,9 +81,13 @@ const Musica = () => {
 
   useEffect(() => {
     load();
-    // Auto-refresh when the user returns to the tab
+    // Auto-refresh when the user returns to the tab (at most once per minute)
+    let lastLoad = Date.now();
     const onVisibility = () => {
-      if (document.visibilityState === "visible") load();
+      if (document.visibilityState === "visible" && Date.now() - lastLoad > 60_000) {
+        lastLoad = Date.now();
+        load();
+      }
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);

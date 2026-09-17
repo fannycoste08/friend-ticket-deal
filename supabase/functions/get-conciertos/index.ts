@@ -8,9 +8,31 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
 const SPREADSHEET_ID = "1bCX2DCK8dBlxhxWHG6ST7QxaYp5kHjj_qoNwE_rTh8g";
 const RANGE = "2026!A2:D1000";
 
+type Concierto = { fecha: string; artista: string; sala: string; precio: string };
+
+// In-memory cache to avoid hitting the Sheets read-per-minute quota (429).
+let cache: { data: Concierto[]; at: number } | null = null;
+const TTL_MS = 60_000;
+
+const jsonResponse = (body: unknown, status: number) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    },
+  });
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
+  }
+
+  if (cache && Date.now() - cache.at < TTL_MS) {
+    return jsonResponse({ conciertos: cache.data }, 200);
   }
 
   try {
@@ -21,20 +43,39 @@ Deno.serve(async (req) => {
     if (!GOOGLE_SHEETS_API_KEY) throw new Error("GOOGLE_SHEETS_API_KEY is not configured");
 
     const url = `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}`;
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": GOOGLE_SHEETS_API_KEY,
-      },
-    });
 
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(`Google Sheets API failed [${response.status}]: ${JSON.stringify(data)}`);
+    let data: { values?: string[][] } | null = null;
+    let lastStatus = 0;
+    let lastBody = "";
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "X-Connection-Api-Key": GOOGLE_SHEETS_API_KEY,
+        },
+      });
+      const body = await response.json().catch(() => ({}));
+
+      if (response.ok) {
+        data = body as { values?: string[][] };
+        break;
+      }
+
+      lastStatus = response.status;
+      lastBody = JSON.stringify(body);
+
+      // Retry only on rate limit / transient server errors
+      if (response.status !== 429 && response.status < 500) break;
+      await sleep(500 * Math.pow(2, attempt));
+    }
+
+    if (!data) {
+      throw new Error(`Google Sheets API failed [${lastStatus}]: ${lastBody}`);
     }
 
     const rows = (data.values ?? []) as string[][];
-    const conciertos = rows
+    const conciertos: Concierto[] = rows
       .filter((r) => r && r.length > 0 && (r[0] || r[1]))
       .map((r) => ({
         fecha: (r[0] ?? "").trim(),
@@ -43,20 +84,21 @@ Deno.serve(async (req) => {
         precio: (r[3] ?? "").trim(),
       }));
 
-    return new Response(JSON.stringify({ conciertos }), {
-      status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "application/json",
-        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-      },
-    });
+    cache = { data: conciertos, at: Date.now() };
+
+    return jsonResponse({ conciertos }, 200);
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
     console.error("get-conciertos error:", message);
-    return new Response(JSON.stringify({ error: "Ha ocurrido un error, inténtalo de nuevo", conciertos: [] }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+
+    // Serve stale cache instead of failing the page
+    if (cache) {
+      return jsonResponse({ conciertos: cache.data, stale: true }, 200);
+    }
+
+    return jsonResponse(
+      { error: "Ha ocurrido un error, inténtalo de nuevo", conciertos: [] },
+      500,
+    );
   }
 });
