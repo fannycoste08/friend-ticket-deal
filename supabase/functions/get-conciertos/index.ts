@@ -8,9 +8,29 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
 const SPREADSHEET_ID = "1bCX2DCK8dBlxhxWHG6ST7QxaYp5kHjj_qoNwE_rTh8g";
 const RANGE = "2026!A2:D1000";
 
+type Concierto = { fecha: string; artista: string; sala: string; precio: string };
+
+// Simple in-memory cache to avoid hitting the Sheets read-per-minute quota.
+let cache: { data: Concierto[]; at: number } | null = null;
+const TTL_MS = 60_000;
+
+const jsonResponse = (body: unknown, status: number) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    },
+  });
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
+  }
+
+  if (cache && Date.now() - cache.at < TTL_MS) {
+    return jsonResponse({ conciertos: cache.data }, 200);
   }
 
   try {
