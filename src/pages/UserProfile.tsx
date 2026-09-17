@@ -335,7 +335,7 @@ const UserProfile = () => {
     // If already friends (either via friendship or invitation network)
     if (friendshipStatus.status === 'accepted' || networkDegree === 1) {
       return (
-        <Button variant="outline" disabled>
+        <Button variant="outline" disabled className="w-full sm:w-auto">
           <UserCheck className="w-4 h-4 mr-2" />
           Amigos
         </Button>
@@ -345,26 +345,26 @@ const UserProfile = () => {
     switch (friendshipStatus.status) {
       case 'pending_sent':
         return (
-          <Button variant="outline" onClick={handleCancelRequest}>
+          <Button variant="outline" onClick={handleCancelRequest} className="w-full sm:w-auto">
             <Clock className="w-4 h-4 mr-2" />
             Solicitud enviada
           </Button>
         );
       case 'pending_received':
         return (
-          <div className="flex gap-2">
-            <Button onClick={handleAcceptFriendRequest}>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <Button onClick={handleAcceptFriendRequest} className="w-full sm:w-auto">
               <UserCheck className="w-4 h-4 mr-2" />
               Aceptar solicitud
             </Button>
-            <Button variant="outline" onClick={handleCancelRequest}>
+            <Button variant="outline" onClick={handleCancelRequest} className="w-full sm:w-auto">
               Rechazar
             </Button>
           </div>
         );
       default:
         return (
-          <Button onClick={handleSendFriendRequest}>
+          <Button onClick={handleSendFriendRequest} className="w-full sm:w-auto">
             <UserPlus className="w-4 h-4 mr-2" />
             Añadir como amigo
           </Button>
@@ -373,32 +373,32 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/30 pb-20">
-      <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen max-w-[100vw] overflow-x-hidden bg-gradient-to-b from-background to-secondary/30 pb-20">
+      <div className="mx-auto w-full max-w-4xl px-4 py-6 sm:py-8">
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
-          className="mb-6"
+          className="mb-5 px-2 sm:mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Volver
         </Button>
 
-        <Card className="p-8 mb-8">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-foreground">{profile.name}</h1>
+        <Card className="mb-6 p-5 sm:mb-8 sm:p-8">
+          <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex min-w-0 flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-3">
+                <h1 className="max-w-full break-words text-2xl font-bold text-foreground sm:text-3xl">{profile.name}</h1>
                 {getNetworkBadge()}
               </div>
             </div>
-            {getFriendshipButton()}
+            <div className="w-full shrink-0 sm:w-auto">{getFriendshipButton()}</div>
           </div>
         </Card>
 
         {theirFriends.length > 0 && (
-          <Card className="p-6 mb-8">
-            <h2 className="text-sm font-medium text-muted-foreground mb-4">
+          <Card className="mb-6 p-4 sm:mb-8 sm:p-6">
+            <h2 className="mb-4 break-words text-sm font-medium text-muted-foreground">
               Amigos de {profile.name}
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -408,7 +408,7 @@ const UserProfile = () => {
                 return (
                   <div
                     key={f.id}
-                    className="flex items-center gap-3 p-3 rounded-lg border border-border/50"
+                    className="flex min-w-0 items-center gap-2 rounded-lg border border-border/50 p-3 sm:gap-3"
                   >
                     <button
                       onClick={() => navigate(`/user/${f.id}`)}
@@ -424,11 +424,11 @@ const UserProfile = () => {
                       </p>
                     </button>
                     {alreadyFriend ? (
-                      <span className="text-xs text-muted-foreground shrink-0">
+                      <span className="max-w-[7rem] shrink-0 text-right text-xs leading-tight text-muted-foreground sm:max-w-none">
                         Ya sois amigos
                       </span>
                     ) : requestSent ? (
-                      <Button variant="ghost" size="sm" disabled className="shrink-0 text-xs text-muted-foreground">
+                      <Button variant="ghost" size="sm" disabled className="h-auto max-w-[6.5rem] shrink-0 whitespace-normal px-2 py-1 text-right text-xs leading-tight text-muted-foreground sm:max-w-none sm:whitespace-nowrap">
                         Solicitud enviada
                       </Button>
                     ) : (
@@ -450,7 +450,7 @@ const UserProfile = () => {
         )}
 
         {mutualFriends.length > 0 && (
-          <Card className="p-6 mb-8">
+          <Card className="mb-6 p-4 sm:mb-8 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
               <Users className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-bold">Amigos en común</h2>
@@ -484,7 +484,7 @@ const UserProfile = () => {
         </div>
 
         {tickets.length === 0 ? (
-          <Card className="p-12 text-center">
+            <Card className="p-6 text-center sm:p-12">
             <p className="text-muted-foreground">Este usuario no tiene entradas disponibles</p>
           </Card>
         ) : (
@@ -510,7 +510,7 @@ const UserProfile = () => {
         </div>
 
         {wantedTickets.length === 0 ? (
-          <Card className="p-12 text-center">
+            <Card className="p-6 text-center sm:p-12">
             <p className="text-muted-foreground">Este usuario no está buscando entradas</p>
           </Card>
         ) : (
