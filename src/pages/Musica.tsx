@@ -9,6 +9,7 @@ interface Concierto {
   artista: string;
   sala: string;
   precio: string;
+  ciudad?: string;
 }
 
 const parseFecha = (s: string): Date | null => {
@@ -43,6 +44,7 @@ const Musica = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [ciudadFiltro, setCiudadFiltro] = useState<string>("todas");
 
   const load = async (isManualRefresh = false) => {
     try {
