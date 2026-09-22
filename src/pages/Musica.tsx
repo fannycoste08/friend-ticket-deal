@@ -95,7 +95,17 @@ const Musica = () => {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  const conciertosFiltrados = conciertos;
+  const ciudades = Array.from(
+    new Set(conciertos.map((c) => (c.ciudad || "Madrid").trim()).filter(Boolean)),
+  ).sort((a, b) => a.localeCompare(b, "es"));
+
+  const conciertosFiltrados =
+    ciudadFiltro === "todas"
+      ? conciertos
+      : conciertos.filter((c) => (c.ciudad || "Madrid") === ciudadFiltro);
+
+  const tituloAgenda =
+    ciudadFiltro === "todas" ? "Agenda de conciertos" : `Agenda de conciertos en ${ciudadFiltro}`;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
