@@ -1,29 +1,31 @@
-# Filtro por ciudad en la Agenda de conciertos
+# Filtro por ciudad en la Agenda de conciertos (dos pestañas)
 
-## Dónde están los datos hoy
+## Dónde están los datos
 
-La agenda **no está en la base de datos**. Está en una hoja de cálculo de Google Sheets, en la pestaña llamada `2026`, y se leen las columnas A–D:
+La agenda **no está en la base de datos**: está en tu hoja de Google Sheets, con dos pestañas:
+- `2026` → conciertos de **Madrid**
+- `Barcelona 2026-2027` → conciertos de **Barcelona**
 
-| A | B | C | D |
-|---|---|---|---|
-| Fecha | Artista | Sala | Precio |
+Ambas con el mismo formato A–D: Fecha, Artista, Sala, Precio.
 
-La app lee esa hoja a través de una función de servidor (`get-conciertos`), guarda el resultado un minuto en memoria y la página de Música lo muestra en la tabla.
+**No tienes que tocar el Excel**: la ciudad se asigna automáticamente según la pestaña de la que viene cada fila.
 
-## Cambio que necesito de tu parte
+## Cambios en get-conciertos (función de servidor)
 
-Añadir una **columna E llamada "Ciudad"** en la pestaña `2026` de la hoja, y rellenarla (Madrid, Barcelona, etc.). Las filas que queden vacías se tratarán como "Madrid" para no perder los conciertos actuales.
+1. En lugar de una sola lectura (`2026!A2:D1000`), hará una **lectura por lotes de ambas pestañas** (`batchGet`), que cuenta como una sola llamada — importante para no volver a chocar con el límite de consultas de Google que ya nos dio errores 429.
+2. A cada fila de `2026` se le asigna `ciudad: "Madrid"` y a cada fila de `Barcelona 2026-2027`, `ciudad: "Barcelona"`. Si una pestaña no existe o está vacía, simplemente no aporta conciertos (la otra sigue funcionando).
+3. La respuesta incluye ahora el campo `ciudad` por concierto.
+4. El resto se mantiene igual: caché de 1 minuto, reintentos automáticos, mensajes de error genéricos.
 
-## Qué haré yo
+## Cambios en la página de Música
 
-1. Ampliar la lectura de la hoja de A:D a A:E e incluir la ciudad en los datos que devuelve el servidor (con "Madrid" como valor por defecto si la celda está vacía).
-2. En la página de Música, añadir encima de la tabla unos botones de ciudad generados automáticamente a partir de los datos: `Todas · Madrid · Barcelona · ...` (solo aparecen las ciudades que realmente tengan conciertos).
-3. Filtro por defecto: **Todas**.
-4. Añadir una columna "Ciudad" en la tabla cuando el filtro está en "Todas" (se oculta si ya has elegido una ciudad concreta, para no repetir información).
-5. Título dinámico: "Agenda de conciertos en Madrid" / "en Barcelona" / solo "Agenda de conciertos" en "Todas".
-6. Mantener todo lo actual: orden por fecha, ocultar conciertos pasados, botón de actualizar y el texto explicativo.
+1. Encima de la tabla, botones: **Todas · Madrid · Barcelona** (solo aparecen ciudades que realmente tengan conciertos).
+2. Filtro por defecto: **Todas**.
+3. Título dinámico: "Agenda de conciertos en Madrid" / "en Barcelona" / "Agenda de conciertos" en "Todas".
+4. Columna "Ciudad" visible solo cuando el filtro es "Todas".
+5. Se conserva: orden por fecha, ocultar pasados, botón de actualizar, texto explicativo.
 
 ## Notas
 
-- No hace falta ningún cambio en la base de datos.
-- Si prefieres que por defecto se muestre la ciudad con más conciertos en lugar de "Todas", dímelo y lo cambio.
+- Sin cambios en la base de datos.
+- El despliegue de la función se hace al final, junto con la página.
