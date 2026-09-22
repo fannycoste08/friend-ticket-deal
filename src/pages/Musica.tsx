@@ -245,12 +245,26 @@ const Musica = () => {
                 conciertosFiltrados.map((c, i) => (
                   <TableRow key={i} className="border-border/40">
                     <TableCell className="font-medium text-foreground whitespace-nowrap">
-                      {formatFecha(c.fecha)}
+                      <span className="md:hidden">{formatFechaCorta(c.fecha)}</span>
+                      <span className="hidden md:inline">{formatFecha(c.fecha)}</span>
                     </TableCell>
-                    <TableCell className="text-foreground">{c.artista}</TableCell>
-                    <TableCell className="text-muted-foreground">{c.sala}</TableCell>
+                    <TableCell className="text-foreground">
+                      <div className="md:hidden">
+                        {ciudadFiltro === "todas" && (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 mb-1">
+                            {c.ciudad || "Madrid"}
+                          </Badge>
+                        )}
+                        <div>{c.artista}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{c.sala}</div>
+                      </div>
+                      <div className="hidden md:block">{c.artista}</div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell text-muted-foreground">{c.sala}</TableCell>
                     {ciudadFiltro === "todas" && (
-                      <TableCell className="text-muted-foreground">{c.ciudad || "Madrid"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">
+                        {c.ciudad || "Madrid"}
+                      </TableCell>
                     )}
                     <TableCell className="text-right text-muted-foreground whitespace-nowrap">
                       {c.precio || "—"}
