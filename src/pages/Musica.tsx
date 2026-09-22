@@ -40,6 +40,15 @@ const formatFecha = (s: string) => {
   });
 };
 
+const formatFechaCorta = (s: string) => {
+  const d = parseFecha(s);
+  if (!d) return s;
+  return d.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+  });
+};
+
 const Musica = () => {
   const [conciertos, setConciertos] = useState<Concierto[]>([]);
   const [loading, setLoading] = useState(true);
