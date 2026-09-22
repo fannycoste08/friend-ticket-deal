@@ -105,7 +105,7 @@ const Musica = () => {
       : conciertos.filter((c) => (c.ciudad || "Madrid") === ciudadFiltro);
 
   const tituloAgenda =
-    ciudadFiltro === "todas" ? "Agenda de conciertos" : `Agenda de conciertos en ${ciudadFiltro}`;
+    ciudadFiltro === "todas" ? "Agenda de conciertos en Madrid y Barcelona" : `Agenda de conciertos en ${ciudadFiltro}`;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
