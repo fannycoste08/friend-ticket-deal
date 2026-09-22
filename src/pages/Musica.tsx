@@ -193,11 +193,11 @@ const Musica = () => {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-border/40">
-                <TableHead className="w-[160px]">Fecha</TableHead>
+                <TableHead className="w-[90px] md:w-[160px]">Fecha</TableHead>
                 <TableHead>Artista</TableHead>
-                <TableHead>Sala</TableHead>
-                {ciudadFiltro === "todas" && <TableHead className="w-[110px]">Ciudad</TableHead>}
-                <TableHead className="text-right w-[120px]">Precio</TableHead>
+                <TableHead className="hidden md:table-cell">Sala</TableHead>
+                {ciudadFiltro === "todas" && <TableHead className="hidden md:table-cell w-[110px]">Ciudad</TableHead>}
+                <TableHead className="text-right w-[100px] md:w-[120px]">Precio</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
