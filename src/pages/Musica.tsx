@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { Music2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -39,6 +40,15 @@ const formatFecha = (s: string) => {
   });
 };
 
+const formatFechaCorta = (s: string) => {
+  const d = parseFecha(s);
+  if (!d) return s;
+  return d.toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+  });
+};
+
 const Musica = () => {
   const [conciertos, setConciertos] = useState<Concierto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +69,11 @@ const Musica = () => {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const items = (data?.conciertos ?? []) as Concierto[];
+      const headerLabels = new Set(["fecha", "artista", "concierto", "sala", "precio"]);
+      const items = ((data?.conciertos ?? []) as Concierto[]).filter((c) => {
+        const vals = [c.fecha, c.artista, c.sala].map((v) => (v ?? "").toString().trim().toLowerCase());
+        return vals.every((v) => !headerLabels.has(v));
+      });
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const sorted = items
@@ -179,11 +193,11 @@ const Musica = () => {
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-border/40">
-                <TableHead className="w-[160px]">Fecha</TableHead>
+                <TableHead className="w-[90px] md:w-[160px]">Fecha</TableHead>
                 <TableHead>Artista</TableHead>
-                <TableHead>Sala</TableHead>
-                {ciudadFiltro === "todas" && <TableHead className="w-[110px]">Ciudad</TableHead>}
-                <TableHead className="text-right w-[120px]">Precio</TableHead>
+                <TableHead className="hidden md:table-cell">Sala</TableHead>
+                {ciudadFiltro === "todas" && <TableHead className="hidden md:table-cell w-[110px]">Ciudad</TableHead>}
+                <TableHead className="text-right w-[100px] md:w-[120px]">Precio</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -191,21 +205,21 @@ const Musica = () => {
                 Array.from({ length: 6 }).map((_, i) => (
                   <TableRow key={i} className="border-border/40">
                     <TableCell>
-                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-16 md:w-24" />
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-4 w-40" />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Skeleton className="h-4 w-32" />
                     </TableCell>
                     {ciudadFiltro === "todas" && (
-                      <TableCell>
+                      <TableCell className="hidden md:table-cell">
                         <Skeleton className="h-4 w-20" />
                       </TableCell>
                     )}
                     <TableCell className="text-right">
-                      <Skeleton className="h-4 w-16 ml-auto" />
+                      <Skeleton className="h-4 w-14 md:w-16 ml-auto" />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -231,12 +245,26 @@ const Musica = () => {
                 conciertosFiltrados.map((c, i) => (
                   <TableRow key={i} className="border-border/40">
                     <TableCell className="font-medium text-foreground whitespace-nowrap">
-                      {formatFecha(c.fecha)}
+                      <span className="md:hidden">{formatFechaCorta(c.fecha)}</span>
+                      <span className="hidden md:inline">{formatFecha(c.fecha)}</span>
                     </TableCell>
-                    <TableCell className="text-foreground">{c.artista}</TableCell>
-                    <TableCell className="text-muted-foreground">{c.sala}</TableCell>
+                    <TableCell className="text-foreground">
+                      <div className="md:hidden">
+                        {ciudadFiltro === "todas" && (
+                          <Badge variant="outline" className="text-[10px] px-1.5 py-0 mb-1">
+                            {c.ciudad || "Madrid"}
+                          </Badge>
+                        )}
+                        <div>{c.artista}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{c.sala}</div>
+                      </div>
+                      <div className="hidden md:block">{c.artista}</div>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell text-muted-foreground">{c.sala}</TableCell>
                     {ciudadFiltro === "todas" && (
-                      <TableCell className="text-muted-foreground">{c.ciudad || "Madrid"}</TableCell>
+                      <TableCell className="hidden md:table-cell text-muted-foreground">
+                        {c.ciudad || "Madrid"}
+                      </TableCell>
                     )}
                     <TableCell className="text-right text-muted-foreground whitespace-nowrap">
                       {c.precio || "—"}
