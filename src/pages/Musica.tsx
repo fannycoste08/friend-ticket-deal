@@ -9,6 +9,7 @@ interface Concierto {
   artista: string;
   sala: string;
   precio: string;
+  ciudad?: string;
 }
 
 const parseFecha = (s: string): Date | null => {
@@ -43,6 +44,7 @@ const Musica = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [ciudadFiltro, setCiudadFiltro] = useState<string>("todas");
 
   const load = async (isManualRefresh = false) => {
     try {
@@ -93,7 +95,17 @@ const Musica = () => {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  const conciertosFiltrados = conciertos;
+  const ciudades = Array.from(
+    new Set(conciertos.map((c) => (c.ciudad || "Madrid").trim()).filter(Boolean)),
+  ).sort((a, b) => a.localeCompare(b, "es"));
+
+  const conciertosFiltrados =
+    ciudadFiltro === "todas"
+      ? conciertos
+      : conciertos.filter((c) => (c.ciudad || "Madrid") === ciudadFiltro);
+
+  const tituloAgenda =
+    ciudadFiltro === "todas" ? "Agenda de conciertos" : `Agenda de conciertos en ${ciudadFiltro}`;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
@@ -131,7 +143,7 @@ const Musica = () => {
       <section>
         <div className="flex flex-col gap-4 mb-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Agenda de conciertos en Madrid</h2>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{tituloAgenda}</h2>
             <p className="text-muted-foreground text-sm mt-1">
               Seleccionados con amor por Trusticket aunque no significa que haya entradas a la venta en esta página.
             </p>
@@ -147,6 +159,22 @@ const Musica = () => {
           </Button>
         </div>
 
+        {ciudades.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-5">
+            {["todas", ...ciudades].map((c) => (
+              <Button
+                key={c}
+                variant={ciudadFiltro === c ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCiudadFiltro(c)}
+                className="rounded-full"
+              >
+                {c === "todas" ? "Todas" : c}
+              </Button>
+            ))}
+          </div>
+        )}
+
         <div className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
           <Table>
             <TableHeader>
@@ -154,6 +182,7 @@ const Musica = () => {
                 <TableHead className="w-[160px]">Fecha</TableHead>
                 <TableHead>Artista</TableHead>
                 <TableHead>Sala</TableHead>
+                {ciudadFiltro === "todas" && <TableHead className="w-[110px]">Ciudad</TableHead>}
                 <TableHead className="text-right w-[120px]">Precio</TableHead>
               </TableRow>
             </TableHeader>
@@ -170,6 +199,11 @@ const Musica = () => {
                     <TableCell>
                       <Skeleton className="h-4 w-32" />
                     </TableCell>
+                    {ciudadFiltro === "todas" && (
+                      <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+                    )}
                     <TableCell className="text-right">
                       <Skeleton className="h-4 w-16 ml-auto" />
                     </TableCell>
@@ -178,7 +212,7 @@ const Musica = () => {
 
               {!loading && error && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
+                  <TableCell colSpan={ciudadFiltro === "todas" ? 5 : 4} className="text-center text-muted-foreground py-10">
                     No se pudieron cargar los conciertos. Inténtalo más tarde.
                   </TableCell>
                 </TableRow>
@@ -186,7 +220,7 @@ const Musica = () => {
 
               {!loading && !error && conciertosFiltrados.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
+                  <TableCell colSpan={ciudadFiltro === "todas" ? 5 : 4} className="text-center text-muted-foreground py-10">
                     No hay conciertos disponibles.
                   </TableCell>
                 </TableRow>
@@ -201,6 +235,9 @@ const Musica = () => {
                     </TableCell>
                     <TableCell className="text-foreground">{c.artista}</TableCell>
                     <TableCell className="text-muted-foreground">{c.sala}</TableCell>
+                    {ciudadFiltro === "todas" && (
+                      <TableCell className="text-muted-foreground">{c.ciudad || "Madrid"}</TableCell>
+                    )}
                     <TableCell className="text-right text-muted-foreground whitespace-nowrap">
                       {c.precio || "—"}
                     </TableCell>

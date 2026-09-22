@@ -6,9 +6,13 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
 const SPREADSHEET_ID = "1bCX2DCK8dBlxhxWHG6ST7QxaYp5kHjj_qoNwE_rTh8g";
-const RANGE = "2026!A2:D1000";
+// Cada pestaña de la hoja se asigna a una ciudad.
+const SHEETS: { range: string; ciudad: string }[] = [
+  { range: "2026!A2:D1000", ciudad: "Madrid" },
+  { range: "Barcelona 2026-2027!A2:D1000", ciudad: "Barcelona" },
+];
 
-type Concierto = { fecha: string; artista: string; sala: string; precio: string };
+type Concierto = { fecha: string; artista: string; sala: string; precio: string; ciudad: string };
 
 // In-memory cache to avoid hitting the Sheets read-per-minute quota (429).
 let cache: { data: Concierto[]; at: number } | null = null;
@@ -42,9 +46,10 @@ Deno.serve(async (req) => {
     const GOOGLE_SHEETS_API_KEY = Deno.env.get("GOOGLE_SHEETS_API_KEY");
     if (!GOOGLE_SHEETS_API_KEY) throw new Error("GOOGLE_SHEETS_API_KEY is not configured");
 
-    const url = `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values/${RANGE}`;
+    const ranges = SHEETS.map((s) => `ranges=${encodeURIComponent(s.range)}`).join("&");
+    const url = `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values:batchGet?${ranges}`;
 
-    let data: { values?: string[][] } | null = null;
+    let data: { valueRanges?: { values?: string[][] }[] } | null = null;
     let lastStatus = 0;
     let lastBody = "";
 
@@ -58,7 +63,7 @@ Deno.serve(async (req) => {
       const body = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        data = body as { values?: string[][] };
+        data = body as { valueRanges?: { values?: string[][] }[] };
         break;
       }
 
@@ -74,15 +79,21 @@ Deno.serve(async (req) => {
       throw new Error(`Google Sheets API failed [${lastStatus}]: ${lastBody}`);
     }
 
-    const rows = (data.values ?? []) as string[][];
-    const conciertos: Concierto[] = rows
-      .filter((r) => r && r.length > 0 && (r[0] || r[1]))
-      .map((r) => ({
-        fecha: (r[0] ?? "").trim(),
-        artista: (r[1] ?? "").trim(),
-        sala: (r[2] ?? "").trim(),
-        precio: (r[3] ?? "").trim(),
-      }));
+    const conciertos: Concierto[] = [];
+    (data.valueRanges ?? []).forEach((vr, i) => {
+      const ciudad = SHEETS[i]?.ciudad;
+      if (!ciudad) return;
+      for (const r of vr.values ?? []) {
+        if (!r || r.length === 0 || !(r[0] || r[1])) continue;
+        conciertos.push({
+          fecha: (r[0] ?? "").trim(),
+          artista: (r[1] ?? "").trim(),
+          sala: (r[2] ?? "").trim(),
+          precio: (r[3] ?? "").trim(),
+          ciudad,
+        });
+      }
+    });
 
     cache = { data: conciertos, at: Date.now() };
 
