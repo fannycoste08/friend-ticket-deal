@@ -199,6 +199,11 @@ const Musica = () => {
                     <TableCell>
                       <Skeleton className="h-4 w-32" />
                     </TableCell>
+                    {ciudadFiltro === "todas" && (
+                      <TableCell>
+                        <Skeleton className="h-4 w-20" />
+                      </TableCell>
+                    )}
                     <TableCell className="text-right">
                       <Skeleton className="h-4 w-16 ml-auto" />
                     </TableCell>
@@ -230,6 +235,9 @@ const Musica = () => {
                     </TableCell>
                     <TableCell className="text-foreground">{c.artista}</TableCell>
                     <TableCell className="text-muted-foreground">{c.sala}</TableCell>
+                    {ciudadFiltro === "todas" && (
+                      <TableCell className="text-muted-foreground">{c.ciudad || "Madrid"}</TableCell>
+                    )}
                     <TableCell className="text-right text-muted-foreground whitespace-nowrap">
                       {c.precio || "—"}
                     </TableCell>
