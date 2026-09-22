@@ -182,6 +182,7 @@ const Musica = () => {
                 <TableHead className="w-[160px]">Fecha</TableHead>
                 <TableHead>Artista</TableHead>
                 <TableHead>Sala</TableHead>
+                {ciudadFiltro === "todas" && <TableHead className="w-[110px]">Ciudad</TableHead>}
                 <TableHead className="text-right w-[120px]">Precio</TableHead>
               </TableRow>
             </TableHeader>
