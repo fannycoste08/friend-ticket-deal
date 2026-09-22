@@ -143,7 +143,7 @@ const Musica = () => {
       <section>
         <div className="flex flex-col gap-4 mb-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Agenda de conciertos en Madrid</h2>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{tituloAgenda}</h2>
             <p className="text-muted-foreground text-sm mt-1">
               Seleccionados con amor por Trusticket aunque no significa que haya entradas a la venta en esta página.
             </p>
@@ -158,6 +158,22 @@ const Musica = () => {
             <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
           </Button>
         </div>
+
+        {ciudades.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-5">
+            {["todas", ...ciudades].map((c) => (
+              <Button
+                key={c}
+                variant={ciudadFiltro === c ? "default" : "outline"}
+                size="sm"
+                onClick={() => setCiudadFiltro(c)}
+                className="rounded-full"
+              >
+                {c === "todas" ? "Todas" : c}
+              </Button>
+            ))}
+          </div>
+        )}
 
         <div className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
           <Table>
