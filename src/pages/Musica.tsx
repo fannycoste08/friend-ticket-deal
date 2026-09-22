@@ -69,7 +69,11 @@ const Musica = () => {
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const items = (data?.conciertos ?? []) as Concierto[];
+      const headerLabels = new Set(["fecha", "artista", "concierto", "sala", "precio"]);
+      const items = ((data?.conciertos ?? []) as Concierto[]).filter((c) => {
+        const vals = [c.fecha, c.artista, c.sala].map((v) => (v ?? "").toString().trim().toLowerCase());
+        return vals.every((v) => !headerLabels.has(v));
+      });
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const sorted = items
