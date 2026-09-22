@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     const GOOGLE_SHEETS_API_KEY = Deno.env.get("GOOGLE_SHEETS_API_KEY");
     if (!GOOGLE_SHEETS_API_KEY) throw new Error("GOOGLE_SHEETS_API_KEY is not configured");
 
-    const ranges = SHEETS.map((s) => `ranges=${s.range}`).join("&");
+    const ranges = SHEETS.map((s) => `ranges=${encodeURIComponent(s.range)}`).join("&");
     const url = `${GATEWAY_URL}/spreadsheets/${SPREADSHEET_ID}/values:batchGet?${ranges}`;
 
     let data: { valueRanges?: { values?: string[][] }[] } | null = null;
