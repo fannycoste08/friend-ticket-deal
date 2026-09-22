@@ -212,7 +212,7 @@ const Musica = () => {
 
               {!loading && error && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
+                  <TableCell colSpan={ciudadFiltro === "todas" ? 5 : 4} className="text-center text-muted-foreground py-10">
                     No se pudieron cargar los conciertos. Inténtalo más tarde.
                   </TableCell>
                 </TableRow>
@@ -220,7 +220,7 @@ const Musica = () => {
 
               {!loading && !error && conciertosFiltrados.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground py-10">
+                  <TableCell colSpan={ciudadFiltro === "todas" ? 5 : 4} className="text-center text-muted-foreground py-10">
                     No hay conciertos disponibles.
                   </TableCell>
                 </TableRow>
