@@ -190,25 +190,25 @@ const Musica = () => {
         )}
 
         <div className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
-          <Table>
+          <Table className="table-fixed md:table-auto">
             <TableHeader>
               <TableRow className="hover:bg-transparent border-border/40">
-                <TableHead className="w-[90px] md:w-[160px]">Fecha</TableHead>
-                <TableHead>Artista</TableHead>
+                <TableHead className="w-[68px] px-2 md:w-[160px] md:px-4">Fecha</TableHead>
+                <TableHead className="px-2 md:px-4">Artista</TableHead>
                 <TableHead className="hidden md:table-cell">Sala</TableHead>
                 {ciudadFiltro === "todas" && <TableHead className="hidden md:table-cell w-[110px]">Ciudad</TableHead>}
-                <TableHead className="text-right w-[100px] md:w-[120px]">Precio</TableHead>
+                <TableHead className="w-[68px] px-2 text-right md:w-[120px] md:px-4">Precio</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading &&
                 Array.from({ length: 6 }).map((_, i) => (
                   <TableRow key={i} className="border-border/40">
-                    <TableCell>
+                    <TableCell className="px-2 md:px-4">
                       <Skeleton className="h-4 w-16 md:w-24" />
                     </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-4 w-40" />
+                    <TableCell className="min-w-0 px-2 md:px-4">
+                      <Skeleton className="h-4 w-full max-w-40" />
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       <Skeleton className="h-4 w-32" />
@@ -218,7 +218,7 @@ const Musica = () => {
                         <Skeleton className="h-4 w-20" />
                       </TableCell>
                     )}
-                    <TableCell className="text-right">
+                    <TableCell className="px-2 text-right md:px-4">
                       <Skeleton className="h-4 w-14 md:w-16 ml-auto" />
                     </TableCell>
                   </TableRow>
@@ -244,19 +244,19 @@ const Musica = () => {
                 !error &&
                 conciertosFiltrados.map((c, i) => (
                   <TableRow key={i} className="border-border/40">
-                    <TableCell className="font-medium text-foreground whitespace-nowrap">
+                    <TableCell className="px-2 font-medium text-foreground whitespace-nowrap md:px-4">
                       <span className="md:hidden">{formatFechaCorta(c.fecha)}</span>
                       <span className="hidden md:inline">{formatFecha(c.fecha)}</span>
                     </TableCell>
-                    <TableCell className="text-foreground">
-                      <div className="md:hidden">
+                    <TableCell className="min-w-0 px-2 text-foreground md:px-4">
+                      <div className="min-w-0 md:hidden">
                         {ciudadFiltro === "todas" && (
                           <Badge variant="outline" className="text-[10px] px-1.5 py-0 mb-1">
                             {c.ciudad || "Madrid"}
                           </Badge>
                         )}
-                        <div>{c.artista}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{c.sala}</div>
+                        <div className="break-words text-sm leading-tight">{c.artista}</div>
+                        <div className="mt-0.5 break-words text-xs leading-tight text-muted-foreground">{c.sala}</div>
                       </div>
                       <div className="hidden md:block">{c.artista}</div>
                     </TableCell>
@@ -266,7 +266,7 @@ const Musica = () => {
                         {c.ciudad || "Madrid"}
                       </TableCell>
                     )}
-                    <TableCell className="text-right text-muted-foreground whitespace-nowrap">
+                    <TableCell className="px-2 text-right text-xs text-muted-foreground whitespace-nowrap md:px-4 md:text-sm">
                       {c.precio || "—"}
                     </TableCell>
                   </TableRow>
