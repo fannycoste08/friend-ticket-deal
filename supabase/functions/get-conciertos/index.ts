@@ -10,6 +10,7 @@ const SPREADSHEET_ID = "1bCX2DCK8dBlxhxWHG6ST7QxaYp5kHjj_qoNwE_rTh8g";
 const SHEETS: { range: string; ciudad: string }[] = [
   { range: "2026!A2:D1000", ciudad: "Madrid" },
   { range: "Barcelona 2026-2027!A2:D1000", ciudad: "Barcelona" },
+  { range: "2027!A2:D1000", ciudad: "Madrid" },
 ];
 
 type Concierto = { fecha: string; artista: string; sala: string; precio: string; ciudad: string };
