@@ -9,7 +9,7 @@ const LegalNotice = () => {
               <h2 className="text-xl font-semibold mb-3 text-foreground">1. Identificación</h2>
               <p className="text-muted-foreground">
                 En cumplimiento de lo establecido en la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la
-                Información y de Comercio Electrónico (LSSI-CE), se informa que el titular del sitio web
+                Información y de Comercio Electrónico (LSSI-CE), se informa que
                 el titular del sitio web www.trusticket.com es:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
