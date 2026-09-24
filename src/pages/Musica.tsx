@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Music2, RefreshCw, Disc3, ChevronLeft, ChevronRight } from "lucide-react";
+import { Music2, RefreshCw, Disc3, ChevronLeft, ChevronRight, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Concierto {
@@ -216,11 +216,11 @@ const Musica = () => {
       </div>
 
       <nav className="sticky top-16 z-20 mb-10 flex justify-center">
-        <div className="inline-flex gap-1 rounded-full border border-border/40 bg-background/80 p-1 backdrop-blur">
+        <div className="inline-flex flex-wrap justify-center gap-2 rounded-2xl border border-border/40 bg-background/80 p-2 shadow-lg backdrop-blur">
           {[
-            { id: "playlist", label: "Playlist" },
-            { id: "conciertos", label: "Conciertos" },
-            { id: "discos", label: "Discos" },
+            { id: "playlist", label: "Playlist", icon: Music2 },
+            { id: "conciertos", label: "Conciertos", icon: CalendarDays },
+            { id: "discos", label: "Discos", icon: Disc3 },
           ].map((l) => (
             <a
               key={l.id}
@@ -229,8 +229,9 @@ const Musica = () => {
                 e.preventDefault();
                 document.getElementById(l.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              className="inline-flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/15 px-4 py-2 text-sm font-semibold text-foreground transition-all hover:border-primary/70 hover:bg-primary/30 hover:shadow-[0_0_16px_hsl(var(--primary)/0.4)]"
             >
+              <l.icon className="h-4 w-4 text-primary" />
               {l.label}
             </a>
           ))}
