@@ -8,7 +8,38 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_sheets/v4";
 const SPREADSHEET_ID = "14A0DFrTEFb5kUfx1pI0sRzTDZoR_MsDnuGt6crWn5YI";
 const RANGE = "Discos!A2:J2000";
 
-type Disco = { fecha: string; artista: string; disco: string; sello: string; formato: string };
+type Disco = { fecha: string; artista: string; disco: string; sello: string; formato: string; portada?: string | null };
+
+// Carátulas: caché larga (12 h) por artista+disco
+const portadas = new Map<string, { url: string | null; at: number }>();
+const PORTADA_TTL = 12 * 60 * 60 * 1000;
+const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+
+async function buscarPortada(artista: string, disco: string): Promise<string | null> {
+  if (!artista || !disco) return null;
+  const key = `${norm(artista)}|${norm(disco)}`;
+  const hit = portadas.get(key);
+  if (hit && Date.now() - hit.at < PORTADA_TTL) return hit.url;
+  let url: string | null = null;
+  try {
+    const q = encodeURIComponent(`${artista} ${disco}`);
+    const r = await fetch(`https://itunes.apple.com/search?term=${q}&entity=album&limit=10&country=ES`);
+    if (r.ok) {
+      const j = await r.json();
+      const na = norm(artista), nd = norm(disco);
+      const res = (j.results ?? []) as { artistName?: string; collectionName?: string; artworkUrl100?: string }[];
+      const match = res.find((x) => {
+        const xa = norm(x.artistName ?? ""), xd = norm(x.collectionName ?? "");
+        return (xa.includes(na) || na.includes(xa)) && (xd.includes(nd) || nd.includes(xd)) && xa && xd;
+      });
+      if (match?.artworkUrl100) url = match.artworkUrl100.replace("100x100bb", "300x300bb");
+    }
+  } catch (e) {
+    console.error("portada error:", e instanceof Error ? e.message : e);
+  }
+  portadas.set(key, { url, at: Date.now() });
+  return url;
+}
 
 let cache: { data: Disco[]; at: number } | null = null;
 const TTL_MS = 60_000;
@@ -77,6 +108,8 @@ Deno.serve(async (req) => {
         formato: (r[4] ?? "").trim(),
       });
     }
+
+    await Promise.all(discos.map(async (d) => { d.portada = await buscarPortada(d.artista, d.disco); }));
 
     cache = { data: discos, at: Date.now() };
     return jsonResponse({ discos }, 200);
