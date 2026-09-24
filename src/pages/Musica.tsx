@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Music2, RefreshCw } from "lucide-react";
+import { Music2, RefreshCw, Disc3, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Concierto {
@@ -49,7 +49,48 @@ const formatFechaCorta = (s: string) => {
   });
 };
 
+interface Disco {
+  fecha: string;
+  artista: string;
+  disco: string;
+  sello: string;
+  formato: string;
+}
+
+const PAGE_SIZE = 15;
+const DISCOS_STEP = 12;
+
+const formatFechaGrupo = (s: string) => {
+  const d = parseFecha(s);
+  if (!d) return s;
+  const txt = d.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "short" });
+  return txt.charAt(0).toUpperCase() + txt.slice(1);
+};
+
 const Musica = () => {
+  const [discos, setDiscos] = useState<Disco[]>([]);
+  const [discosLoading, setDiscosLoading] = useState(true);
+  const [discosError, setDiscosError] = useState(false);
+  const [discosTab, setDiscosTab] = useState<"proximos" | "recientes">("proximos");
+  const [discosVisibles, setDiscosVisibles] = useState(DISCOS_STEP);
+  const [page, setPage] = useState(1);
+  const agendaRef = useRef<HTMLDivElement>(null);
+
+  const loadDiscos = async () => {
+    try {
+      setDiscosError(false);
+      const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/get-discos?ts=${Date.now()}`;
+      const res = await fetch(url, { cache: "no-store", headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setDiscos((data?.discos ?? []) as Disco[]);
+    } catch {
+      setDiscosError(true);
+    } finally {
+      setDiscosLoading(false);
+    }
+  };
+
   const [conciertos, setConciertos] = useState<Concierto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -97,12 +138,14 @@ const Musica = () => {
 
   useEffect(() => {
     load();
+    loadDiscos();
     // Auto-refresh when the user returns to the tab (at most once per minute)
     let lastLoad = Date.now();
     const onVisibility = () => {
       if (document.visibilityState === "visible" && Date.now() - lastLoad > 60_000) {
         lastLoad = Date.now();
         load();
+        loadDiscos();
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
@@ -118,6 +161,47 @@ const Musica = () => {
       ? conciertos
       : conciertos.filter((c) => (c.ciudad || "Madrid") === ciudadFiltro);
 
+  const totalPages = Math.max(1, Math.ceil(conciertosFiltrados.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const conciertosPagina = conciertosFiltrados.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const goToPage = (p: number) => {
+    setPage(p);
+    agendaRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const pageNumbers = (): (number | "…")[] => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const set = new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+    const nums = [...set].filter((n) => n >= 1 && n <= totalPages).sort((a, b) => a - b);
+    const out: (number | "…")[] = [];
+    nums.forEach((n, i) => {
+      if (i > 0 && n - (nums[i - 1] as number) > 1) out.push("…");
+      out.push(n);
+    });
+    return out;
+  };
+
+  // Discos: recientes (últimos 14 días) y próximos
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const hace14 = new Date(hoy);
+  hace14.setDate(hace14.getDate() - 14);
+  const discosConFecha = discos.map((d) => ({ ...d, _t: parseFecha(d.fecha)?.getTime() ?? null }));
+  const proximos = discosConFecha.filter((d) => d._t === null || d._t >= hoy.getTime()).sort((a, b) => (a._t ?? Infinity) - (b._t ?? Infinity));
+  const recientes = discosConFecha
+    .filter((d) => d._t !== null && d._t < hoy.getTime() && d._t >= hace14.getTime())
+    .sort((a, b) => (b._t ?? 0) - (a._t ?? 0));
+  const tabEfectiva = discosTab === "proximos" && proximos.length === 0 && recientes.length > 0 ? "recientes" : discosTab;
+  const listaDiscos = tabEfectiva === "proximos" ? proximos : recientes;
+  const discosMostrados = listaDiscos.slice(0, discosVisibles);
+  const grupos: { fecha: string; items: Disco[] }[] = [];
+  discosMostrados.forEach((d) => {
+    const last = grupos[grupos.length - 1];
+    if (last && last.fecha === d.fecha) last.items.push(d);
+    else grupos.push({ fecha: d.fecha, items: [d] });
+  });
+
   const tituloAgenda =
     ciudadFiltro === "todas" ? "Agenda de conciertos en Madrid y Barcelona" : `Agenda de conciertos en ${ciudadFiltro}`;
 
@@ -131,8 +215,30 @@ const Musica = () => {
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">Todo lo que le gusta a la gente de Trusticket</p>
       </div>
 
+      <nav className="sticky top-16 z-20 mb-10 flex justify-center">
+        <div className="inline-flex gap-1 rounded-full border border-border/40 bg-background/80 p-1 backdrop-blur">
+          {[
+            { id: "playlist", label: "Playlist" },
+            { id: "conciertos", label: "Conciertos" },
+            { id: "discos", label: "Discos" },
+          ].map((l) => (
+            <a
+              key={l.id}
+              href={`#${l.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById(l.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
       {/* Playlist del mes */}
-      <section className="mb-12 md:mb-16">
+      <section id="playlist" className="mb-12 md:mb-16 scroll-mt-32">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center rounded-2xl border border-border/40 bg-card/50 p-6 md:p-8">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 gradient-text">La playlist del mes</h2>
@@ -154,7 +260,7 @@ const Musica = () => {
       </section>
 
       {/* Conciertos */}
-      <section>
+      <section id="conciertos" ref={agendaRef} className="mb-12 md:mb-16 scroll-mt-32">
         <div className="flex flex-col gap-4 mb-5 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{tituloAgenda}</h2>
@@ -180,7 +286,7 @@ const Musica = () => {
                 key={c}
                 variant={ciudadFiltro === c ? "default" : "outline"}
                 size="sm"
-                onClick={() => setCiudadFiltro(c)}
+                onClick={() => { setCiudadFiltro(c); setPage(1); }}
                 className="rounded-full"
               >
                 {c === "todas" ? "Todas" : c}
@@ -242,7 +348,7 @@ const Musica = () => {
 
               {!loading &&
                 !error &&
-                conciertosFiltrados.map((c, i) => (
+                conciertosPagina.map((c, i) => (
                   <TableRow key={i} className="border-border/40">
                     <TableCell className="px-2 font-medium text-foreground whitespace-nowrap md:px-4">
                       <span className="md:hidden">{formatFechaCorta(c.fecha)}</span>
@@ -274,7 +380,107 @@ const Musica = () => {
             </TableBody>
           </Table>
         </div>
-        <p className="mt-3 text-xs text-muted-foreground text-center md:text-left">{"\n"}</p>
+        {!loading && !error && totalPages > 1 && (
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-1">
+            <Button variant="ghost" size="sm" disabled={currentPage === 1} onClick={() => goToPage(currentPage - 1)} aria-label="Página anterior">
+              <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Anterior</span>
+            </Button>
+            {pageNumbers().map((n, i) =>
+              n === "…" ? (
+                <span key={`e${i}`} className="px-2 text-muted-foreground">…</span>
+              ) : (
+                <Button
+                  key={n}
+                  variant={n === currentPage ? "default" : "ghost"}
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => goToPage(n)}
+                >
+                  {n}
+                </Button>
+              ),
+            )}
+            <Button variant="ghost" size="sm" disabled={currentPage === totalPages} onClick={() => goToPage(currentPage + 1)} aria-label="Página siguiente">
+              <span className="hidden sm:inline">Siguiente</span>
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
+      </section>
+
+      {/* Lanzamientos de discos */}
+      <section id="discos" className="scroll-mt-32">
+        <div className="mb-5">
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Lanzamientos de discos</h2>
+          <p className="text-muted-foreground text-sm mt-1">Lo que acaba de salir y lo que está por llegar.</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mb-5">
+          {([
+            { id: "proximos", label: `Próximos (${proximos.length})` },
+            { id: "recientes", label: `Recién salidos (${recientes.length})` },
+          ] as const).map((t) => (
+            <Button
+              key={t.id}
+              variant={tabEfectiva === t.id ? "default" : "outline"}
+              size="sm"
+              className="rounded-full"
+              onClick={() => { setDiscosTab(t.id); setDiscosVisibles(DISCOS_STEP); }}
+            >
+              {t.label}
+            </Button>
+          ))}
+        </div>
+
+        {discosLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-20 rounded-xl" />)}
+          </div>
+        )}
+
+        {!discosLoading && discosError && (
+          <p className="text-center text-muted-foreground py-10">No se pudieron cargar los lanzamientos. Inténtalo más tarde.</p>
+        )}
+
+        {!discosLoading && !discosError && listaDiscos.length === 0 && (
+          <p className="text-center text-muted-foreground py-10">No hay lanzamientos en esta sección.</p>
+        )}
+
+        {!discosLoading && !discosError && grupos.length > 0 && (
+          <div className="space-y-6">
+            {grupos.map((g, gi) => (
+              <div key={`${g.fecha}-${gi}`}>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-2">{formatFechaGrupo(g.fecha)}</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {g.items.map((d, i) => (
+                    <div key={i} className="flex items-start gap-3 rounded-xl border border-border/40 bg-card/50 p-4 min-w-0">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
+                        <Disc3 className="w-5 h-5 text-muted-foreground" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold text-foreground leading-tight break-words">{d.artista}</div>
+                        <div className="text-sm text-foreground/80 leading-tight break-words mt-0.5">{d.disco}</div>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                          {d.formato && <Badge variant="outline" className="text-[10px] px-1.5 py-0">{d.formato}</Badge>}
+                          {d.sello && <span className="text-xs text-muted-foreground break-words">{d.sello}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!discosLoading && !discosError && listaDiscos.length > discosVisibles && (
+          <div className="mt-6 flex justify-center">
+            <Button variant="outline" className="rounded-full" onClick={() => setDiscosVisibles((v) => v + DISCOS_STEP)}>
+              Ver más
+            </Button>
+          </div>
+        )}
       </section>
     </div>
   );
