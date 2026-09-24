@@ -55,6 +55,7 @@ interface Disco {
   disco: string;
   sello: string;
   formato: string;
+  portada?: string | null;
 }
 
 const PAGE_SIZE = 15;
@@ -456,9 +457,13 @@ const Musica = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {g.items.map((d, i) => (
                     <div key={i} className="flex items-start gap-3 rounded-xl border border-border/40 bg-card/50 p-4 min-w-0">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent">
-                        <Disc3 className="w-5 h-5 text-muted-foreground" />
-                      </div>
+                      {d.portada ? (
+                        <img src={d.portada} alt={`Portada de ${d.disco}`} loading="lazy" className="h-16 w-16 shrink-0 rounded-md object-cover bg-accent" />
+                      ) : (
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-md bg-accent">
+                          <Disc3 className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="font-semibold text-foreground leading-tight break-words">{d.artista}</div>
                         <div className="text-sm text-foreground/80 leading-tight break-words mt-0.5">{d.disco}</div>
