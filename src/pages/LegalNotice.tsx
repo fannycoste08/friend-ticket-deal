@@ -9,8 +9,8 @@ const LegalNotice = () => {
               <h2 className="text-xl font-semibold mb-3 text-foreground">1. Identificación</h2>
               <p className="text-muted-foreground">
                 En cumplimiento de lo establecido en la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la
-                Información y de Comercio Electrónico (LSSI-CE), se informa que el titular del sitio web
-                www.trusticket.com es:a:
+                Información y de Comercio Electrónico (LSSI-CE), se informa que
+                el titular del sitio web www.trusticket.com es:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
                 <li>Titular: Fanny Coste</li>
@@ -38,21 +38,37 @@ const LegalNotice = () => {
                 <li>No suplantar identidades ni crear perfiles falsos</li>
                 <li>No utilizar Trusticket para actividades comerciales no autorizadas</li>
                 <li>No interferir en el funcionamiento técnico de la web</li>
+                <li>No publicar entradas a un precio superior al precio original de compra, incluidos gastos de gestión</li>
+                <li>
+                  Comprobar que las entradas que publica son transferibles conforme a las condiciones establecidas por el
+                  organizador o la empresa de venta de entradas
+                </li>
+                <li>Ser mayor de 18 años para registrarse y utilizar la plataforma</li>
               </ul>
               <p className="text-muted-foreground mt-2">
                 Trusticket se reserva el derecho a limitar o suspender el acceso a aquellos usuarios que incumplan estas
                 condiciones.
               </p>
+              <p className="text-muted-foreground mt-2">
+                Cualquier usuario o tercero puede notificar contenidos que considere ilícitos o contrarios a estas
+                condiciones escribiendo a trusticketinfo@gmail.com. Las notificaciones serán revisadas y, en su caso, se
+                retirará el contenido correspondiente.
+              </p>
             </section>
             <section>
               <h2 className="text-xl font-semibold mb-3 text-foreground">4. Responsabilidad</h2>
               <p className="text-muted-foreground">
-                Trusticket actúa como intermediario entre compradores y vendedores. No nos hacemos responsables de:
+                Trusticket facilita el contacto entre usuarios, sin participar en las transacciones que estos puedan
+                acordar. No nos hacemos responsables de:
               </p>
               <ul className="list-disc list-inside text-muted-foreground space-y-1 mt-2">
                 <li>La autenticidad o validez de las entradas publicadas</li>
                 <li>Las transacciones realizadas entre usuarios</li>
                 <li>Los eventos cancelados o modificados por los organizadores</li>
+                <li>
+                  El cumplimiento por parte de los usuarios de las condiciones de transferencia establecidas por los
+                  organizadores o las empresas de venta de entradas
+                </li>
               </ul>
               <p className="text-muted-foreground mt-2">
                 Recomendamos verificar siempre la información antes de realizar cualquier transacción.Trusticket no
