@@ -72,7 +72,7 @@ const Musica = () => {
   const [discos, setDiscos] = useState<Disco[]>([]);
   const [discosLoading, setDiscosLoading] = useState(true);
   const [discosError, setDiscosError] = useState(false);
-  const [discosTab, setDiscosTab] = useState<"proximos" | "recientes">("proximos");
+  const [discosTab, setDiscosTab] = useState<"proximos" | "recientes">("recientes");
   const [discosVisibles, setDiscosVisibles] = useState(DISCOS_STEP);
   const [page, setPage] = useState(1);
   const agendaRef = useRef<HTMLDivElement>(null);
@@ -193,7 +193,7 @@ const Musica = () => {
   const recientes = discosConFecha
     .filter((d) => d._t !== null && d._t < hoy.getTime() && d._t >= hace14.getTime())
     .sort((a, b) => (b._t ?? 0) - (a._t ?? 0));
-  const tabEfectiva = discosTab === "proximos" && proximos.length === 0 && recientes.length > 0 ? "recientes" : discosTab;
+  const tabEfectiva = discosTab === "recientes" && recientes.length === 0 && proximos.length > 0 ? "proximos" : discosTab;
   const listaDiscos = tabEfectiva === "proximos" ? proximos : recientes;
   const discosMostrados = listaDiscos.slice(0, discosVisibles);
   const grupos: { fecha: string; items: Disco[] }[] = [];
@@ -420,8 +420,8 @@ const Musica = () => {
 
         <div className="flex flex-wrap gap-2 mb-5">
           {([
-            { id: "proximos", label: `Próximos (${proximos.length})` },
             { id: "recientes", label: `Recién salidos (${recientes.length})` },
+            { id: "proximos", label: `Próximos (${proximos.length})` },
           ] as const).map((t) => (
             <Button
               key={t.id}
