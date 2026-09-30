@@ -48,6 +48,8 @@ interface MyWantedTicket {
   artist: string;
   city: string;
   event_date: string;
+  quantity?: number;
+  status?: string;
   email_notifications: boolean;
 }
 
