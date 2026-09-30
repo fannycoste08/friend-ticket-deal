@@ -111,8 +111,8 @@ var list_wanted_tickets_default = defineTool2({
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     const active = (data ?? []).filter((row) => row.status !== "found");
     return {
-      content: [{ type: "text", text: JSON.stringify(data ?? [], null, 2) }],
-      structuredContent: { wanted_tickets: data ?? [] }
+      content: [{ type: "text", text: JSON.stringify(active, null, 2) }],
+      structuredContent: { wanted_tickets: active }
     };
   }
 });
