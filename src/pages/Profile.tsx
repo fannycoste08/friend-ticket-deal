@@ -48,6 +48,8 @@ interface MyWantedTicket {
   artist: string;
   city: string;
   event_date: string;
+  quantity?: number;
+  status?: string;
   email_notifications: boolean;
 }
 
@@ -283,6 +285,26 @@ const Profile = () => {
       return;
     }
     toast.success("Búsqueda eliminada");
+    loadWantedTickets();
+  };
+
+  const handleMarkWantedFound = async (id: string) => {
+    const { error } = await supabase.from("wanted_tickets").update({ status: "found" }).eq("id", id);
+    if (error) {
+      toast.error("Error al marcar como encontrada");
+      return;
+    }
+    toast.success("Búsqueda marcada como encontrada");
+    loadWantedTickets();
+  };
+
+  const handleMarkWantedActive = async (id: string) => {
+    const { error } = await supabase.from("wanted_tickets").update({ status: "active" }).eq("id", id);
+    if (error) {
+      toast.error("Error al volver a activar la búsqueda");
+      return;
+    }
+    toast.success("Búsqueda activa de nuevo");
     loadWantedTickets();
   };
 
@@ -693,7 +715,7 @@ const Profile = () => {
           <p className="text-sm text-muted-foreground mt-1">
             {ticketsTab === "selling"
               ? `${availableTicketsCount} en venta`
-              : `${wantedTickets.length} búsquedas activas`}
+              : `${wantedTickets.filter((t) => t.status !== "found").length} búsquedas activas`}
           </p>
         </div>
         {ticketsTab === "selling" ? (
@@ -746,6 +768,8 @@ const Profile = () => {
                   ticket={ticket}
                   onEdit={() => setEditingWantedTicket(ticket)}
                   onDelete={() => handleDeleteWantedTicket(ticket.id)}
+                  onMarkAsFound={() => handleMarkWantedFound(ticket.id)}
+                  onMarkAsActive={() => handleMarkWantedActive(ticket.id)}
                 />
               ))}
             </div>

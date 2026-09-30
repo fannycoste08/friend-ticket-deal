@@ -536,6 +536,7 @@ export type Database = {
           event_date: string
           id: string
           quantity: number
+          status: string
           updated_at: string
           user_id: string
         }
@@ -547,6 +548,7 @@ export type Database = {
           event_date: string
           id?: string
           quantity?: number
+          status?: string
           updated_at?: string
           user_id: string
         }
@@ -558,6 +560,7 @@ export type Database = {
           event_date?: string
           id?: string
           quantity?: number
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -665,6 +668,7 @@ export type Database = {
           quantity: number
           seeker_email: string
           seeker_name: string
+          status: string
           user_id: string
         }[]
       }

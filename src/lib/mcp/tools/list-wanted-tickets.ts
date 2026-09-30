@@ -20,7 +20,7 @@ export default defineTool({
     const supabase = supabaseForUser(ctx);
     let query = supabase
       .from("wanted_tickets")
-      .select("id, artist, city, event_date, quantity, created_at")
+      .select("id, user_id, artist, city, event_date, quantity, status, created_at")
       .gte("event_date", new Date().toISOString().slice(0, 10))
       .order("event_date", { ascending: true })
       .limit(limit ?? 20);
@@ -29,9 +29,10 @@ export default defineTool({
 
     const { data, error } = await query;
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    const active = (data ?? []).filter((row) => row.status !== "found");
     return {
-      content: [{ type: "text", text: JSON.stringify(data ?? [], null, 2) }],
-      structuredContent: { wanted_tickets: data ?? [] },
+      content: [{ type: "text", text: JSON.stringify(active, null, 2) }],
+      structuredContent: { wanted_tickets: active },
     };
   },
 });

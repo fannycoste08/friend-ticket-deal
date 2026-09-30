@@ -34,7 +34,7 @@ export default defineTool({
         event_date: input.event_date,
         email_notifications: input.email_notifications ?? true,
       })
-      .select("id, artist, city, event_date, quantity, email_notifications")
+      .select("id, artist, city, event_date, quantity, status, email_notifications")
       .single();
 
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
