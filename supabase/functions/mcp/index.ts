@@ -104,11 +104,12 @@ var list_wanted_tickets_default = defineTool2({
       return { content: [{ type: "text", text: "No autenticado" }], isError: true };
     }
     const supabase = supabaseForUser(ctx);
-    let query = supabase.from("wanted_tickets").select("id, user_id, artist, city, event_date, quantity, status, created_at").ne("status", "found").gte("event_date", (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)).order("event_date", { ascending: true }).limit(limit ?? 20);
+    let query = supabase.from("wanted_tickets").select("id, user_id, artist, city, event_date, quantity, status, created_at").gte("event_date", (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)).order("event_date", { ascending: true }).limit(limit ?? 20);
     if (artist) query = query.ilike("artist", `%${artist}%`);
     if (city) query = query.ilike("city", `%${city}%`);
     const { data, error } = await query;
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    const active = (data ?? []).filter((row) => row.status !== "found");
     return {
       content: [{ type: "text", text: JSON.stringify(data ?? [], null, 2) }],
       structuredContent: { wanted_tickets: data ?? [] }
