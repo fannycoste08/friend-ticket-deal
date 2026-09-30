@@ -33,6 +33,7 @@ interface WantedRow {
   city: string;
   event_date: string;
   quantity: number;
+  status: string;
   created_at: string;
 }
 
@@ -198,6 +199,7 @@ const AdminTickets = () => {
                 <th className="p-2 font-medium">Ciudad</th>
                 <th className="p-2 font-medium">Fecha</th>
                 <th className="p-2 font-medium">Cant.</th>
+                <th className="p-2 font-medium">Estado</th>
                 <th className="p-2 font-medium">Usuario</th>
               </tr>
             </thead>
@@ -209,6 +211,11 @@ const AdminTickets = () => {
                   <td className="p-2">{fmt(t.event_date)}</td>
                   <td className="p-2">{t.quantity}</td>
                   <td className="p-2">
+                    <Badge variant={t.status === 'found' ? 'secondary' : 'outline'}>
+                      {t.status === 'found' ? 'Encontrada' : 'Activa'}
+                    </Badge>
+                  </td>
+                  <td className="p-2">
                     <div className="truncate max-w-[180px]" title={t.seeker_email}>
                       {t.seeker_name}
                       <span className="block text-muted-foreground">{t.seeker_email}</span>
@@ -218,7 +225,7 @@ const AdminTickets = () => {
               ))}
               {filteredWanted.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-6 text-center text-muted-foreground">
+                  <td colSpan={6} className="p-6 text-center text-muted-foreground">
                     No hay búsquedas con estos filtros
                   </td>
                 </tr>

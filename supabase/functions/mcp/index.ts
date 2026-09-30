@@ -104,7 +104,7 @@ var list_wanted_tickets_default = defineTool2({
       return { content: [{ type: "text", text: "No autenticado" }], isError: true };
     }
     const supabase = supabaseForUser(ctx);
-    let query = supabase.from("wanted_tickets").select("id, artist, city, event_date, quantity, created_at").gte("event_date", (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)).order("event_date", { ascending: true }).limit(limit ?? 20);
+    let query = supabase.from("wanted_tickets").select("id, user_id, artist, city, event_date, quantity, status, created_at").ne("status", "found").gte("event_date", (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)).order("event_date", { ascending: true }).limit(limit ?? 20);
     if (artist) query = query.ilike("artist", `%${artist}%`);
     if (city) query = query.ilike("city", `%${city}%`);
     const { data, error } = await query;
@@ -137,7 +137,7 @@ var list_my_tickets_default = defineTool3({
     if (status && status !== "all") ticketQuery = ticketQuery.eq("status", status);
     const [tickets, wanted] = await Promise.all([
       ticketQuery,
-      supabase.from("wanted_tickets").select("id, artist, city, event_date").eq("user_id", userId).order("event_date", { ascending: true })
+      supabase.from("wanted_tickets").select("id, artist, city, event_date, quantity, status").eq("user_id", userId).order("event_date", { ascending: true })
     ]);
     const error = tickets.error ?? wanted.error;
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
@@ -219,7 +219,7 @@ var create_wanted_ticket_default = defineTool5({
       quantity: input.quantity ?? 1,
       event_date: input.event_date,
       email_notifications: input.email_notifications ?? true
-    }).select("id, artist, city, event_date, quantity, email_notifications").single();
+    }).select("id, artist, city, event_date, quantity, status, email_notifications").single();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: `B\xFAsqueda publicada: ${JSON.stringify(data)}` }],
@@ -260,13 +260,45 @@ var update_ticket_status_default = defineTool6({
   }
 });
 
+// src/lib/mcp/tools/update-wanted-ticket-status.ts
+import { defineTool as defineTool7 } from "npm:@lovable.dev/mcp-js@0.26.1";
+import { z as z7 } from "npm:zod@^3.25.76";
+var update_wanted_ticket_status_default = defineTool7({
+  name: "update_wanted_ticket_status",
+  title: "Marcar b\xFAsqueda como encontrada o activa",
+  description: "Cambia el estado de una b\xFAsqueda propia entre 'active' (buscando) y 'found' (encontrada). Solo afecta a b\xFAsquedas del propio usuario.",
+  inputSchema: {
+    wanted_ticket_id: z7.string().uuid().describe("ID de la b\xFAsqueda a actualizar."),
+    status: z7.enum(["active", "found"]).describe("Nuevo estado de la b\xFAsqueda.")
+  },
+  annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+  handler: async ({ wanted_ticket_id, status }, ctx) => {
+    if (!ctx.isAuthenticated()) {
+      return { content: [{ type: "text", text: "No autenticado" }], isError: true };
+    }
+    const supabase = supabaseForUser(ctx);
+    const { data, error } = await supabase.from("wanted_tickets").update({ status }).eq("id", wanted_ticket_id).eq("user_id", ctx.getUserId()).select("id, artist, status").maybeSingle();
+    if (error) return { content: [{ type: "text", text: error.message }], isError: true };
+    if (!data) {
+      return {
+        content: [{ type: "text", text: "No se encontr\xF3 una b\xFAsqueda propia con ese ID." }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: `Estado actualizado: ${JSON.stringify(data)}` }],
+      structuredContent: { wanted_ticket: data }
+    };
+  }
+});
+
 // src/lib/mcp/index.ts
 var projectRef = "ystnsszlaqhwysgptysd";
 var mcp_default = defineMcp({
   name: "trusticket",
   title: "Trusticket",
   version: "0.1.0",
-  instructions: "Herramientas de Trusticket, la red de confianza para comprar y vender entradas de conciertos entre amigos. Usa `list_feed_tickets` para ver entradas a la venta en la red del usuario, `list_wanted_tickets` para ver qu\xE9 busca su red, `list_my_tickets` para sus propias entradas y b\xFAsquedas, `create_ticket` y `create_wanted_ticket` para publicar, y `update_ticket_status` para marcar una entrada como vendida o volver a ponerla en venta. El contacto entre usuarios es siempre por email dentro de la aplicaci\xF3n; no existe mensajer\xEDa interna.",
+  instructions: "Herramientas de Trusticket, la red de confianza para comprar y vender entradas de conciertos entre amigos. Usa `list_feed_tickets` para ver entradas a la venta en la red del usuario, `list_wanted_tickets` para ver qu\xE9 busca su red, `list_my_tickets` para sus propias entradas y b\xFAsquedas, `create_ticket` y `create_wanted_ticket` para publicar, `update_ticket_status` para marcar una entrada como vendida o volver a ponerla en venta, y `update_wanted_ticket_status` para marcar una b\xFAsqueda como encontrada o volver a activarla. El contacto entre usuarios es siempre por email dentro de la aplicaci\xF3n; no existe mensajer\xEDa interna.",
   auth: auth.oauth.issuer({
     issuer: `https://${projectRef}.supabase.co/auth/v1`,
     acceptedAudiences: "authenticated"
@@ -277,7 +309,8 @@ var mcp_default = defineMcp({
     list_my_tickets_default,
     create_ticket_default,
     create_wanted_ticket_default,
-    update_ticket_status_default
+    update_ticket_status_default,
+    update_wanted_ticket_status_default
   ]
 });
 

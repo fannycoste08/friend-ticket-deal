@@ -33,7 +33,7 @@ export default defineTool({
       ticketQuery,
       supabase
         .from("wanted_tickets")
-        .select("id, artist, city, event_date")
+        .select("id, artist, city, event_date, quantity, status")
         .eq("user_id", userId)
         .order("event_date", { ascending: true }),
     ]);

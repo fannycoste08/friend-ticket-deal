@@ -35,6 +35,7 @@ export const WantedTicketCard = ({
 }: WantedTicketCardProps) => {
   const navigate = useNavigate();
   const isMyTicket = currentUserId === ticket.user_id;
+  const isFound = ticket.status === "found";
 
   const getNetworkLabel = () => {
     if (!networkDegree) return null;
@@ -54,7 +55,7 @@ export const WantedTicketCard = ({
   const networkLabel = getNetworkLabel();
 
   return (
-    <div className="bg-card rounded-2xl border border-dashed border-accent/30 p-3 md:p-6 hover-glow group transition-all duration-300">
+    <div className={`bg-card rounded-2xl border border-dashed border-accent/30 p-3 md:p-6 hover-glow group transition-all duration-300 ${isFound ? "opacity-70" : ""}`}>
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex-1 min-w-0">
           <h3 className="text-[15px] md:text-xl font-bold text-foreground tracking-tight mb-1 group-hover:text-accent transition-colors">
@@ -74,6 +75,11 @@ export const WantedTicketCard = ({
             </div>
           </div>
         </div>
+        {isFound && (
+          <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20 shrink-0">
+            Encontrada
+          </Badge>
+        )}
       </div>
 
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 flex-wrap">
@@ -100,7 +106,11 @@ export const WantedTicketCard = ({
         )}
       </div>
 
-      {isMyTicket ? (
+      {isFound ? (
+        <Button variant="outline" className="w-full" disabled>
+          Encontrada
+        </Button>
+      ) : isMyTicket ? (
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={onEdit} className="flex-1">
             <Pencil className="w-3 h-3 mr-1" />

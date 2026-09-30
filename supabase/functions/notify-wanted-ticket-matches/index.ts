@@ -163,7 +163,8 @@ const handler = async (req: Request): Promise<Response> => {
       .from('wanted_tickets')
       .select('id, user_id, artist, profiles!wanted_tickets_user_id_fkey(name, email)')
       .in('user_id', networkUserIds)
-      .eq('email_notifications', true);
+      .eq('email_notifications', true)
+      .ne('status', 'found');
 
     if (wantedError) {
       console.error('Error fetching wanted tickets:', wantedError);
