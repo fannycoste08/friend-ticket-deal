@@ -69,10 +69,12 @@ const Feed = () => {
   const [isNarrow, setIsNarrow] = useState(false);
 
   const visibleSaleCount = tickets.filter(
-    (t) => searchQuery === "" || t.artist.toLowerCase().includes(searchQuery.toLowerCase())
+    (t) => t.status !== "sold" &&
+      (searchQuery === "" || t.artist.toLowerCase().includes(searchQuery.toLowerCase()))
   ).length;
   const visibleWantedCount = wantedTickets.filter(
-    (t) => searchQuery === "" || t.artist.toLowerCase().includes(searchQuery.toLowerCase())
+    (t) => t.status !== "found" &&
+      (searchQuery === "" || t.artist.toLowerCase().includes(searchQuery.toLowerCase()))
   ).length;
 
   useEffect(() => {

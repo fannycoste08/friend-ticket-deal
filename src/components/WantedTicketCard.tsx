@@ -106,11 +106,7 @@ export const WantedTicketCard = ({
         )}
       </div>
 
-      {isFound ? (
-        <Button variant="outline" className="w-full" disabled>
-          Encontrada
-        </Button>
-      ) : isMyTicket ? (
+      {isFound ? null : isMyTicket ? (
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={onEdit} className="flex-1">
             <Pencil className="w-3 h-3 mr-1" />
