@@ -713,7 +713,7 @@ const Profile = () => {
           <p className="text-sm text-muted-foreground mt-1">
             {ticketsTab === "selling"
               ? `${availableTicketsCount} en venta`
-              : `${wantedTickets.length} búsquedas activas`}
+              : `${wantedTickets.filter((t) => t.status !== "found").length} búsquedas activas`}
           </p>
         </div>
         {ticketsTab === "selling" ? (
