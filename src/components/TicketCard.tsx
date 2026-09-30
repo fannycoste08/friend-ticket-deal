@@ -122,11 +122,7 @@ export const TicketCard = ({
         <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{ticket.description}</p>
       )}
 
-      {isSold ? (
-        <Button variant="outline" className="w-full" disabled>
-          Vendida
-        </Button>
-      ) : isMyTicket ? (
+      {isSold ? null : isMyTicket ? (
         <Button variant="outline" className="w-full" disabled>
           Tu entrada
         </Button>

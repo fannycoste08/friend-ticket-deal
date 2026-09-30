@@ -524,7 +524,7 @@ const Profile = () => {
             <p className="text-xs text-muted-foreground mt-0.5">En venta</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{wantedTickets.length}</p>
+            <p className="text-2xl font-bold text-foreground">{wantedTickets.filter((t) => t.status !== "found").length}</p>
             <p className="text-xs text-muted-foreground mt-0.5">Buscando</p>
           </div>
         </div>
