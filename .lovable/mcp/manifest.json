@@ -275,6 +275,42 @@
           "$schema": "http://json-schema.org/draft-07/schema#"
         },
         "outputSchema": null
+      },
+      {
+        "name": "update_wanted_ticket_status",
+        "title": "Marcar búsqueda como encontrada o activa",
+        "description": "Cambia el estado de una búsqueda propia entre 'active' (buscando) y 'found' (encontrada). Solo afecta a búsquedas del propio usuario.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "wanted_ticket_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID de la búsqueda a actualizar."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "active",
+                "found"
+              ],
+              "description": "Nuevo estado de la búsqueda."
+            }
+          },
+          "required": [
+            "wanted_ticket_id",
+            "status"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
       }
     ]
   }
