@@ -12,6 +12,7 @@ interface WantedTicketCardProps {
     city: string;
     event_date: string;
     quantity?: number;
+    status?: string;
     seeker_name: string;
     user_id: string;
   };
